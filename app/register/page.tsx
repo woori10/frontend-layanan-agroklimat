@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { getUserFromToken } from "@/lib/auth";
+import { User, Mail, Phone, Lock } from "lucide-react";
+import Image from "next/image";
+import logo from "../../public/images/logo_brmp.svg";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -98,39 +101,41 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-100 px-4 py-12 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 sm:px-6 lg:px-8">
-      {/* Background patterns */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <svg
-          className="absolute left-[max(50%,25rem)] top-0 h-[64rem] w-[128rem] -translate-x-1/2 stroke-emerald-200/30 [mask-image:radial-gradient(64rem_64rem_at_top,white,transparent)] dark:stroke-emerald-950/20"
-          aria-hidden="true"
-        >
-          <defs>
-            <pattern
-              id="grid-pattern"
-              width={200}
-              height={200}
-              x="50%"
-              y={-1}
-              patternUnits="userSpaceOnUse"
-            >
-              <path d="M100 200V.5M.5 .5H200" fill="none" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" strokeWidth={0} fill="url(#grid-pattern)" />
-        </svg>
+    <div className="relative flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+      {/* Background image */}
+      <div className="absolute inset-0 -z-10">
+        <Image
+          src="/images/bg_kantor.webp"
+          alt="Background Kantor"
+          fill
+          className="object-cover object-center"
+          priority
+        />
+        {/* Frosted glass overlay to ensure readability */}
+        <div className="absolute inset-0" />
       </div>
 
-      <div className="w-full max-w-md space-y-8">
+      <div className="w-full max-w-md space-y-6">
         <div className="flex flex-col items-center text-center">
-          <h2 className="mt-6 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Buat Akun Baru
-          </h2>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            Silahkan lengkapi data untuk mendaftar ke Layanan Portal Agroklimat</p>
+          <div className="flex flex-col items-center text-center">
+            {/* Logo / Icon */}
+            <div className="flex h-16 w-16 items-center justify-center">
+              <Image
+                src="/images/logo_brmp.svg"
+                alt="Logo BRMP"
+                width={56}
+                height={56}
+                priority
+              />
+            </div>
+            <h2 className="mt-4 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+              Buat Akun Baru
+            </h2>
+            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+              Silahkan lengkapi data untuk mendaftar ke Layanan Portal Agroklimat</p>
+          </div>
         </div>
-
-        <div className="rounded-2xl border-t-4 border-t-[oklch(44.8%_0.119_151.328)] bg-white/90 p-8 shadow-xl backdrop-blur-md dark:border-zinc-800/80 dark:bg-zinc-900/90 sm:p-10">
+        <div className="rounded-2xl border-t-4 border-t-[var(--green-color)] bg-white/90 p-8 shadow-xl backdrop-blur-md dark:border-zinc-800/80 dark:bg-zinc-900/90 sm:p-10">
           <form className="space-y-5" onSubmit={handleRegister}>
             {error && (
               <div className="rounded-lg bg-red-50 p-4 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-400 border border-red-200 dark:border-red-900/50 flex items-center gap-2">
@@ -176,16 +181,21 @@ export default function RegisterPage() {
                 >
                   Nama Lengkap
                 </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder-zinc-600 dark:focus:border-emerald-500"
-                  placeholder="Nama Lengkap Anda"
-                />
+                <div className="relative mt-1">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <User className="h-5 w-5 text-zinc-400 dark:text-zinc-500" />
+                  </div>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="block w-full rounded-lg border border-zinc-300 bg-white pl-10 pr-3 py-2 text-zinc-900 placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder-zinc-600 dark:focus:border-emerald-500"
+                    placeholder="Nama Lengkap Anda"
+                  />
+                </div>
               </div>
 
               <div>
@@ -195,17 +205,22 @@ export default function RegisterPage() {
                 >
                   Email
                 </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder-zinc-600 dark:focus:border-emerald-500"
-                  placeholder="anda@email.com"
-                />
+                <div className="relative mt-1">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <Mail className="h-5 w-5 text-zinc-400 dark:text-zinc-500" />
+                  </div>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="block w-full rounded-lg border border-zinc-300 bg-white pl-10 pr-3 py-2 text-zinc-900 placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder-zinc-600 dark:focus:border-emerald-500"
+                    placeholder="anda@email.com"
+                  />
+                </div>
               </div>
               <div>
                 <label
@@ -214,17 +229,22 @@ export default function RegisterPage() {
                 >
                   Nomor Telepon
                 </label>
-                <input
-                  id="phone"
-                  name="phone"
-                  type="text"
-                  autoComplete="phone"
-                  required
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder-zinc-600 dark:focus:border-emerald-500"
-                  placeholder="08123456789"
-                />
+                <div className="relative mt-1">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <Phone className="h-5 w-5 text-zinc-400 dark:text-zinc-500" />
+                  </div>
+                  <input
+                    id="phone"
+                    name="phone"
+                    type="text"
+                    autoComplete="phone"
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="block w-full rounded-lg border border-zinc-300 bg-white pl-10 pr-3 py-2 text-zinc-900 placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder-zinc-600 dark:focus:border-emerald-500"
+                    placeholder="08123456789"
+                  />
+                </div>
               </div>
 
               <div>
@@ -234,16 +254,21 @@ export default function RegisterPage() {
                 >
                   Kata Sandi
                 </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder-zinc-600 dark:focus:border-emerald-500"
-                  placeholder="•••••••• (Min. 6 karakter)"
-                />
+                <div className="relative mt-1">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <Lock className="h-5 w-5 text-zinc-400 dark:text-zinc-500" />
+                  </div>
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="block w-full rounded-lg border border-zinc-300 bg-white pl-10 pr-3 py-2 text-zinc-900 placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder-zinc-600 dark:focus:border-emerald-500"
+                    placeholder="•••••••• (Min. 6 karakter)"
+                  />
+                </div>
               </div>
             </div>
 
@@ -276,7 +301,7 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading || success}
-                className="flex w-full justify-center rounded-lg bg-[oklch(44.8%_0.119_151.328)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                className="flex w-full justify-center rounded-lg bg-[var(--green-color)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
                 {loading ? (
                   <svg
@@ -300,7 +325,7 @@ export default function RegisterPage() {
                     />
                   </svg>
                 ) : (
-                  "Daftar Akun"
+                  "Daftar Sekarang"
                 )}
               </button>
             </div>
@@ -310,7 +335,7 @@ export default function RegisterPage() {
             <span className="text-zinc-500 dark:text-zinc-400">Sudah memiliki akun? </span>
             <Link
               href="/login"
-              className="font-medium text-[oklch(44.8%_0.119_151.328)] hover:text-emerald-500 dark:text-emerald-400"
+              className="font-semibold text-[var(--foreground)] hover:text-[var(--green-color)] dark:text-emerald-400"
             >
               Masuk
             </Link>

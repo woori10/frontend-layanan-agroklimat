@@ -3,13 +3,13 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { getUserFromToken, getRedirectPath } from "@/lib/auth";
-import { Mail, Lock } from "lucide-react";
+import { getUserFromToken, loginStaff, saveAuthSession, getRedirectPath } from "@/lib/auth";
+import { IdCard, Lock } from "lucide-react";
 import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [nip, setNIP] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,80 +19,41 @@ export default function LoginPage() {
     const token = localStorage.getItem("agro_token");
     if (token) {
       const user = getUserFromToken();
-      if (user && user.role === "super_admin") {
-        router.push("/dashboard-admin");
-      } else {
-        router.push("/dashboard");
+      if (user) {
+        router.push(getRedirectPath(user.role));
       }
     }
   }, [router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("[Login] Form submitted");
     setError("");
     setLoading(true);
 
-    if (!email || !password) {
-      console.log("[Login] Empty email or password");
-      setError("Email dan password wajib diisi!");
+    if (!nip || !password) {
+      setError("NIP dan password wajib diisi!");
       setLoading(false);
       return;
     }
 
     if (password.length < 6) {
-      console.log("[Login] Password too short");
       setError("Password minimal harus 6 karakter!");
       setLoading(false);
       return;
     }
 
     try {
-      console.log("[Login] Sending POST request to backend with:", { email });
-      const response = await fetch("http://localhost:3000/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+      const data = await loginStaff({ nip, password });
 
-      console.log("[Login] Response status:", response.status);
-      const data = await response.json();
-      console.log("[Login] Response data:", data);
-
-      if (!response.ok) {
-        let errorMessage = "Login gagal!";
-        if (data.message) {
-          if (Array.isArray(data.message)) {
-            errorMessage = data.message.join(", ");
-          } else {
-            errorMessage = data.message;
-          }
-        }
-        console.log("[Login] API Error:", errorMessage);
-        throw new Error(errorMessage);
-      }
-
-      if (data.access_token) {
-        console.log("[Login] Saving token to localStorage");
-        localStorage.setItem("agro_token", data.access_token);
-        localStorage.setItem("agro_user_email", email);
-      }
+      saveAuthSession(data.access_token, nip, "nip");
 
       const user = getUserFromToken();
-      const redirectPath = user
-        ? (user.role === "publik" ? "/" : getRedirectPath(user.role))
-        : "/";
+      const redirectPath = user ? getRedirectPath(user.role) : "/coming-soon";
 
-      console.log(`[Login] Redirecting to ${redirectPath}`);
       router.push(redirectPath);
-    } catch (err: any) {
-      console.error("[Login] Exception caught:", err);
-      setError(err.message || "Terjadi kesalahan koneksi.");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Terjadi kesalahan koneksi.";
+      setError(errorMessage);
       setLoading(false);
     }
   };
@@ -115,14 +76,11 @@ export default function LoginPage() {
           <h2 className="mt-6 text-3xl font-semibold tracking-tight text-[var(--green-color)] dark:text-zinc-50">
             BRMP Agroklimat
           </h2>
-          {/* <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            Sistem Layanan Cuaca Pertanian & Monitoring Lingkungan
-          </p> */}
         </div>
 
         <div className="rounded-2xl border-t-4 border-t-[var(--green-color)] bg-white/90 p-8 shadow-xl backdrop-blur-md dark:border-zinc-800/80 dark:bg-zinc-900/90 sm:p-10">
           <h3 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">
-            Login Pengunjung
+            Login Pegawai
           </h3>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
             Silahkan masuk menggunakan akun yang telah terdaftar.
@@ -150,25 +108,25 @@ export default function LoginPage() {
             <div className="space-y-4">
               <div>
                 <label
-                  htmlFor="email"
+                  htmlFor="nip"
                   className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300"
                 >
-                  Email
+                  NIP
                 </label>
                 <div className="relative mt-1">
                   <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <Mail className="h-5 w-5 text-zinc-400 dark:text-zinc-500" />
+                    <IdCard className="h-5 w-5 text-zinc-400 dark:text-zinc-500" />
                   </div>
                   <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
+                    id="nip"
+                    name="nip"
+                    type="text"
+                    autoComplete="nip"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={nip}
+                    onChange={(e) => setNIP(e.target.value)}
                     className="block w-full rounded-lg border border-zinc-300 bg-white pl-10 pr-3 py-2 text-zinc-900 placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder-zinc-600 dark:focus:border-emerald-500"
-                    placeholder="anda@email.com"
+                    placeholder="19850101201001"
                   />
                 </div>
               </div>
@@ -214,7 +172,6 @@ export default function LoginPage() {
                   Ingat saya
                 </label>
               </div>
-
               <a
                 href="#"
                 className="font-medium text-[var(--green-color)] hover:text-emerald-500 dark:text-emerald-400"
@@ -267,7 +224,7 @@ export default function LoginPage() {
             </Link>
           </div>
         </div>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 }

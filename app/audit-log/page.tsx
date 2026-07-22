@@ -1,0 +1,86 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Sidebar from "@/components/sidebar/Sidebar";
+import AppBar from "@/components/appbar/AppBar";
+import { getUserFromToken, getRedirectPath } from "@/lib/auth";
+import { Sprout } from "lucide-react";
+
+export default function AuditLogPage() {
+    const router = useRouter();
+    const [userEmail, setUserEmail] = useState("");
+    const [userName, setUserName] = useState("Pengguna");
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    // Authenticate mockup on client side
+    useEffect(() => {
+        setMounted(true);
+        const token = localStorage.getItem("agro_token");
+        const storedEmail = localStorage.getItem("agro_user_email");
+
+        if (!token) {
+            router.push("/login/pegawai");
+        } else {
+            if (storedEmail) {
+                setUserEmail(storedEmail);
+            }
+            const user = getUserFromToken();
+            if (user) {
+                if (user.role !== "super_admin" && user.role !== "kepala_balai") {
+                    router.push(getRedirectPath(user.role));
+                    return;
+                }
+                if (user.nama) {
+                    setUserName(user.nama);
+                } else if (storedEmail) {
+                    setUserName(storedEmail.split("@")[0]);
+                }
+            }
+        }
+    }, [router]);
+
+    if (!mounted) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"></div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 overflow-hidden font-sans">
+            {/* Sidebar for Desktop */}
+            <Sidebar />
+
+            {/* Main Content Area */}
+            <div className="flex flex-col flex-1 overflow-y-auto">
+                {/* Top Navbar */}
+                <AppBar onMenuClick={() => setSidebarOpen(true)} />
+
+                {/* Content Container */}
+                <main className="flex-1 p-6 space-y-6">
+                    {/* Welcome Banner */}
+                    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 p-6 text-white shadow-lg shadow-emerald-600/10">
+                        <div className="absolute right-0 top-0 -mr-6 -mt-6 opacity-10">
+                            <Sprout className="h-48 w-48" />
+                        </div>
+                        <div className="relative z-10 space-y-2">
+                            {/* <div className="flex items-center gap-2 rounded-full bg-emerald-500/30 px-3 py-1 text-xs font-semibold w-max border border-emerald-400/20">
+                <Sun className="h-3.5 w-3.5 animate-pulse" />
+                <span>Cuaca Hari Ini: Cerah Berawan</span>
+              </div> */}
+                            <h2 className="text-2xl font-extrabold md:text-3xl">
+                                Ini halaman audit log!
+                            </h2>
+                            <p className="max-w-xl text-sm text-emerald-50">
+                                Log aktivitas sistem yang mencatat seluruh tindakan administratif.
+                            </p>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    );
+}

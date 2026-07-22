@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LogOut, ChevronDown, ChevronRight } from "lucide-react";
@@ -45,16 +46,20 @@ export default function Sidebar() {
 
     return (
         <aside className="flex h-screen w-64 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-            <div className="flex items-center gap-2 border-b border-zinc-200 px-6 py-5 dark:border-zinc-800">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-600 text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-5 w-5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15a4.5 4.5 0 0 0 4.5 4.5H18a3.75 3.75 0 0 0 1.332-7.257 3 3 0 0 0-3.758-3.848 5.25 5.25 0 0 0-10.233 2.33A4.502 4.502 0 0 0 2.25 15Z" />
-                    </svg>
-                </div>
-                <span className="text-lg font-bold text-zinc-900 dark:text-zinc-50">AgroKlimat</span>
+            <div className="flex flex-col items-center gap-4 px-6 pt-8 pb-4">
+                <Image
+                    src="/images/logo_brmp.svg"
+                    alt="Logo BRMP"
+                    width={48}
+                    height={4}
+                    priority
+                />
+                <span className="text-lg font-bold text-[var(--green-color)] dark:text-zinc-50 text-center leading-tight">
+                    BRMP Agroklimat
+                </span>
             </div>
 
-            <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
+            <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
                 {menuItems.map((item) => {
                     const Icon = item.icon;
 

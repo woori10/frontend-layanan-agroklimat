@@ -3,6 +3,9 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --green-color: #267D48;
+  --slate-color: #F8FAFC;
+  --yellow-color: #FFE000;
 }
 
 @theme inline {
@@ -10,6 +13,9 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-brmp-green: var(--brmp-green);
+  --color-brmp-slate: var(--brmp-slate);
+  --color-brmp-yellow: var(--brmp-yellow);
 }
 
 @media (prefers-color-scheme: dark) {
