@@ -6,12 +6,14 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LogOut, ChevronDown, ChevronRight } from "lucide-react";
 import { getUserFromToken, logout, type JwtPayload } from "@/lib/auth";
+import LogoutModal from "../modal/LogoutModal";
 import { sidebarMenuByRole } from "@/config/sidebar-menu";
 
 export default function Sidebar() {
     const pathname = usePathname();
     const router = useRouter();
     const [user, setUser] = useState<JwtPayload | null>(null);
+    const [logoutModalOpen, setLogoutModalOpen] = useState(false);
     const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
@@ -35,8 +37,6 @@ export default function Sidebar() {
         }
     }, [pathname, menuItems]);
 
-    if (!user) return null;
-
     const toggleMenu = (label: string) => {
         setExpandedMenus((prev) => ({
             ...prev,
@@ -51,7 +51,7 @@ export default function Sidebar() {
                     src="/images/logo_brmp.svg"
                     alt="Logo BRMP"
                     width={48}
-                    height={4}
+                    height={48}
                     priority
                 />
                 <span className="text-lg font-bold text-[var(--green-color)] dark:text-zinc-50 text-center leading-tight">
@@ -60,7 +60,7 @@ export default function Sidebar() {
             </div>
 
             <nav className="flex-1 space-y-1 p-4 overflow-y-auto">
-                {menuItems.map((item) => {
+                {user && menuItems.map((item) => {
                     const Icon = item.icon;
 
                     if (item.subItems && item.subItems.length > 0) {
@@ -129,15 +129,23 @@ export default function Sidebar() {
                 })}
             </nav>
 
-            <div className="border-t border-zinc-200 px-3 py-4 dark:border-zinc-800">
-                <button
-                    onClick={() => logout(router)}
-                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/50"
-                >
-                    <LogOut className="h-5 w-5" />
-                    Keluar
-                </button>
-            </div>
+            {user && (
+                <div className="border-t border-zinc-200 px-3 py-4 dark:border-zinc-800">
+                    <button
+                        onClick={() => setLogoutModalOpen(true)}
+                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-650 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/50 cursor-pointer"
+                    >
+                        <LogOut className="h-5 w-5" />
+                        Logout
+                    </button>
+                </div>
+            )}
+
+            <LogoutModal
+                isOpen={logoutModalOpen}
+                onClose={() => setLogoutModalOpen(false)}
+                onConfirm={() => logout(router)}
+            />
         </aside>
     );
 }

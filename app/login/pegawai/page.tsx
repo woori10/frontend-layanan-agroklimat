@@ -64,7 +64,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md space-y-8">
         <div className="flex flex-col items-center text-center">
           {/* Logo / Icon */}
-          <div className="flex h-16 w-16 items-center justify-center">
+          <Link href="/" className="flex h-16 w-16 items-center justify-center cursor-pointer transition hover:scale-105">
             <Image
               src="/images/logo_brmp.svg"
               alt="Logo BRMP"
@@ -72,7 +72,7 @@ export default function LoginPage() {
               height={56}
               priority
             />
-          </div>
+          </Link>
           <h2 className="mt-6 text-3xl font-semibold tracking-tight text-[var(--green-color)] dark:text-zinc-50">
             BRMP Agroklimat
           </h2>

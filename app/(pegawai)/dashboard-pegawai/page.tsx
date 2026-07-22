@@ -281,7 +281,7 @@ export default function DashboardPegawaiPage() {
                         </div>
                         <div className="relative z-10 space-y-2">
                             <h2 className="text-2xl font-extrabold md:text-3xl">
-                                Halo, Selamat Datang Kembali, <span className="capitalize">{userName}</span>!
+                                Selamat Datang di Dashboard Pegawai, <span className="capitalize">{userName}</span>!
                             </h2>
                             <p className="max-w-xl text-sm text-emerald-50 font-medium">
                                 Anda login sebagai pegawai: <span className="underline font-bold">{getUnitTeknisName(unitTeknisId)}</span>

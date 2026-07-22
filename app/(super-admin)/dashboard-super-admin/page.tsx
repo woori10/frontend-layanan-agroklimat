@@ -110,7 +110,7 @@ export default function DashboardSuperAdminPage() {
                 <span>Cuaca Hari Ini: Cerah Berawan</span>
               </div> */}
                             <h2 className="text-2xl font-extrabold md:text-3xl">
-                                Halo, Selamat Datang Kembali, <span className="capitalize">{userName}</span>!
+                                Selamat Datang Kembali, <span className="capitalize">{userName}</span>!
                             </h2>
                             {/* <p className="max-w-xl text-sm text-emerald-50">
                                 Kondisi iklim di Lahan Agrosari 01 saat ini sangat stabil. Waktu terbaik untuk memulai pemupukan nitrogen terjadwal adalah pukul 14:00 - 17:00 hari ini.

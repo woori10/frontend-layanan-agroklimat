@@ -88,8 +88,15 @@ export const sidebarMenuByRole: Record<string, MenuItem[]> = {
     ],
 
     super_admin: [
-        { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-        { label: "Kelola User", href: "/kelola-user", icon: Users },
+        { label: "Dashboard", href: "/dashboard-super-admin", icon: LayoutDashboard },
+        {
+            label: "Kelola User",
+            icon: Users,
+            subItems: [
+                { label: "Pegawai", href: "/kelola-user/pegawai" },
+                { label: "Publik", href: "/kelola-user/publik" },
+            ],
+        },
         { label: "Kelola Layanan", href: "/kelola-layanan", icon: Settings },
         { label: "Kelola Tagihan", href: "/kelola-tagihan", icon: Receipt },
         { label: "Audit Log", href: "/audit-log", icon: History },

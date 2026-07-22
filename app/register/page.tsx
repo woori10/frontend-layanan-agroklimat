@@ -77,23 +77,12 @@ export default function RegisterPage() {
         throw new Error(errorMessage);
       }
 
-      if (data.access_token) {
-        localStorage.setItem("agro_token", data.access_token);
-        localStorage.setItem("agro_user_email", email);
-      }
-
       setSuccess(true);
       setLoading(false);
 
-      let redirectPath = "/dashboard";
-      const user = getUserFromToken();
-      if (user && user.role === "super_admin") {
-        redirectPath = "/dashboard-admin";
-      }
-
       setTimeout(() => {
-        router.push(redirectPath);
-      }, 1500);
+        router.push("/login");
+      }, 2000);
     } catch (err: any) {
       setError(err.message || "Terjadi kesalahan koneksi.");
       setLoading(false);
