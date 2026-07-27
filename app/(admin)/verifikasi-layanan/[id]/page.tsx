@@ -8,13 +8,13 @@ import { useState } from "react";
 const servicesMap: Record<string, string> = {
   "1": "Rekomendasi Siap Tanam",
   "2": "Rekomendasi & Penilaian Kesesuaian Agroklimat/Hidrologi (SNI)",
-  "3": "Permohonan Data / Peminjaman Alat (Lab. Agrohidromet)",
-  "4": "Konsultasi Rekomendasi & Penilaian Kesesuaian",
-  "5": "Bimbingan Teknis & Narasumber",
-  "6": "Magang Teknis / PKL",
-  "7": "Layanan Perpustakaan",
-  "8": "Agroedukasi / Kunjungan Edukasi",
-  "9": "Layanan Mess"
+  "3": "Peminjaman Alat",
+  "4": "Permohonan Data",
+  "5": "Konsultasi Rekomendasi & Penilaian Kesesuaian",
+  "6": "Bimbingan Teknis & Narasumber",
+  "7": "Magang Teknis / PKL",
+  "8": "Layanan Perpustakaan",
+  "9": "Agroedukasi / Kunjungan Edukasi",
 };
 
 export default function VerifikasiLayananPage() {

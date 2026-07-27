@@ -14,12 +14,12 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Redirect to dashboard if already logged in
+  // Redirect to dashboard if already logged in (ignore if current role is publik)
   useEffect(() => {
     const token = localStorage.getItem("agro_token");
     if (token) {
       const user = getUserFromToken();
-      if (user) {
+      if (user && user.role !== "publik") {
         router.push(getRedirectPath(user.role));
       }
     }

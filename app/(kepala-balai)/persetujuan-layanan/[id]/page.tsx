@@ -6,9 +6,9 @@ import AppBar from "@/components/appbar/AppBar";
 import { useState } from "react";
 
 const servicesMap: Record<string, string> = {
-    "5": "Bimbingan Teknis & Narasumber",
-    "6": "Magang Teknis / PKL",
-    "8": "Agroedukasi / Kunjungan Edukasi",
+    "6": "Bimbingan Teknis & Narasumber",
+    "7": "Magang Teknis / PKL",
+    "9": "Agroedukasi / Kunjungan Edukasi",
 };
 
 export default function PersetujuanLayananPage() {

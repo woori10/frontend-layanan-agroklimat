@@ -19,10 +19,8 @@ export default function LoginPage() {
     const token = localStorage.getItem("agro_token");
     if (token) {
       const user = getUserFromToken();
-      if (user && user.role === "super_admin") {
-        router.push("/dashboard-admin");
-      } else {
-        router.push("/dashboard");
+      if (user) {
+        router.push(getRedirectPath(user.role));
       }
     }
   }, [router]);
@@ -84,9 +82,7 @@ export default function LoginPage() {
       }
 
       const user = getUserFromToken();
-      const redirectPath = user
-        ? (user.role === "publik" ? "/" : getRedirectPath(user.role))
-        : "/";
+      const redirectPath = user ? getRedirectPath(user.role) : "/";
 
       console.log(`[Login] Redirecting to ${redirectPath}`);
       router.push(redirectPath);

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { getUserFromToken } from "@/lib/auth";
+import { getUserFromToken, getRedirectPath } from "@/lib/auth";
 import { User, Mail, Phone, Lock } from "lucide-react";
 import Image from "next/image";
 import logo from "../../public/images/logo_brmp.svg";
@@ -22,7 +22,10 @@ export default function RegisterPage() {
   useEffect(() => {
     const token = localStorage.getItem("agro_token");
     if (token) {
-      router.push("/dashboard");
+      const user = getUserFromToken();
+      if (user) {
+        router.push(getRedirectPath(user.role));
+      }
     }
   }, [router]);
 

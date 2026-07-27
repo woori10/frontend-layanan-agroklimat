@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/sidebar/Sidebar";
 import AppBar from "@/components/appbar/AppBar";
-import { getUserFromToken } from "@/lib/auth";
+import { getUserFromToken, getRedirectPath } from "@/lib/auth";
 import { Users, Sprout, ShieldAlert, Pencil, Trash2 } from "lucide-react";
 
 interface UnitTeknis {
@@ -61,7 +61,7 @@ export default function KelolaUser({ filterType }: KelolaUserProps) {
         }
 
         if (currentUser.role !== "super_admin") {
-            router.push("/dashboard");
+            router.push(getRedirectPath(currentUser.role));
             return;
         }
 

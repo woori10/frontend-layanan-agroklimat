@@ -126,7 +126,7 @@ export function getRedirectPath(role: string): string {
         case "admin":
             return "/dashboard-admin";
         case "publik":
-            return "/dashboard";
+            return "/";
         case "pegawai":
             return "/dashboard-pegawai";
         case "kepala_balai":

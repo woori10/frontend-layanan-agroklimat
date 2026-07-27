@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/sidebar/Sidebar";
 import AppBar from "@/components/appbar/AppBar";
-import { getUserFromToken } from "@/lib/auth";
+import { getUserFromToken, getRedirectPath } from "@/lib/auth";
 import {
     LayoutDashboard,
     Cloud,
@@ -50,7 +50,7 @@ export default function KelolaTagihanPage() {
             const user = getUserFromToken();
             if (user) {
                 if (user.role !== "super_admin") {
-                    router.push("/dashboard");
+                    router.push(getRedirectPath(user.role));
                     return;
                 }
                 if (user.nama) {
