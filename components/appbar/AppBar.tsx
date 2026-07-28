@@ -25,24 +25,19 @@ export default function AppBar({ onMenuClick }: AppBarProps) {
 
     return (
         <header className="flex items-center justify-between border-b border-zinc-200/80 bg-white px-6 py-4 dark:bg-zinc-900 dark:border-zinc-800">
-            {/* <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4">
                 <button
-                    onClick={onMenuClick}
+                    onClick={() => {
+                        window.dispatchEvent(new Event("toggle-sidebar"));
+                        if (onMenuClick) onMenuClick();
+                    }}
                     className="rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-100 lg:hidden dark:hover:bg-zinc-800 cursor-pointer"
                 >
                     <Menu className="h-6 w-6" />
                 </button>
-                <div className="hidden sm:flex items-center gap-2 rounded-xl bg-zinc-50 border border-zinc-200 px-3 py-1.5 dark:bg-zinc-950 dark:border-zinc-800">
-                    <Search className="h-4 w-4 text-zinc-400" />
-                    <input
-                        type="text"
-                        placeholder="Cari lahan atau sensor..."
-                        className="bg-transparent text-xs text-zinc-800 placeholder-zinc-400 focus:outline-none dark:text-zinc-50"
-                    />
-                </div>
-            </div> */}
+            </div>
 
-            <div className="ml-auto flex items-center gap-4">
+            <div className="ml-auto relative flex items-center gap-4">
                 <button className="relative rounded-xl border border-zinc-200 p-2 text-zinc-500 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800 cursor-pointer">
                     <Bell className="h-4 w-4" />
                     <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-emerald-500"></span>

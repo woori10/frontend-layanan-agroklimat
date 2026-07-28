@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/sidebar/Sidebar";
 import AppBar from "@/components/appbar/AppBar";
+import RoleUserBadge from "@/components/badge/role-user/RoleUserBadge";
 import { getUserFromToken, getRedirectPath } from "@/lib/auth";
 import { Users, Sprout, ShieldAlert, Pencil, Trash2 } from "lucide-react";
 
@@ -131,28 +132,7 @@ export default function KelolaUser({ filterType }: KelolaUserProps) {
         );
     }
 
-    const getRoleBadgeClass = (role: string) => {
-        switch (role) {
-            case "super_admin":
-                return "bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-450 border border-rose-500/20";
-            case "admin":
-                return "bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:text-blue-450 border border-blue-500/20";
-            case "kepala_balai":
-                return "bg-purple-50 text-purple-700 dark:bg-purple-950/30 dark:text-purple-450 border border-purple-500/20";
-            case "pegawai":
-                return "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-450 border border-amber-500/20";
-            default:
-                return "bg-zinc-50 text-zinc-700 dark:bg-zinc-900 dark:text-zinc-400 border border-zinc-500/20";
-        }
-    };
 
-    const formatRole = (role: string) => {
-        if (!role) return "";
-        return role
-            .split("_")
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(" ");
-    };
 
     // Filter users based on layout tab
     const filteredUsers = users.filter((u) => {
@@ -187,8 +167,8 @@ export default function KelolaUser({ filterType }: KelolaUserProps) {
                                 {isPegawai ? "Kelola Staf & Pegawai" : "Kelola Pengguna Publik"}
                             </h2>
                             <p className="max-w-xl text-sm text-emerald-50 font-medium">
-                                {isPegawai 
-                                    ? "Daftar administrator, kepala balai, dan staf teknis internal BRMP." 
+                                {isPegawai
+                                    ? "Daftar administrator, kepala balai, dan staf teknis internal BRMP."
                                     : "Daftar pengguna umum dan mitra tani terdaftar."}
                             </p>
                         </div>
@@ -261,9 +241,7 @@ export default function KelolaUser({ filterType }: KelolaUserProps) {
                                                     </td>
                                                 ) : (
                                                     <td className="text-center px-6 py-4 whitespace-nowrap">
-                                                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap ${getRoleBadgeClass(u.role)}`}>
-                                                            {formatRole(u.role)}
-                                                        </span>
+                                                        <RoleUserBadge role={u.role} />
                                                     </td>
                                                 )}
                                                 {isPegawai ? (

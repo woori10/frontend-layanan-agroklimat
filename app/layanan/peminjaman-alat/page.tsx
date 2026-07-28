@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Navbar from "@/components/landing-page/Navbar";
+import Navbar from "@/components/navbar/Navbar";
 import Kontak from "@/components/landing-page/Kontak";
 import CommonServiceForm, { CommonFormData } from "@/components/form/layanan/CommonServiceForm";
 import PeminjamanAlatStep2Form from "@/components/form/layanan/peminjaman-alat/page";

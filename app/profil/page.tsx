@@ -7,7 +7,7 @@ import Image from "next/image";
 import Sidebar from "@/components/sidebar/Sidebar";
 import AppBar from "@/components/appbar/AppBar";
 import Kontak from "@/components/landing-page/Kontak";
-import Navbar from "@/components/landing-page/Navbar";
+import Navbar from "@/components/navbar/Navbar";
 import { getUserFromToken } from "@/lib/auth";
 import {
     Sprout,

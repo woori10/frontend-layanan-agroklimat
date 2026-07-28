@@ -5,7 +5,7 @@ import Link from "next/link";
 export default function Hero() {
     return (
         <div
-            className="relative w-full h-[600px] flex items-center justify-start text-left bg-cover bg-center"
+            className="relative w-full h-[calc(100vh-80px)] min-h-[500px] flex items-center justify-start text-left bg-cover bg-center"
             style={{ backgroundImage: "url('/images/hero.webp')" }}
         >
             {/* Dark tint gradient overlay matching the photo */}

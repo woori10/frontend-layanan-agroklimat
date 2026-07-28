@@ -1,6 +1,6 @@
 "use client";
 
-import Navbar from "@/components/landing-page/Navbar";
+import Navbar from "@/components/navbar/Navbar";
 import Hero from "@/components/landing-page/Hero";
 import Layanan from "@/components/landing-page/Layanan";
 import Tentang from "@/components/landing-page/Tentang";

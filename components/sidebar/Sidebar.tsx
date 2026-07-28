@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LogOut, ChevronDown, ChevronRight } from "lucide-react";
+import { LogOut, ChevronDown, ChevronRight, X } from "lucide-react";
 import { getUserFromToken, logout, type JwtPayload } from "@/lib/auth";
 import LogoutModal from "../modal/LogoutModal";
 import { sidebarMenuByRole } from "@/config/sidebar-menu";
@@ -15,10 +15,23 @@ export default function Sidebar() {
     const [user, setUser] = useState<JwtPayload | null>(null);
     const [logoutModalOpen, setLogoutModalOpen] = useState(false);
     const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({});
+    const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
         setUser(getUserFromToken());
+
+        const handleToggle = () => {
+            setIsOpen((prev) => !prev);
+        };
+        window.addEventListener("toggle-sidebar", handleToggle);
+        return () => {
+            window.removeEventListener("toggle-sidebar", handleToggle);
+        };
     }, []);
+
+    useEffect(() => {
+        setIsOpen(false);
+    }, [pathname]);
 
     const menuItems = sidebarMenuByRole[user?.role || ""] || [];
 
@@ -44,8 +57,8 @@ export default function Sidebar() {
         }));
     };
 
-    return (
-        <aside className="flex h-screen w-64 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+    const renderSidebarContent = () => (
+        <>
             <div className="flex flex-col items-center gap-4 px-6 pt-8 pb-4">
                 <Image
                     src="/images/logo_brmp.svg"
@@ -140,12 +153,44 @@ export default function Sidebar() {
                     </button>
                 </div>
             )}
+        </>
+    );
+
+    return (
+        <>
+            {/* Desktop Sidebar */}
+            <aside className="hidden lg:flex h-screen w-64 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 flex-shrink-0">
+                {renderSidebarContent()}
+            </aside>
+
+            {/* Mobile/Tablet Sidebar Drawer */}
+            {isOpen && (
+                <div className="fixed inset-0 z-50 flex lg:hidden">
+                    {/* Backdrop */}
+                    <div
+                        className="fixed inset-0 bg-zinc-900/50 backdrop-blur-xs transition-opacity"
+                        onClick={() => setIsOpen(false)}
+                    />
+                    {/* Drawer Panel */}
+                    <aside className="relative flex h-full w-64 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 shadow-xl transition-all duration-300">
+                        {/* Close button inside drawer */}
+                        <button
+                            onClick={() => setIsOpen(false)}
+                            className="absolute top-4 right-4 p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 cursor-pointer"
+                            aria-label="Close Sidebar"
+                        >
+                            <X className="h-5 w-5" />
+                        </button>
+                        {renderSidebarContent()}
+                    </aside>
+                </div>
+            )}
 
             <LogoutModal
                 isOpen={logoutModalOpen}
                 onClose={() => setLogoutModalOpen(false)}
                 onConfirm={() => logout(router)}
             />
-        </aside>
+        </>
     );
 }
