@@ -10,6 +10,7 @@ interface AppBarProps {
 
 export default function AppBar({ onMenuClick }: AppBarProps) {
     const [userName, setUserName] = useState("Pengguna");
+    const [userRole, setUserRole] = useState("Pengguna");
 
     useEffect(() => {
         const storedEmail = localStorage.getItem("agro_user_email");
@@ -19,6 +20,9 @@ export default function AppBar({ onMenuClick }: AppBarProps) {
                 setUserName(user.nama);
             } else if (storedEmail) {
                 setUserName(storedEmail.split("@")[0]);
+            }
+            if (user.role) {
+                setUserRole(user.role.replace("_", " "));
             }
         }
     }, []);
@@ -51,7 +55,7 @@ export default function AppBar({ onMenuClick }: AppBarProps) {
                     <div className="hidden md:flex flex-col text-left">
                         <span className="text-xs font-semibold text-zinc-850 dark:text-zinc-50 capitalize leading-none mb-0.5">{userName}</span>
                         <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium capitalize">
-                            {getUserFromToken()?.role.replace("_", " ") || "Pengguna"}
+                            {userRole}
                         </span>
                     </div>
                 </div>

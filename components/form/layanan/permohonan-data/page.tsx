@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AlertCircle, FileText, Info, Database, Globe, Calendar } from "lucide-react";
+import { AlertCircle, FileText, Info, Globe, Calendar } from "lucide-react";
 
 export interface PermohonanDataStep2 {
   jenisData: string;
@@ -69,10 +69,10 @@ export default function PermohonanDataStep2Form({
       {/* Step 2 Header */}
       <div className="mb-6 pb-4 border-b border-zinc-200 dark:border-zinc-800">
         <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
-          Langkah 2 dari 2: Informasi Tambahan Layanan
+          Detail Kebutuhan Data
         </h2>
         <p className="text-zinc-500 dark:text-zinc-400 text-xs sm:text-sm mt-1">
-          Silakan lengkapi spesifikasi data yang Anda perlukan.
+          Spesifikasi Permohonan
         </p>
       </div>
 
@@ -92,9 +92,6 @@ export default function PermohonanDataStep2Form({
           Jenis Data <span className="text-red-500">*</span>
         </label>
         <div className="relative">
-          <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400 dark:text-zinc-500">
-            <Info className="h-4 w-4" />
-          </span>
           <input
             id="jenisData"
             type="text"
@@ -102,32 +99,81 @@ export default function PermohonanDataStep2Form({
             disabled={loading}
             value={jenisData}
             onChange={(e) => setJenisData(e.target.value)}
-            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-10 pr-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
             placeholder="Contoh: Curah Hujan Bulanan, Radiasi Matahari, Suhu Udara"
           />
         </div>
       </div>
 
       {/* Bentuk Data */}
-      <div className="space-y-2">
-        <label htmlFor="bentukData" className="block text-sm font-bold text-zinc-700 dark:text-zinc-300">
-          Bentuk Data <span className="text-red-500">*</span>
+      <div className="space-y-3">
+        <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300">
+          Bentuk Data yang Diinginkan <span className="text-red-500">*</span>
         </label>
-        <div className="relative">
-          <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400 dark:text-zinc-500">
-            <Database className="h-4 w-4" />
-          </span>
-          <select
-            id="bentukData"
-            required
+        <div className="grid gap-4 sm:grid-cols-2">
+          {/* Card 1: Data Mentah */}
+          <button
+            type="button"
             disabled={loading}
-            value={bentukData}
-            onChange={(e) => setBentukData(e.target.value)}
-            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-10 pr-4 py-2.5 text-sm text-zinc-900 dark:text-white shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            onClick={() => setBentukData("Data mentah")}
+            className={`flex items-center gap-4 p-4 rounded-xl border text-left transition duration-200 ${bentukData === "Data mentah"
+                ? "border-[var(--green-color)] bg-emerald-50/20 dark:bg-emerald-950/10 ring-1 ring-[var(--green-color)]"
+                : "border-zinc-200 dark:border-zinc-800 bg-[#F8FAFC]/50 dark:bg-zinc-900/50 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50"
+              }`}
           >
-            <option value="Data mentah">Data mentah</option>
-            <option value="Hasil Analisis">Hasil Analisis</option>
-          </select>
+            <div className="flex-shrink-0">
+              <div
+                className={`h-5 w-5 rounded-full border flex items-center justify-center transition duration-200 ${bentukData === "Data mentah"
+                    ? "border-[var(--green-color)] bg-white dark:bg-zinc-950"
+                    : "border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950"
+                  }`}
+              >
+                {bentukData === "Data mentah" && (
+                  <div className="h-2.5 w-2.5 rounded-full bg-[var(--green-color)]" />
+                )}
+              </div>
+            </div>
+            <div>
+              <span className="block text-sm font-bold text-zinc-900 dark:text-white leading-tight">
+                Data Mentah
+              </span>
+              <span className="block text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-normal">
+                Data observasi harian tanpa pengolahan lanjut.
+              </span>
+            </div>
+          </button>
+
+          {/* Card 2: Hasil Analisis */}
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() => setBentukData("Hasil Analisis")}
+            className={`flex items-center gap-4 p-4 rounded-xl border text-left transition duration-200 ${bentukData === "Hasil Analisis"
+                ? "border-[var(--green-color)] bg-emerald-50/20 dark:bg-emerald-950/10 ring-1 ring-[var(--green-color)]"
+                : "border-zinc-200 dark:border-zinc-800 bg-[#F8FAFC]/50 dark:bg-zinc-900/50 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50"
+              }`}
+          >
+            <div className="flex-shrink-0">
+              <div
+                className={`h-5 w-5 rounded-full border flex items-center justify-center transition duration-200 ${bentukData === "Hasil Analisis"
+                    ? "border-[var(--green-color)] bg-white dark:bg-zinc-950"
+                    : "border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950"
+                  }`}
+              >
+                {bentukData === "Hasil Analisis" && (
+                  <div className="h-2.5 w-2.5 rounded-full bg-[var(--green-color)]" />
+                )}
+              </div>
+            </div>
+            <div>
+              <span className="block text-sm font-bold text-zinc-900 dark:text-white leading-tight">
+                Hasil Analisis
+              </span>
+              <span className="block text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-normal">
+                Data yang telah diolah menjadi statistik atau grafik.
+              </span>
+            </div>
+          </button>
         </div>
       </div>
 
@@ -139,9 +185,6 @@ export default function PermohonanDataStep2Form({
             Wilayah Kajian <span className="text-red-500">*</span>
           </label>
           <div className="relative">
-            <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400 dark:text-zinc-500">
-              <Globe className="h-4 w-4" />
-            </span>
             <input
               id="wilayahKajian"
               type="text"
@@ -149,7 +192,7 @@ export default function PermohonanDataStep2Form({
               disabled={loading}
               value={wilayahKajian}
               onChange={(e) => setWilayahKajian(e.target.value)}
-              className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-10 pr-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
               placeholder="Contoh: Kabupaten Bogor, Jawa Barat"
             />
           </div>
@@ -161,9 +204,6 @@ export default function PermohonanDataStep2Form({
             Periode Data <span className="text-red-500">*</span>
           </label>
           <div className="relative">
-            <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-405 dark:text-zinc-505">
-              <Calendar className="h-4 w-4" />
-            </span>
             <input
               id="periodeData"
               type="text"
@@ -171,7 +211,7 @@ export default function PermohonanDataStep2Form({
               disabled={loading}
               value={periodeData}
               onChange={(e) => setPeriodeData(e.target.value)}
-              className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-10 pr-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
               placeholder="Contoh: Tahun 2015 s.d. 2025"
             />
           </div>
@@ -184,9 +224,6 @@ export default function PermohonanDataStep2Form({
           Tujuan Penggunaan Data <span className="text-red-500">*</span>
         </label>
         <div className="relative">
-          <span className="absolute inset-y-0 left-0 pl-3.5 pt-3.5 flex items-start pointer-events-none text-zinc-400 dark:text-zinc-500">
-            <FileText className="h-4 w-4" />
-          </span>
           <textarea
             id="tujuanPenggunaan"
             required
@@ -194,14 +231,14 @@ export default function PermohonanDataStep2Form({
             disabled={loading}
             value={tujuanPenggunaan}
             onChange={(e) => setTujuanPenggunaan(e.target.value)}
-            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-10 pr-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 resize-none"
+            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
             placeholder="Jelaskan secara detail tujuan penggunaan data (misal: Penelitian Tesis, Tugas Akhir, Kajian Iklim Instansi)"
           />
         </div>
       </div>
 
       {/* Action Buttons for Step 2 */}
-      <div className="flex justify-end gap-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+      <div className="flex justify-between gap-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
         <button
           type="button"
           onClick={onBack}

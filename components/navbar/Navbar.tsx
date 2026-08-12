@@ -37,17 +37,18 @@ export default function Navbar() {
               height={40}
               priority
             />
-            <div>
+            <div className="flex flex-col">
               <span className="font-bold text-sm leading-tight tracking-tight text-[var(--green-color)] dark:text-white">
-                BRMP Agroklimat
-                <br />
-                Hidrologi Pertanian
+                Layanan Agroklimat
+              </span>
+              <span className="font-bold text-sm leading-tight tracking-tight text-[var(--green-color)] dark:text-white">
+                Terintegrasi
               </span>
             </div>
           </div>
 
           {/* Navigation Menu */}
-          <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-semibold text-zinc-600 dark:text-zinc-300">
+          <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-semibold text-[var(--foreground)] dark:text-zinc-300">
             <Link href="/" className="hover:text-[var(--green-color)] hover:underline hover:decoration-[var(--green-color)] hover:underline-offset-4 dark:hover:text-white transition">
               Beranda
             </Link>
@@ -60,8 +61,8 @@ export default function Navbar() {
             <Link href="/#faq" className="hover:text-[var(--green-color)] hover:underline hover:decoration-[var(--green-color)] hover:underline-offset-4 dark:hover:text-white transition">
               FAQ
             </Link>
-            <Link href="/#kontak" className="hover:text-[var(--green-color)] hover:underline hover:decoration-[var(--green-color)] hover:underline-offset-4 dark:hover:text-white transition">
-              Kontak
+            <Link href="/#pengaduan" className="hover:text-[var(--green-color)] hover:underline hover:decoration-[var(--green-color)] hover:underline-offset-4 dark:hover:text-white transition">
+              Pengaduan
             </Link>
           </nav>
 
@@ -90,7 +91,7 @@ export default function Navbar() {
                   {dropdownOpen && (
                     <div className="absolute right-0 mt-2 w-48 rounded-xl border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-800 dark:bg-zinc-950">
                       <Link
-                        href="/profil"
+                        href={"/profile-publik"}
                         className="flex items-center gap-2 px-4 py-2.5 text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-900"
                       >
                         <User className="h-4 w-4" />

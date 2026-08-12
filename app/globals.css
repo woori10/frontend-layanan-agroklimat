@@ -2,10 +2,13 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
-  --green-color: #267D48;
+  --foreground: #121C2A;
+
+  /* Custom colors */
+  --green-color: #145326;
   --slate-color: #F8FAFC;
   --yellow-color: #FFE000;
+
 }
 
 @theme inline {
@@ -13,6 +16,12 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Theme utilities */
+  --color-green-color: var(--green-color);
+  --color-slate-color: var(--slate-color);
+  --color-yellow-color: var(--yellow-color);
+
   --color-brmp-green: var(--brmp-green);
   --color-brmp-slate: var(--brmp-slate);
   --color-brmp-yellow: var(--brmp-yellow);

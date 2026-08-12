@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/sidebar/Sidebar";
 import AppBar from "@/components/appbar/AppBar";
+import CardDashboard from "@/components/card/card-dashboard/CardDashboard";
 import { getUserFromToken, getRedirectPath } from "@/lib/auth";
 import {
     LayoutDashboard,
@@ -24,7 +25,10 @@ import {
     AlertCircle,
     CheckCircle2,
     Gauge,
-    LineChart as ChartIcon
+    LineChart as ChartIcon,
+    FileText,
+    Clock,
+    Activity
 } from "lucide-react";
 
 export default function DashboardSuperAdminPage() {
@@ -116,58 +120,6 @@ export default function DashboardSuperAdminPage() {
                                 Kondisi iklim di Lahan Agrosari 01 saat ini sangat stabil. Waktu terbaik untuk memulai pemupukan nitrogen terjadwal adalah pukul 14:00 - 17:00 hari ini.
                             </p> */}
                         </div>
-                    </div>
-
-                    {/* Sensor Summary Grid */}
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                        {[
-                            {
-                                title: "Kelembaban Tanah",
-                                value: "64.8%",
-                                status: "Optimal",
-                                color: "emerald",
-                                icon: Droplets,
-                                desc: "Kecukupan air sangat baik",
-                            },
-                            {
-                                title: "Suhu Udara",
-                                value: "28.4°C",
-                                status: "Normal",
-                                color: "teal",
-                                icon: Thermometer,
-                                desc: "Suhu rata-rata ideal",
-                            },
-                        ].map((card, idx) => {
-                            const CardIcon = card.icon;
-                            return (
-                                <div
-                                    key={idx}
-                                    className="rounded-2xl border border-zinc-200/80 bg-white p-5 shadow-sm dark:bg-zinc-900 dark:border-zinc-800 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                                            {card.title}
-                                        </span>
-                                        <div className="rounded-xl bg-zinc-50 p-2 text-zinc-600 dark:bg-zinc-950 dark:text-zinc-400">
-                                            <CardIcon className="h-5 w-5" />
-                                        </div>
-                                    </div>
-                                    <div className="mt-4 space-y-1">
-                                        <div className="flex items-baseline gap-2">
-                                            <span className="text-2xl font-extrabold text-zinc-900 dark:text-white">
-                                                {card.value}
-                                            </span>
-                                            <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
-                                                {card.status}
-                                            </span>
-                                        </div>
-                                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                                            {card.desc}
-                                        </p>
-                                    </div>
-                                </div>
-                            );
-                        })}
                     </div>
                 </main>
             </div>

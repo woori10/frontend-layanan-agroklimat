@@ -10,8 +10,8 @@ import {
     Calendar,
     AlertCircle,
     X,
-    FileUp,
-    ChevronRight
+    CloudUpload,
+    ArrowRight
 } from "lucide-react";
 
 export interface CommonFormData {
@@ -42,7 +42,9 @@ export default function CommonServiceForm({
     const [noTelp, setNoTelp] = useState(initialData?.noTelp || "");
     const [nipKtp, setNipKtp] = useState(initialData?.nipKtp || "");
     const [alamatInstansi, setAlamatInstansi] = useState(initialData?.alamatInstansi || "");
-    const [tanggalPengajuan, setTanggalPengajuan] = useState(initialData?.tanggalPengajuan || "");
+    const [tanggalPengajuan, setTanggalPengajuan] = useState(
+        initialData?.tanggalPengajuan || new Date().toISOString().split('T')[0]
+    );
     const [suratPengantar, setSuratPengantar] = useState<File | null>(initialData?.suratPengantar || null);
     const [error, setError] = useState("");
 
@@ -53,7 +55,9 @@ export default function CommonServiceForm({
             setNoTelp(initialData.noTelp);
             setNipKtp(initialData.nipKtp);
             setAlamatInstansi(initialData.alamatInstansi);
-            setTanggalPengajuan(initialData.tanggalPengajuan);
+            setTanggalPengajuan(
+                initialData.tanggalPengajuan || new Date().toISOString().split('T')[0]
+            );
             setSuratPengantar(initialData.suratPengantar);
         }
     }, [initialData]);
@@ -123,12 +127,15 @@ export default function CommonServiceForm({
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
             {/* Header info inside the card */}
-            <div className="mb-6 pb-4 border-b border-zinc-200 dark:border-zinc-800">
+            <div className="flex justify-between items-center mb-6 pb-4 border-b border-zinc-200 dark:border-zinc-800">
                 <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
-                    Langkah 1 dari 2: Informasi Pemohon
+                    Informasi Pemohon
                 </h2>
-                <p className="text-zinc-500 dark:text-zinc-400 text-xs sm:text-sm mt-1">
+                {/* <p className="text-zinc-500 dark:text-zinc-400 text-xs sm:text-sm mt-1">
                     Silakan lengkapi formulir informasi dasar untuk pengajuan <strong>{serviceName}</strong>.
+                </p> */}
+                <p className="text-[var(--green-color)] dark:text-white text-xs font-semibold bg-[#D1FAE5] dark:bg-[#1E4329] px-3 py-2 rounded-xl">
+                    Langkah 1 dari 2
                 </p>
             </div>
 
@@ -145,83 +152,71 @@ export default function CommonServiceForm({
             <div className="grid gap-6 sm:grid-cols-2">
                 {/* Nama Lengkap */}
                 <div className="space-y-2">
-                    <label htmlFor="namaLengkap" className="block text-sm font-bold text-zinc-700 dark:text-zinc-300">
+                    <label htmlFor="namaLengkap" className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
                         Nama Lengkap <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400 dark:text-zinc-500">
-                            <User className="h-4 w-4" />
-                        </span>
                         <input
                             id="namaLengkap"
                             type="text"
                             required
                             value={namaLengkap}
                             onChange={(e) => setNamaLengkap(e.target.value)}
-                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-10 pr-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                            placeholder="Masukkan nama lengkap Anda"
+                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
+                            placeholder="Masukkan nama lengkap..."
                         />
                     </div>
                 </div>
 
                 {/* No Telp */}
                 <div className="space-y-2">
-                    <label htmlFor="noTelp" className="block text-sm font-bold text-zinc-700 dark:text-zinc-300">
+                    <label htmlFor="noTelp" className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
                         No. Telepon / WhatsApp <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400 dark:text-zinc-500">
-                            <Phone className="h-4 w-4" />
-                        </span>
                         <input
                             id="noTelp"
                             type="tel"
                             required
                             value={noTelp}
                             onChange={(e) => setNoTelp(e.target.value)}
-                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-10 pr-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                            placeholder="Contoh: 08123456789"
+                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
+                            placeholder="08123456789"
                         />
                     </div>
                 </div>
 
                 {/* NIP / No KTP */}
                 <div className="space-y-2">
-                    <label htmlFor="nipKtp" className="block text-sm font-bold text-zinc-700 dark:text-zinc-300">
+                    <label htmlFor="nipKtp" className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
                         NIP / No. KTP <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400 dark:text-zinc-500">
-                            <FileText className="h-4 w-4" />
-                        </span>
                         <input
                             id="nipKtp"
                             type="text"
                             required
                             value={nipKtp}
                             onChange={(e) => setNipKtp(e.target.value)}
-                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-10 pr-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                            placeholder="Masukkan NIP atau Nomor KTP Anda"
+                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
+                            placeholder="198327948279249891"
                         />
                     </div>
                 </div>
 
                 {/* Tanggal Pengajuan Surat */}
                 <div className="space-y-2">
-                    <label htmlFor="tanggalPengajuan" className="block text-sm font-bold text-zinc-700 dark:text-zinc-300">
+                    <label htmlFor="tanggalPengajuan" className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
                         Tanggal Pengajuan Surat <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-450 dark:text-zinc-550">
-                            <Calendar className="h-4 w-4" />
-                        </span>
                         <input
                             id="tanggalPengajuan"
                             type="date"
                             required
                             value={tanggalPengajuan}
                             onChange={(e) => setTanggalPengajuan(e.target.value)}
-                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-10 pr-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
                         />
                     </div>
                 </div>
@@ -229,41 +224,38 @@ export default function CommonServiceForm({
 
             {/* Alamat / Instansi Asal */}
             <div className="space-y-2">
-                <label htmlFor="alamatInstansi" className="block text-sm font-bold text-zinc-700 dark:text-zinc-300">
+                <label htmlFor="alamatInstansi" className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
                     Alamat / Instansi Asal <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3.5 pt-3.5 flex items-start pointer-events-none text-zinc-400 dark:text-zinc-500">
-                        <MapPin className="h-4 w-4" />
-                    </span>
                     <textarea
                         id="alamatInstansi"
                         required
                         rows={3}
                         value={alamatInstansi}
                         onChange={(e) => setAlamatInstansi(e.target.value)}
-                        className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-10 pr-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 resize-none"
-                        placeholder="Masukkan nama instansi beserta alamat lengkap"
+                        className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)] resize-none"
+                        placeholder="Alamat lengkap atau instansi"
                     />
                 </div>
             </div>
 
             {/* Surat Pengantar Asal Instansi (opsional) */}
             <div className="space-y-2">
-                <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300">
+                <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
                     Surat Pengantar Asal Instansi <span className="text-xs text-zinc-450 font-normal">(opsional)</span>
                 </label>
 
                 {!suratPengantar ? (
                     <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-xl hover:border-emerald-500 dark:hover:border-emerald-500/50 hover:bg-emerald-50/10 dark:hover:bg-emerald-950/5 transition cursor-pointer">
                         <div className="space-y-2 text-center flex flex-col items-center">
-                            <FileUp className="mx-auto h-10 w-10 text-zinc-450 dark:text-zinc-600" />
+                            <CloudUpload className="mx-auto h-10 w-10 text-[var(--green-color)] dark:text-[var(--green-color)]" />
                             <div className="flex text-sm text-zinc-600 dark:text-zinc-400 justify-center">
                                 <label
                                     htmlFor="file-upload"
-                                    className="relative cursor-pointer rounded-md font-bold text-[var(--green-color)] dark:text-emerald-400 hover:text-emerald-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-emerald-500"
+                                    className="relative cursor-pointer rounded-md font-semibold text-[var(--foreground)] dark:text-[var(--foreground)] hover:text-[var(--green-color)] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[var(--green-color)]"
                                 >
-                                    <span>Pilih berkas</span>
+                                    <span>Klik atau seret file kesini</span>
                                     <input
                                         id="file-upload"
                                         name="file-upload"
@@ -274,7 +266,6 @@ export default function CommonServiceForm({
                                         onChange={handleFileChange}
                                     />
                                 </label>
-                                <p className="pl-1">atau seret ke sini</p>
                             </div>
                             <p className="text-xs text-zinc-400 dark:text-zinc-550">
                                 Format PDF, JPG, atau PNG (Maks. 5MB)
@@ -315,10 +306,10 @@ export default function CommonServiceForm({
                 </button>
                 <button
                     type="submit"
-                    className="px-6 py-2.5 bg-[var(--green-color)] hover:bg-emerald-650 text-white rounded-xl text-sm font-extrabold shadow-md transition flex items-center gap-2"
+                    className="px-6 py-2 bg-[var(--green-color)] hover:cursor-pointer text-white rounded-xl text-sm font-bold shadow-md transition flex items-center gap-2"
                 >
                     Selanjutnya
-                    <ChevronRight className="w-4 h-4" />
+                    <ArrowRight className="w-4 h-4" />
                 </button>
             </div>
         </form>

@@ -18,8 +18,10 @@ interface ServiceInfoModalProps {
 
 const getServiceLink = (title: string) => {
     switch (title) {
+        case "Rekomendasi SNI":
         case "Rekomendasi Penilaian SNI":
             return "/layanan/rekomendasi-sni";
+        case "Permintaan Data":
         case "Permohonan Data":
             return "/layanan/permohonan-data";
         case "Peminjaman Alat":
@@ -28,13 +30,16 @@ const getServiceLink = (title: string) => {
             return "/layanan/permohonan-data";
         case "Konsultasi Rekomendasi":
             return "/layanan/konsultasi-rekomendasi";
+        case "Bimtek & Narasumber":
         case "Bimbingan Teknis dan Narasumber":
         case "Bimtek dan Narasumber":
             return "/layanan/bimtek-narasumber";
+        case "Magang/PKL":
         case "Magang Teknis / PKL":
             return "/layanan/magang-pkl";
         case "Agroedukasi":
             return "/layanan/agroedukasi";
+        case "Rekomendasi Siap Tanam":
         case "Konsultasi Siap Tanam":
             return "/layanan/konsultasi-siap-tanam";
         case "Layanan Mess":

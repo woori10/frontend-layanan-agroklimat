@@ -124,7 +124,7 @@ export function getRedirectPath(role: string): string {
         case "super_admin":
             return "/dashboard-super-admin";
         case "admin":
-            return "/dashboard-admin";
+            return "/verifikasi-layanan/16";
         case "publik":
             return "/";
         case "pegawai":

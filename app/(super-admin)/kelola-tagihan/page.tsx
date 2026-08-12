@@ -149,22 +149,22 @@ export default function KelolaTagihanPage() {
                             <table className="min-w-full divide-y divide-zinc-200/80 dark:divide-zinc-800">
                                 <thead className="bg-[#E5E7EB]/50 dark:bg-zinc-950">
                                     <tr>
-                                        <th scope="col" className="px-6 py-4.5 text-left text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                                        <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">
                                             No
                                         </th>
-                                        <th scope="col" className="px-6 py-4.5 text-left text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                                        <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">
                                             Jenis Tagihan
                                         </th>
-                                        <th scope="col" className="px-6 py-4.5 text-left text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                                        <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">
                                             Jenis Layanan
                                         </th>
-                                        <th scope="col" className="px-6 py-4.5 text-left text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                                        <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">
                                             Jenis Rekening
                                         </th>
-                                        <th scope="col" className="px-6 py-4.5 text-left text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                                        <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">
                                             No Rekening
                                         </th>
-                                        <th scope="col" className="px-6 py-4.5 text-left text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                                        <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">
                                             Aksi
                                         </th>
                                     </tr>

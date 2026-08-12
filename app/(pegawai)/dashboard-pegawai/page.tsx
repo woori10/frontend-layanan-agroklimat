@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/components/sidebar/Sidebar";
 import AppBar from "@/components/appbar/AppBar";
 import { getUserFromToken, logout, getRedirectPath } from "@/lib/auth";
+import { getUnitTeknisTikets } from "@/lib/tiket";
+import StatusLayananBadge from "@/components/badge/status-layanan/StatusLayananBadge";
 import {
     LayoutDashboard,
     Cloud,
@@ -17,9 +19,11 @@ import {
     Search,
     Bell,
     LogOut,
+    FileText,
     Settings,
     Menu,
     X,
+    ChevronLeft,
     ChevronRight,
     AlertCircle,
     CheckCircle2,
@@ -27,8 +31,24 @@ import {
     LineChart as ChartIcon,
     Bed,
     Briefcase,
-    ShieldCheck
+    ShieldCheck,
+    Clock,
+    Activity
 } from "lucide-react";
+import CardDashboard from "@/components/card/card-dashboard/CardDashboard";
+
+function formatDate(dateString: string) {
+    try {
+        const d = new Date(dateString);
+        return d.toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+        });
+    } catch {
+        return dateString;
+    }
+}
 
 export default function DashboardPegawaiPage() {
     const router = useRouter();
@@ -38,6 +58,18 @@ export default function DashboardPegawaiPage() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeTab, setActiveTab] = useState("ringkasan");
     const [mounted, setMounted] = useState(false);
+
+    const [tikets, setTikets] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 4;
+
+    const totalItems = tikets.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+    const currentTikets = tikets.slice(startIndex, startIndex + itemsPerPage);
 
     // Authenticate mockup on client side
     useEffect(() => {
@@ -68,6 +100,27 @@ export default function DashboardPegawaiPage() {
             }
         }
     }, [router]);
+
+    useEffect(() => {
+        if (!mounted) return;
+        const token = localStorage.getItem("agro_token");
+        if (!token) return;
+
+        setLoading(true);
+        getUnitTeknisTikets()
+            .then((data) => {
+                const validData = Array.isArray(data)
+                    ? data.filter((t: any) => t.status !== "menunggu_persetujuan_kepala_balai")
+                    : [];
+                setTikets(validData);
+            })
+            .catch((err: any) => {
+                setError(err.message || "Gagal mengambil data");
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    }, [mounted]);
 
     const handleLogout = () => {
         logout(router);
@@ -254,6 +307,38 @@ export default function DashboardPegawaiPage() {
         }
     };
 
+    const getUnitTeknisServices = (id: number | null) => {
+        switch (id) {
+            case 1:
+                return [
+                    { id: 14, name: "Rekomendasi & Penilaian Kesesuaian SNI", type: "gratis" },
+                    { id: 15, name: "Konsultasi Rekomendasi & Penilaian Kesesuaian SNI", type: "gratis" },
+                    { id: 18, name: "Permohonan Data", type: "gratis" }
+                ];
+            case 2:
+                return [
+                    { id: 19, name: "Peminjaman Alat", type: "berbayar" }
+                ];
+            case 3:
+                return [
+                    { id: 17, name: "Bimbingan Teknis & Narasumber", type: "gratis" },
+                    { id: 20, name: "Magang Teknis / PKL", type: "gratis" },
+                    { id: 21, name: "Agroedukasi / Kunjungan Edukasi", type: "gratis" },
+                    { id: 22, name: "Layanan Perpustakaan", type: "gratis" }
+                ];
+            case 4:
+                return [
+                    { id: 16, name: "Rekomendasi Siap Tanam", type: "gratis" }
+                ];
+            case 5:
+                return [
+                    { id: 23, name: "Layanan Mess", type: "berbayar" }
+                ];
+            default:
+                return [];
+        }
+    };
+
     if (!mounted) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
@@ -288,41 +373,201 @@ export default function DashboardPegawaiPage() {
                             </p>
                         </div>
                     </div>
-
-                    {/* Sensor Summary Grid */}
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                        {getUnitTeknisCards(unitTeknisId).map((card, idx) => {
-                            const CardIcon = card.icon;
-                            return (
-                                <div
-                                    key={idx}
-                                    className="rounded-2xl border border-zinc-200/80 bg-white p-5 shadow-sm dark:bg-zinc-900 dark:border-zinc-800 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                                            {card.title}
-                                        </span>
-                                        <div className="rounded-xl bg-zinc-50 p-2 text-zinc-600 dark:bg-zinc-950 dark:text-zinc-400">
-                                            <CardIcon className="h-5 w-5" />
-                                        </div>
-                                    </div>
-                                    <div className="mt-4 space-y-1">
-                                        <div className="flex items-baseline gap-2">
-                                            <span className="text-2xl font-extrabold text-zinc-900 dark:text-white">
-                                                {card.value}
-                                            </span>
-                                            <span className="inline-flex items-center rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
-                                                {card.status}
-                                            </span>
-                                        </div>
-                                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                                            {card.desc}
-                                        </p>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                    {/* Statistik Permohonan Layanan */}
+                    <div className="space-y-3">
+                        {/* <h2 className="text-lg font-bold text-zinc-700 dark:text-zinc-300">
+                                                Statistik Permohonan Layanan
+                                            </h2> */}
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                            <CardDashboard
+                                title="Total Permohonan"
+                                icon={FileText}
+                                iconBgClass="bg-[#385A3F]"
+                                iconColorClass="text-white"
+                                apiEndpoint="/tiket/unit-teknis/me"
+                                processData={(data) => Array.isArray(data) ? data.length : 0}
+                                desc="permohonan"
+                            />
+                            <CardDashboard
+                                title="Perlu Diproses"
+                                icon={Activity}
+                                iconBgClass="bg-blue-400 dark:bg-blue-700"
+                                iconColorClass="text-white"
+                                apiEndpoint="/tiket/unit-teknis/me"
+                                processData={(data) => Array.isArray(data) ? data.filter((t: any) => t.status === "diproses").length : 0}
+                                desc="tiket"
+                            />
+                            <CardDashboard
+                                title="Menunggu Pembayaran"
+                                icon={Clock}
+                                iconBgClass="bg-amber-400 dark:bg-amber-700"
+                                iconColorClass="text-white"
+                                apiEndpoint="/tiket/unit-teknis/me"
+                                processData={(data) => Array.isArray(data) ? data.filter((t: any) => t.status === "menunggu_pembayaran").length : 0}
+                                desc="tiket"
+                            />
+                            <CardDashboard
+                                title="Selesai"
+                                icon={CheckCircle2}
+                                iconBgClass="bg-emerald-400 dark:bg-emerald-750"
+                                iconColorClass="text-white"
+                                apiEndpoint="/tiket/unit-teknis/me"
+                                processData={(data) => Array.isArray(data) ? data.filter((t: any) => t.status === "selesai_diproses" || t.status === "menunggu_konfirmasi" || t.status === "selesai").length : 0}
+                                desc="tiket"
+                            />
+                        </div>
                     </div>
+                    {/* Daftar Permohonan Masuk Card */}
+                    <div className="bg-white shadow-md rounded-lg dark:bg-zinc-800 dark:shadow-zinc-800">
+                        <div className="flex justify-between items-center px-6 py-4">
+                            <p className="text-[var(--foreground)] dark:text-white font-semibold text-lg">Daftar Permohonan Masuk</p>
+                        </div>
+                        <div className="overflow-hidden border border-zinc-200/80 bg-white shadow-md dark:border-zinc-800 dark:bg-zinc-900">
+                            <div className="overflow-x-auto">
+                                <table className="min-w-full divide-y divide-zinc-200/80 dark:divide-zinc-800">
+                                    <thead className="bg-[#E5E7EB]/50 dark:bg-zinc-950">
+                                        <tr>
+                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">
+                                                Nama Pemohon
+                                            </th>
+                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">
+                                                Jenis Layanan
+                                            </th>
+                                            <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">
+                                                Tanggal
+                                            </th>
+                                            <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">
+                                                Status
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800 bg-white dark:bg-zinc-900">
+                                        {loading ? (
+                                            <tr>
+                                                <td colSpan={4} className="px-6 py-10 text-center text-sm text-zinc-450 dark:text-zinc-550">
+                                                    Memuat riwayat permohonan...
+                                                </td>
+                                            </tr>
+                                        ) : error ? (
+                                            <tr>
+                                                <td colSpan={4} className="px-6 py-10 text-center text-sm text-red-500 font-medium">
+                                                    {error}
+                                                </td>
+                                            </tr>
+                                        ) : tikets.length === 0 ? (
+                                            <tr>
+                                                <td colSpan={4} className="px-6 py-10 text-center text-sm text-zinc-450 dark:text-zinc-550">
+                                                    Belum ada riwayat permohonan layanan.
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            currentTikets.map((tiket) => (
+                                                <tr key={tiket.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50 transition-colors">
+                                                    <td className="px-6 py-5.5 whitespace-nowrap text-sm text-[var(--foreground)] dark:text-zinc-100 font-base">
+                                                         {tiket.jawaban_form?.nama_lengkap || tiket.user?.nama || "-"}
+                                                    </td>
+                                                    <td className="px-6 py-5.5 whitespace-nowrap text-sm text-[var(--foreground)] dark:text-zinc-100 font-base">
+                                                        {tiket.layanan?.nama_layanan || "-"}
+                                                    </td>
+                                                    <td className="px-6 py-5.5 whitespace-nowrap text-center text-sm text-[var(--foreground)] dark:text-zinc-400 font-base">
+                                                        {formatDate(tiket.tanggal_submit || tiket.createdAt)}
+                                                    </td>
+                                                    <td className="px-6 py-5.5 whitespace-nowrap text-sm">
+                                                        <div className="flex justify-center">
+                                                            <StatusLayananBadge status={tiket.status} />
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {/* Pagination Footer */}
+                        {tikets.length > 0 && (
+                            <div className="flex items-center justify-between border-t border-zinc-200/80 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 px-6 py-4">
+                                <div className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">
+                                    Menampilkan {totalItems === 0 ? 0 : startIndex + 1}-{endIndex} dari {totalItems} permohonan
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                                        disabled={currentPage === 1}
+                                        className="flex h-8 w-8 items-center justify-center rounded-md font-medium text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200/50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:hover:bg-transparent transition cursor-pointer"
+                                    >
+                                        <ChevronLeft className="h-4 w-4" />
+                                    </button>
+                                    {Array.from({ length: totalPages }, (_, index) => {
+                                        const pageNumber = index + 1;
+                                        return (
+                                            <button
+                                                key={pageNumber}
+                                                onClick={() => setCurrentPage(pageNumber)}
+                                                className={`flex h-8 w-8 items-center justify-center rounded-md text-sm font-semibold transition cursor-pointer ${currentPage === pageNumber
+                                                    ? "bg-[#2C5E3B] text-white dark:bg-emerald-600"
+                                                    : "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200/50 dark:hover:bg-zinc-800"
+                                                    }`}
+                                            >
+                                                {pageNumber}
+                                            </button>
+                                        );
+                                    })}
+                                    <button
+                                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                                        disabled={currentPage === totalPages}
+                                        className="flex h-8 w-8 items-center justify-center rounded-md font-medium text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200/50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:hover:bg-transparent transition cursor-pointer"
+                                    >
+                                        <ChevronRight className="h-4 w-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    {/* Services List Card */}
+                    <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:bg-zinc-900 dark:border-zinc-800 text-left">
+                        <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-4">
+                            Layanan yang Dikelola
+                        </h3>
+                        <div className="space-y-4">
+                            {getUnitTeknisServices(unitTeknisId).length > 0 ? (
+                                getUnitTeknisServices(unitTeknisId).map((svc) => (
+                                    <div
+                                        key={svc.id}
+                                        onClick={() => router.push(`/layanan/${svc.id}`)}
+                                        className="flex items-center justify-between p-4 rounded-xl border border-zinc-100 hover:border-emerald-500/30 hover:bg-emerald-50/10 transition dark:border-zinc-800 dark:hover:bg-emerald-950/10 cursor-pointer"
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
+                                                <Sprout className="h-5 w-5" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-semibold text-zinc-900 dark:text-white text-sm sm:text-base">
+                                                    {svc.name}
+                                                </h4>
+                                                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                                                    ID Layanan: {svc.id}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${svc.type === "gratis"
+                                            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400"
+                                            : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-400"
+                                            }`}>
+                                            {svc.type.toUpperCase()}
+                                        </span>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                                    Tidak ada layanan spesifik yang terdaftar untuk unit Anda.
+                                </p>
+                            )}
+                        </div>
+                    </div>
+
+
                 </main>
             </div>
         </div>

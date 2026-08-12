@@ -6,7 +6,7 @@ import Sidebar from "@/components/sidebar/Sidebar";
 import AppBar from "@/components/appbar/AppBar";
 import RoleUserBadge from "@/components/badge/role-user/RoleUserBadge";
 import { getUserFromToken, getRedirectPath } from "@/lib/auth";
-import { Users, Sprout, ShieldAlert, Pencil, Trash2 } from "lucide-react";
+import { Users, Sprout, ShieldAlert, Pencil, Trash2, Plus } from "lucide-react";
 
 interface UnitTeknis {
     id: number;
@@ -174,6 +174,18 @@ export default function KelolaUser({ filterType }: KelolaUserProps) {
                         </div>
                     </div>
 
+                    {isPegawai && (
+                        <div className="flex justify-end">
+                            <button
+                                onClick={() => router.push("/kelola-user/pegawai/tambah")}
+                                className="inline-flex items-center gap-2 rounded-xl bg-[var(--green-color)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#22482E] transition shadow-sm cursor-pointer"
+                            >
+                                <Plus className="h-4 w-4" />
+                                Tambah Pegawai
+                            </button>
+                        </div>
+                    )}
+
                     {/* Main Table Card */}
                     <div className="rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 overflow-hidden">
                         {error && (
@@ -196,64 +208,70 @@ export default function KelolaUser({ filterType }: KelolaUserProps) {
                                     <p className="text-xs">Belum ada akun terdaftar dalam kategori ini.</p>
                                 </div>
                             ) : (
-                                <table className="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr className="border-b border-zinc-100 bg-zinc-50/50 text-xs font-medium uppercase tracking-wider text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950/50 dark:text-zinc-400">
-                                            <th className="text-center px-6 py-4">Nama</th>
+                                <table className="min-w-full divide-y divide-zinc-200/80 dark:divide-zinc-800">
+                                    <thead className="bg-[#E5E7EB]/50 dark:bg-zinc-950">
+                                        <tr>
+                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">Nama</th>
                                             {isPegawai ? (
-                                                <th className="text-center px-6 py-4">NIP</th>
+                                                <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">NIP</th>
                                             ) : null}
-                                            <th className="text-center px-6 py-4">Email</th>
                                             {!isPegawai ? (
-                                                <th className="text-center px-6 py-4">No. HP</th>
+                                                <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">Email</th>
+                                            ) : null}
+                                            {!isPegawai ? (
+                                                <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">No. HP</th>
                                             ) : (
-                                                <th className="text-center px-6 py-4">Role</th>
+                                                <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">Role</th>
                                             )}
                                             {isPegawai ? (
-                                                <th className="text-center px-6 py-4">Unit Teknis</th>
+                                                <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">Unit Teknis</th>
                                             ) : null}
-                                            <th className="text-center px-6 py-4">Aksi</th>
+                                            <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">Aksi</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-zinc-100 text-sm dark:divide-zinc-800 font-medium">
+                                    <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800 bg-white dark:bg-zinc-900">
                                         {filteredUsers.map((u) => (
-                                            <tr key={u.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-950/50 transition">
-                                                <td className="text-center px-6 py-4 font-medium text-zinc-900 dark:text-white whitespace-nowrap">
+                                            <tr key={u.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50 transition-colors">
+                                                <td className="px-6 py-5.5 whitespace-nowrap text-sm text-[var(--foreground)] font-base text-left">
                                                     {u.nama}
                                                 </td>
                                                 {isPegawai ? (
-                                                    <td className="text-center px-6 py-4">
+                                                    <td className="px-6 py-5.5 whitespace-nowrap text-sm text-[var(--foreground)] text-center">
                                                         {u.nip ? (
-                                                            <span className="font-mono text-xs font-medium px-2 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-md">
+                                                            <span className="font-mono text-xs font-medium px-2 py-1 rounded-md">
                                                                 {u.nip}
                                                             </span>
                                                         ) : (
-                                                            <span className="text-zinc-400 dark:text-zinc-600 font-medium">-</span>
+                                                            <span className="text-zinc-400 dark:text-zinc-600 font-base">-</span>
                                                         )}
                                                     </td>
                                                 ) : null}
-                                                <td className="text-center px-6 py-4 text-zinc-650 dark:text-zinc-400 font-medium">
-                                                    {u.email || <span className="text-zinc-400 dark:text-zinc-600 font-medium">-</span>}
-                                                </td>
                                                 {!isPegawai ? (
-                                                    <td className="text-center px-6 py-4 text-zinc-650 dark:text-zinc-400 font-medium">
-                                                        {u.no_hp || <span className="text-zinc-400 dark:text-zinc-600 font-medium">-</span>}
+                                                    <td className="px-6 py-5.5 whitespace-nowrap text-sm text-[var(--foreground)] font-base text-center">
+                                                        {u.email || <span className="text-zinc-400 dark:text-zinc-650 font-base">-</span>}
+                                                    </td>
+                                                ) : null}
+                                                {!isPegawai ? (
+                                                    <td className="px-6 py-5.5 whitespace-nowrap text-sm text-[var(--foreground)] font-base text-center">
+                                                        {u.no_hp || <span className="text-zinc-400 dark:text-zinc-650 font-base">-</span>}
                                                     </td>
                                                 ) : (
-                                                    <td className="text-center px-6 py-4 whitespace-nowrap">
-                                                        <RoleUserBadge role={u.role} />
+                                                    <td className="px-6 py-5.5 whitespace-nowrap text-sm text-center">
+                                                        <div className="flex justify-center">
+                                                            <RoleUserBadge role={u.role} />
+                                                        </div>
                                                     </td>
                                                 )}
                                                 {isPegawai ? (
-                                                    <td className="text-center px-6 py-4 font-medium text-zinc-700 dark:text-zinc-350">
+                                                    <td className="px-6 py-5.5 whitespace-nowrap text-sm text-[var(--foreground)] font-base text-center">
                                                         {u.unit_teknis ? (
                                                             u.unit_teknis.nama
                                                         ) : (
-                                                            <span className="text-zinc-400 dark:text-zinc-600 font-medium">-</span>
+                                                            <span className="text-zinc-400 dark:text-zinc-650 font-base">-</span>
                                                         )}
                                                     </td>
                                                 ) : null}
-                                                <td className="text-center px-6 py-4 whitespace-nowrap">
+                                                <td className="px-6 py-5.5 whitespace-nowrap text-sm text-center">
                                                     <div className="flex items-center justify-center gap-2">
                                                         <button
                                                             onClick={() => handleEdit(u)}

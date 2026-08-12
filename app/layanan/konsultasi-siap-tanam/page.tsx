@@ -3,19 +3,15 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Navbar from "@/components/navbar/Navbar";
 import Kontak from "@/components/landing-page/Kontak";
 import CommonServiceForm, { CommonFormData } from "@/components/form/layanan/CommonServiceForm";
 import KonsultasiSiapTanamStep2Form from "@/components/form/layanan/konsultasi-siap-tanam/page";
-import {
-  AlertCircle,
-  CheckCircle2,
-  ArrowLeft,
-  Loader2
-} from "lucide-react";
+import ReviewServiceForm from "@/components/form/layanan/ReviewServiceForm";
+import { Loader2 } from "lucide-react";
+import FormLayout from "@/components/form/layanan/FormLayout";
 
 const API_URL = "http://localhost:3000";
-const LAYANAN_ID = 1; // Rekomendasi Kalender Tanam
+const LAYANAN_ID = 16; // Rekomendasi Siap Tanam
 
 export default function KonsultasiSiapTanamPage() {
   const router = useRouter();
@@ -32,6 +28,10 @@ export default function KonsultasiSiapTanamPage() {
     alamatInstansi: "",
     tanggalPengajuan: "",
     suratPengantar: null,
+  });
+  const [step2Data, setStep2Data] = useState({
+    jenisData: "",
+    alasan: "",
   });
 
   // Status states
@@ -50,7 +50,7 @@ export default function KonsultasiSiapTanamPage() {
     }
   }, [router]);
 
-  const handleSubmit = async (step2Data: { jenisData: string; alasan: string }) => {
+  const handleSubmit = async () => {
     setError("");
     setLoading(true);
     setSuccess(false);
@@ -181,6 +181,10 @@ export default function KonsultasiSiapTanamPage() {
       tanggalPengajuan: "",
       suratPengantar: null,
     });
+    setStep2Data({
+      jenisData: "",
+      alasan: "",
+    });
     setStep(1);
   };
 
@@ -193,123 +197,54 @@ export default function KonsultasiSiapTanamPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col bg-gradient-to-b from-emerald-50/50 via-white to-teal-50/30 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 text-zinc-900 dark:text-zinc-50 overflow-x-hidden font-sans">
-      {/* Background patterns */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <svg
-          className="absolute left-[max(50%,25rem)] top-0 h-[64rem] w-[128rem] -translate-x-1/2 stroke-emerald-200/30 [mask-image:radial-gradient(64rem_64rem_at_top,white,transparent)] dark:stroke-emerald-950/10"
-          aria-hidden="true"
-        >
-          <defs>
-            <pattern
-              id="grid-pattern"
-              width={200}
-              height={200}
-              x="50%"
-              y={-1}
-              patternUnits="userSpaceOnUse"
-            >
-              <path d="M100 200V.5M.5 .5H200" fill="none" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" strokeWidth={0} fill="url(#grid-pattern)" />
-        </svg>
+    <FormLayout
+      serviceName="Konsultasi Siap Tanam"
+      step={step}
+      error={error}
+      success={success}
+      createdTiketNo={createdTiketNo}
+      onAjukanLagi={() => setSuccess(false)}
+    >
+      {/* Form Container */}
+      <div className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-2xl border border-zinc-200/60 dark:border-zinc-800/80 p-6 sm:p-8 shadow-xl relative overflow-hidden">
+        {loading && (
+          <div className="absolute inset-0 bg-white/60 dark:bg-zinc-950/60 z-50 flex flex-col items-center justify-center gap-3">
+            <Loader2 className="w-10 h-10 animate-spin text-[var(--green-color)]" />
+            <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">{progressMsg}</span>
+          </div>
+        )}
+
+        {step === 1 ? (
+          <CommonServiceForm
+            serviceName="Konsultasi Siap Tanam"
+            initialData={formData}
+            onNext={(data) => {
+              setFormData(data);
+              setStep(2);
+            }}
+          />
+        ) : step === 2 ? (
+          <KonsultasiSiapTanamStep2Form
+            onBack={() => setStep(1)}
+            onSubmit={(data) => {
+              setStep2Data(data);
+              setStep(3);
+            }}
+            loading={loading}
+          />
+        ) : (
+          <ReviewServiceForm
+            commonData={formData}
+            serviceData={[
+              { label: "Jenis Data / Informasi Yang Diperlukan", value: step2Data.jenisData, isLongText: true },
+              { label: "Alasan Permintaan / Pengajuan", value: step2Data.alasan, isLongText: true }
+            ]}
+            onBack={() => setStep(2)}
+            onSubmit={handleSubmit}
+            loading={loading}
+          />
+        )}
       </div>
-
-      {/* Landing Page Navbar */}
-      <Navbar />
-
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-10 space-y-8 z-10">
-        
-        {/* Header Section */}
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-zinc-200 dark:border-zinc-800">
-          <div>
-            <div className="flex items-center gap-2 text-sm text-[var(--green-color)] dark:text-emerald-400 font-bold mb-1">
-              <Link href="/" className="flex items-center gap-1 hover:underline">
-                <ArrowLeft className="w-4 h-4" /> Beranda
-              </Link>
-              <span>/</span>
-              <span>Layanan</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
-              Formulir Konsultasi Siap Tanam
-            </h1>
-            <p className="text-zinc-500 dark:text-zinc-400 text-xs sm:text-sm mt-1 leading-relaxed">
-              Konsultasi Siap Tanam (Rekomendasi Kalender Tanam).
-            </p>
-          </div>
-        </div>
-
-        {/* Messages & Success Modals */}
-        {error && (
-          <div className="rounded-xl bg-red-50 p-4 text-sm text-red-700 dark:bg-red-950/45 dark:text-red-400 border border-red-200 dark:border-red-900/40 flex items-start gap-3 shadow-sm transition duration-300">
-            <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
-            <div>
-              <span className="font-bold">Gagal Mengajukan:</span>
-              <p className="mt-1 text-red-600 dark:text-red-400">{error}</p>
-            </div>
-          </div>
-        )}
-
-        {success && (
-          <div className="rounded-xl bg-emerald-50 p-6 text-sm text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/40 dark:border-emerald-900/40 flex flex-col items-center text-center gap-3 shadow-lg transition duration-300">
-            <CheckCircle2 className="h-12 w-12 text-emerald-600 dark:text-emerald-400 animate-bounce" />
-            <div className="space-y-1">
-              <h3 className="text-lg font-bold text-emerald-900 dark:text-white">Pengajuan Berhasil!</h3>
-              <p className="text-emerald-700 dark:text-emerald-400">
-                Formulir konsultasi siap tanam telah diajukan dengan nomor tiket <span className="font-extrabold text-emerald-900 dark:text-white">{createdTiketNo}</span>.
-              </p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 pt-2">
-                Petugas kami akan melakukan verifikasi berkas dalam 14 hari kerja.
-              </p>
-            </div>
-            <div className="mt-4 flex gap-4 w-full sm:w-auto">
-              <button
-                onClick={() => setSuccess(false)}
-                className="flex-1 px-4 py-2 border border-emerald-300 hover:bg-emerald-100 text-emerald-800 dark:border-emerald-800 dark:hover:bg-emerald-950/30 rounded-xl font-semibold transition"
-              >
-                Ajukan Lagi
-              </button>
-              <Link href="/" className="flex-1">
-                <button className="w-full px-5 py-2 bg-[var(--green-color)] hover:bg-emerald-650 text-white rounded-xl font-bold shadow-md transition">
-                  Kembali ke Beranda
-                </button>
-              </Link>
-            </div>
-          </div>
-        )}
-
-        {/* Form Container */}
-        <div className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-2xl border border-zinc-200/60 dark:border-zinc-800/80 p-6 sm:p-8 shadow-xl relative overflow-hidden">
-          {loading && (
-            <div className="absolute inset-0 bg-white/60 dark:bg-zinc-950/60 z-50 flex flex-col items-center justify-center gap-3">
-              <Loader2 className="w-10 h-10 animate-spin text-[var(--green-color)]" />
-              <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">{progressMsg}</span>
-            </div>
-          )}
-
-          {step === 1 ? (
-            <CommonServiceForm
-              serviceName="Konsultasi Siap Tanam"
-              initialData={formData}
-              onNext={(data) => {
-                setFormData(data);
-                setStep(2);
-              }}
-            />
-          ) : (
-            <KonsultasiSiapTanamStep2Form
-              onBack={() => setStep(1)}
-              onSubmit={handleSubmit}
-              loading={loading}
-            />
-          )}
-        </div>
-      </main>
-
-      {/* Landing Page Footer */}
-      <Kontak />
-    </div>
+    </FormLayout>
   );
 }

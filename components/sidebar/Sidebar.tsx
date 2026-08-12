@@ -3,11 +3,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { LogOut, ChevronDown, ChevronRight, X } from "lucide-react";
 import { getUserFromToken, logout, type JwtPayload } from "@/lib/auth";
 import LogoutModal from "../modal/LogoutModal";
-import { sidebarMenuByRole } from "@/config/sidebar-menu";
+import { sidebarMenuByRole, layananByUnitTeknis } from "@/config/sidebar-menu";
 
 export default function Sidebar() {
     const pathname = usePathname();
@@ -33,7 +33,21 @@ export default function Sidebar() {
         setIsOpen(false);
     }, [pathname]);
 
-    const menuItems = sidebarMenuByRole[user?.role || ""] || [];
+    const menuItems = useMemo(() => {
+        let items = sidebarMenuByRole[user?.role || ""] || [];
+        if (user?.role === "pegawai" && user?.unit_teknis_id) {
+            items = items.map((item) => {
+                if (item.label === "Layanan") {
+                    return {
+                        ...item,
+                        subItems: layananByUnitTeknis[user.unit_teknis_id as number] || [],
+                    };
+                }
+                return item;
+            });
+        }
+        return items;
+    }, [user?.role, user?.unit_teknis_id]);
 
     useEffect(() => {
         if (pathname && menuItems.length > 0) {
@@ -67,8 +81,8 @@ export default function Sidebar() {
                     height={48}
                     priority
                 />
-                <span className="text-lg font-bold text-[var(--green-color)] dark:text-zinc-50 text-center leading-tight">
-                    BRMP Agroklimat
+                <span className="text-lg font-semibold text-[var(--green-color)] dark:text-zinc-50 text-center leading-tight">
+                    Portal Layanan BRMP
                 </span>
             </div>
 
@@ -85,8 +99,8 @@ export default function Sidebar() {
                                 <button
                                     onClick={() => toggleMenu(item.label)}
                                     className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-xs font-medium transition-colors cursor-pointer ${hasActiveSub
-                                        ? "bg-emerald-50/50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
-                                        : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900"
+                                        ? "text-[var(--foreground)] dark:bg-emerald-950/30 dark:text-emerald-400"
+                                        : "text-[var(--foreground)] dark:text-zinc-400"
                                         }`}
                                 >
                                     <div className="flex items-center gap-3">
@@ -94,9 +108,9 @@ export default function Sidebar() {
                                         <span>{item.label}</span>
                                     </div>
                                     {isExpanded ? (
-                                        <ChevronDown className="h-4 w-4 text-zinc-400 dark:text-zinc-500" />
+                                        <ChevronDown className="h-4 w-4" />
                                     ) : (
-                                        <ChevronRight className="h-4 w-4 text-zinc-400 dark:text-zinc-500" />
+                                        <ChevronRight className="h-4 w-4" />
                                     )}
                                 </button>
 
@@ -110,8 +124,8 @@ export default function Sidebar() {
                                                     key={sub.href}
                                                     href={sub.href}
                                                     className={`flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${isSubActive
-                                                        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400"
-                                                        : "text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900"
+                                                        ? "bg-[var(--green-color)] text-white dark:bg-emerald-950/50 dark:text-emerald-400"
+                                                        : "text-[var(--foreground)] dark:text-zinc-400"
                                                         }`}
                                                 >
                                                     {SubIcon && <SubIcon className="h-4 w-4" />}
@@ -131,8 +145,8 @@ export default function Sidebar() {
                             key={item.href || item.label}
                             href={item.href || "#"}
                             className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-medium transition-colors ${isActive
-                                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400"
-                                : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900"
+                                ? "bg-[var(--green-color)] text-white dark:bg-emerald-950/50 dark:text-emerald-400"
+                                : "text-[var(--foreground)] dark:text-zinc-400"
                                 }`}
                         >
                             <Icon className="h-5 w-5" />
@@ -143,10 +157,10 @@ export default function Sidebar() {
             </nav>
 
             {user && (
-                <div className="border-t border-zinc-200 px-3 py-4 dark:border-zinc-800">
+                <div className="border-t border-zinc-200 px-3 py-4 bg-[#E8F7ED] dark:border-zinc-800">
                     <button
                         onClick={() => setLogoutModalOpen(true)}
-                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-650 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/50 cursor-pointer"
+                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 dark:text-red-100 cursor-pointer hover:bg-red-600 hover:text-white"
                     >
                         <LogOut className="h-5 w-5" />
                         Logout
@@ -159,7 +173,7 @@ export default function Sidebar() {
     return (
         <>
             {/* Desktop Sidebar */}
-            <aside className="hidden lg:flex h-screen w-64 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 flex-shrink-0">
+            <aside className="hidden lg:flex h-screen w-64 flex-col border-r border-zinc-200 bg-[#E8F7ED] dark:border-zinc-800 dark:bg-zinc-950 flex-shrink-0">
                 {renderSidebarContent()}
             </aside>
 
@@ -172,7 +186,7 @@ export default function Sidebar() {
                         onClick={() => setIsOpen(false)}
                     />
                     {/* Drawer Panel */}
-                    <aside className="relative flex h-full w-64 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 shadow-xl transition-all duration-300">
+                    <aside className="relative flex h-full w-64 flex-col border-r border-zinc-200 bg-[#E8F7ED] dark:border-zinc-800 dark:bg-zinc-950 shadow-xl transition-all duration-300">
                         {/* Close button inside drawer */}
                         <button
                             onClick={() => setIsOpen(false)}

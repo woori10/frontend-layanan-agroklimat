@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AlertCircle, FileText, Info, Clock, Users, Calendar } from "lucide-react";
+import { AlertCircle, FileText, Info, Clock, Users, Calendar, ArrowLeft } from "lucide-react";
 
 export interface AgroedukasiStep2 {
     topik: string;
@@ -94,9 +94,6 @@ export default function AgroedukasiStep2Form({
                         Topik Kunjungan <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400 dark:text-zinc-500">
-                            <Info className="h-4 w-4" />
-                        </span>
                         <input
                             id="topik"
                             type="text"
@@ -104,7 +101,7 @@ export default function AgroedukasiStep2Form({
                             disabled={loading}
                             value={topik}
                             onChange={(e) => setTopik(e.target.value)}
-                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-10 pr-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
                             placeholder="Contoh: Pengenalan AWS, Budidaya Hidroponik"
                         />
                     </div>
@@ -116,9 +113,6 @@ export default function AgroedukasiStep2Form({
                         Lama (Durasi) Kunjungan <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400 dark:text-zinc-500">
-                            <Clock className="h-4 w-4" />
-                        </span>
                         <input
                             id="durasi"
                             type="text"
@@ -126,7 +120,7 @@ export default function AgroedukasiStep2Form({
                             disabled={loading}
                             value={durasi}
                             onChange={(e) => setDurasi(e.target.value)}
-                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-10 pr-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
                             placeholder="Contoh: 3 Jam, 1 Hari, 2 Minggu"
                         />
                     </div>
@@ -141,9 +135,6 @@ export default function AgroedukasiStep2Form({
                         Jumlah Peserta <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400 dark:text-zinc-500">
-                            <Users className="h-4 w-4" />
-                        </span>
                         <input
                             id="jumlahPeserta"
                             type="text"
@@ -151,7 +142,7 @@ export default function AgroedukasiStep2Form({
                             disabled={loading}
                             value={jumlahPeserta}
                             onChange={(e) => setJumlahPeserta(e.target.value)}
-                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-10 pr-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
                             placeholder="Contoh: 30 Orang, 2 Kelas"
                         />
                     </div>
@@ -163,9 +154,6 @@ export default function AgroedukasiStep2Form({
                         Tanggal Kunjungan <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400 dark:text-zinc-500">
-                            <Calendar className="h-4 w-4" />
-                        </span>
                         <input
                             id="tanggalKunjungan"
                             type="date"
@@ -173,7 +161,7 @@ export default function AgroedukasiStep2Form({
                             disabled={loading}
                             value={tanggalKunjungan}
                             onChange={(e) => setTanggalKunjungan(e.target.value)}
-                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-10 pr-4 py-2.5 text-sm text-zinc-900 dark:text-white shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
                         />
                     </div>
                 </div>
@@ -185,9 +173,6 @@ export default function AgroedukasiStep2Form({
                     Tujuan Kunjungan <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3.5 pt-3.5 flex items-start pointer-events-none text-zinc-400 dark:text-zinc-500">
-                        <FileText className="h-4 w-4" />
-                    </span>
                     <textarea
                         id="tujuanKunjungan"
                         required
@@ -195,28 +180,29 @@ export default function AgroedukasiStep2Form({
                         disabled={loading}
                         value={tujuanKunjungan}
                         onChange={(e) => setTujuanKunjungan(e.target.value)}
-                        className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-10 pr-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 resize-none"
+                        className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
                         placeholder="Jelaskan secara detail tujuan kunjungan edukasi ini (misal: Pengenalan instrumen agroklimatologi untuk siswa SMA)"
                     />
                 </div>
             </div>
 
             {/* Action Buttons for Step 2 */}
-            <div className="flex justify-end gap-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+            <div className="flex justify-between gap-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
                 <button
                     type="button"
                     onClick={onBack}
                     disabled={loading}
-                    className="px-5 py-2.5 border border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 rounded-xl text-sm font-bold transition disabled:opacity-50"
+                    className="flex items-center gap-2 px-4 py-2.5 border border-[var(--green-color)] dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-900 text-[var(--green-color)] dark:text-zinc-300 rounded-xl text-sm font-bold transition disabled:opacity-50"
                 >
+                    <ArrowLeft className="h-4 w-4 " />
                     Kembali
                 </button>
                 <button
                     type="submit"
                     disabled={loading}
-                    className="px-6 py-2.5 bg-[var(--green-color)] hover:bg-emerald-650 text-white rounded-xl text-sm font-extrabold shadow-md transition disabled:opacity-50 flex items-center gap-2"
+                    className="px-4 py-2.5 bg-[var(--green-color)] hover:bg-emerald-650 text-white rounded-xl text-sm font-extrabold shadow-md transition disabled:opacity-50 flex items-center gap-2"
                 >
-                    Kirim
+                    Kirim Pengajuan
                 </button>
             </div>
         </form>

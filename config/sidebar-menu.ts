@@ -33,6 +33,29 @@ export interface MenuItem {
     subItems?: SubMenuItem[];
 }
 
+export const layananByUnitTeknis: Record<number, SubMenuItem[]> = {
+    1: [
+        { label: "Rekomendasi & Penilaian SNI", href: "/layanan/14" },
+        { label: "Konsultasi Rekomendasi SNI", href: "/layanan/15" },
+        { label: "Permohonan Data", href: "/layanan/18" },
+    ],
+    2: [
+        { label: "Peminjaman Alat", href: "/layanan/19" },
+    ],
+    3: [
+        { label: "Bimbingan Teknis & Narasumber", href: "/layanan/17" },
+        { label: "Magang Teknis / PKL", href: "/layanan/20" },
+        { label: "Agroedukasi / Kunjungan Edukasi", href: "/layanan/21" },
+        { label: "Layanan Perpustakaan", href: "/layanan/22" },
+    ],
+    4: [
+        { label: "Rekomendasi Siap Tanam", href: "/layanan/16" },
+    ],
+    5: [
+        { label: "Layanan Mess", href: "/layanan/23" },
+    ],
+};
+
 export const sidebarMenuByRole: Record<string, MenuItem[]> = {
     pengguna: [
         { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -50,7 +73,7 @@ export const sidebarMenuByRole: Record<string, MenuItem[]> = {
                 { label: "Layanan Mess", href: "/dashboard/layanan/layanan-mess" },
             ],
         },
-        { label: "Profil", href: "/profil", icon: User },
+        { label: "Profil", href: "/profile", icon: User },
     ],
 
     admin: [
@@ -59,32 +82,30 @@ export const sidebarMenuByRole: Record<string, MenuItem[]> = {
             label: "Verifikasi Layanan",
             icon: FileCheck,
             subItems: [
-                { label: "Rekomendasi Siap Tanam", href: "/verifikasi-layanan/1" },
-                { label: "Rekomendasi dan Penilaian SNI", href: "/verifikasi-layanan/2" },
-                { label: "Peminjaman Alat", href: "/verifikasi-layanan/3" },
-                { label: "Permohonan Data", href: "/verifikasi-layanan/4" },
-                { label: "Konsultasi Rekomendasi & Penilaian Kesesuaian", href: "/verifikasi-layanan/5" },
-                { label: "Bimbingan Teknis & Narasumber", href: "/verifikasi-layanan/6" },
-                { label: "Magang Teknis / PKL", href: "/verifikasi-layanan/7" },
-                { label: "Layanan Perpustakaan", href: "/verifikasi-layanan/8" },
-                { label: "Agroedukasi / Kunjungan Edukasi", href: "/verifikasi-layanan/9" },
+                { label: "Rekomendasi Siap Tanam", href: "/verifikasi-layanan/16" },
+                { label: "Rekomendasi & Penilaian SNI", href: "/verifikasi-layanan/14" },
+                { label: "Konsultasi Rekomendasi SNI", href: "/verifikasi-layanan/15" },
+                { label: "Bimbingan Teknis & Narasumber", href: "/verifikasi-layanan/17" },
+                { label: "Magang Teknis / PKL", href: "/verifikasi-layanan/20" },
+                { label: "Layanan Perpustakaan", href: "/verifikasi-layanan/22" },
+                { label: "Agroedukasi / Kunjungan Edukasi", href: "/verifikasi-layanan/21" },
+                { label: "Permohonan Data", href: "/verifikasi-layanan/18" },
+                { label: "Peminjaman Alat", href: "/verifikasi-layanan/19" },
+                { label: "Layanan Mess", href: "/verifikasi-layanan/23" },
             ],
         },
-        {
-            label: "Tagihan",
-            href: "/tagihan",
-            icon: Receipt,
-            subItems: [
-                { label: "Peminjaman Alat", href: "/tagihan/3" },
-            ],
-        },
-        { label: "Profil", href: "/profil", icon: User },
+        { label: "Tagihan", href: "/tagihan", icon: Receipt },
+        { label: "Profil", href: "/profile", icon: User },
     ],
 
     pegawai: [
         { label: "Dashboard", href: "/dashboard-pegawai", icon: LayoutDashboard },
-        { label: "Layanan", href: "/layanan", icon: ClipboardList },
-        { label: "Profil", href: "/profil", icon: User },
+        {
+            label: "Layanan",
+            icon: ClipboardList,
+            subItems: [],
+        },
+        { label: "Profil", href: "/profile", icon: User },
     ],
 
     super_admin: [
@@ -100,7 +121,7 @@ export const sidebarMenuByRole: Record<string, MenuItem[]> = {
         { label: "Kelola Layanan", href: "/kelola-layanan", icon: Settings },
         { label: "Kelola Tagihan", href: "/kelola-tagihan", icon: Receipt },
         { label: "Audit Log", href: "/audit-log", icon: History },
-        { label: "Profil", href: "/profil", icon: User },
+        { label: "Profil", href: "/profile", icon: User },
     ],
 
     kepala_balai: [
@@ -110,12 +131,12 @@ export const sidebarMenuByRole: Record<string, MenuItem[]> = {
             href: "/dashboard-kepala-balai/layanan",
             icon: ClipboardCheck,
             subItems: [
-                { label: "Bimbingan Teknis & Narasumber", href: "/persetujuan-layanan/6" },
-                { label: "Magang Teknis / PKL", href: "/persetujuan-layanan/7" },
-                { label: "Agroedukasi / Kunjungan Edukasi", href: "/persetujuan-layanan/9" },
+                { label: "Bimbingan Teknis & Narasumber", href: "/persetujuan-layanan/17" },
+                { label: "Magang Teknis / PKL", href: "/persetujuan-layanan/20" },
+                { label: "Agroedukasi / Kunjungan Edukasi", href: "/persetujuan-layanan/21" },
             ],
         },
         { label: "Audit Log", href: "/audit-log", icon: History },
-        { label: "Profil", href: "/profil", icon: User },
+        { label: "Profil", href: "/profile", icon: User },
     ],
 };

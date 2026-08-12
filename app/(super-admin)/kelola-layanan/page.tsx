@@ -12,9 +12,11 @@ import {
     Pencil,
     Trash2,
     Database,
-    ShieldAlert
+    ShieldAlert,
+    Plus,
+    ToggleLeft,
+    ToggleRight
 } from "lucide-react";
-import Link from "next/link";
 
 export default function KelolaLayananPage() {
     const router = useRouter();
@@ -66,7 +68,11 @@ export default function KelolaLayananPage() {
                     throw new Error("Gagal mengambil data layanan");
                 }
                 const data = await response.json();
-                setLayananList(data);
+                const initializedData = data.map((layanan: any) => ({
+                    ...layanan,
+                    is_active: layanan.is_active !== undefined ? layanan.is_active : true
+                }));
+                setLayananList(initializedData);
             } catch (err: any) {
                 console.error(err);
                 setError(err.message || "Terjadi kesalahan.");
@@ -98,6 +104,14 @@ export default function KelolaLayananPage() {
         if (confirm("Apakah Anda yakin ingin menghapus layanan ini? (Mockup)")) {
             alert(`Menghapus layanan ID: ${id}`);
         }
+    };
+
+    const handleToggle = (id: number) => {
+        setLayananList((prev) =>
+            prev.map((layanan) =>
+                layanan.id === id ? { ...layanan, is_active: !layanan.is_active } : layanan
+            )
+        );
     };
 
     if (!mounted) {
@@ -141,6 +155,15 @@ export default function KelolaLayananPage() {
                             <span>{error}</span>
                         </div>
                     )}
+                    <div className="flex justify-end">
+                        <button
+                            onClick={() => router.push("/kelola-layanan/tambah")}
+                            className="inline-flex items-center gap-2 rounded-xl bg-[var(--green-color)] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#22482E] transition shadow-sm cursor-pointer"
+                        >
+                            <Plus className="h-4 w-4" />
+                            Tambah Layanan
+                        </button>
+                    </div>
 
                     {/* Table Section */}
                     <div className="overflow-hidden rounded-lg border border-zinc-200/80 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
@@ -160,19 +183,19 @@ export default function KelolaLayananPage() {
                                 <table className="min-w-full divide-y divide-zinc-200/80 dark:divide-zinc-800">
                                     <thead className="bg-[#E5E7EB]/50 dark:bg-zinc-950">
                                         <tr>
-                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider w-16">
+                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider w-16">
                                                 No
                                             </th>
-                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">
                                                 Nama Layanan
                                             </th>
-                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                                                Estimasi SLA (Hari)
-                                            </th>
-                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">
                                                 Tarif / Biaya
                                             </th>
-                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider w-36">
+                                                Status
+                                            </th>
+                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider w-36">
                                                 Aksi
                                             </th>
                                         </tr>
@@ -188,26 +211,41 @@ export default function KelolaLayananPage() {
                                                         {layanan.nama_layanan}
                                                     </td>
                                                     <td className="px-6 py-5.5 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400 font-medium text-left">
-                                                        {layanan.sla_hari ? `${layanan.sla_hari} Hari` : "-"}
-                                                    </td>
-                                                    <td className="px-6 py-5.5 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400 font-medium text-left">
                                                         {formatBiaya(layanan.biaya)}
+                                                    </td>
+                                                    <td className="px-6 py-5.5 whitespace-nowrap text-sm text-left">
+                                                        {layanan.is_active ? (
+                                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-450">
+                                                                Aktif
+                                                            </span>
+                                                        ) : (
+                                                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-zinc-100 text-zinc-650 border border-zinc-200 dark:bg-zinc-800/30 dark:text-zinc-400 dark:border-zinc-800">
+                                                                Non-Aktif
+                                                            </span>
+                                                        )}
                                                     </td>
                                                     <td className="px-6 py-5.5 whitespace-nowrap text-sm text-left">
                                                         <div className="flex items-center justify-start gap-2">
                                                             <button
                                                                 onClick={() => handleEdit(layanan)}
-                                                                className="inline-flex items-center justify-center rounded-lg bg-emerald-50 p-2 text-emerald-700 hover:bg-emerald-100 transition dark:bg-emerald-950/40 dark:text-emerald-400 dark:hover:bg-emerald-900/40 cursor-pointer"
+                                                                className="inline-flex items-center justify-center rounded-lg bg-emerald-50 p-2 text-emerald-700 hover:bg-emerald-100 transition dark:bg-emerald-950/40 dark:text-emerald-450 dark:hover:bg-emerald-900/40 cursor-pointer"
                                                                 title="Edit"
                                                             >
                                                                 <Pencil className="h-4 w-4" />
                                                             </button>
                                                             <button
-                                                                onClick={() => handleDelete(layanan.id)}
-                                                                className="inline-flex items-center justify-center rounded-lg bg-red-50 p-2 text-red-700 hover:bg-red-100 transition dark:bg-red-950/40 dark:text-red-400 dark:hover:bg-red-900/40 cursor-pointer"
-                                                                title="Delete"
+                                                                onClick={() => handleToggle(layanan.id)}
+                                                                className={`inline-flex items-center justify-center rounded-lg p-1.5 transition cursor-pointer ${layanan.is_active
+                                                                        ? "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+                                                                        : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400 dark:hover:bg-emerald-900/40"
+                                                                    }`}
+                                                                title={layanan.is_active ? "Non-aktifkan" : "Aktifkan"}
                                                             >
-                                                                <Trash2 className="h-4 w-4" />
+                                                                {layanan.is_active ? (
+                                                                    <ToggleRight className="h-5 w-5 text-emerald-600" />
+                                                                ) : (
+                                                                    <ToggleLeft className="h-5 w-5 text-zinc-400" />
+                                                                )}
                                                             </button>
                                                         </div>
                                                     </td>

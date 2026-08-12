@@ -94,9 +94,6 @@ export default function LayananPerpustakaanForm({
                         Nama Lengkap <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400 dark:text-zinc-500">
-                            <User className="h-4 w-4" />
-                        </span>
                         <input
                             id="nama"
                             type="text"
@@ -104,7 +101,7 @@ export default function LayananPerpustakaanForm({
                             disabled={loading}
                             value={nama}
                             onChange={(e) => setNama(e.target.value)}
-                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-10 pr-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
                             placeholder="Masukkan nama lengkap Anda"
                         />
                     </div>
@@ -116,9 +113,6 @@ export default function LayananPerpustakaanForm({
                         Tanggal Kedatangan <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                        <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-450 dark:text-zinc-550">
-                            <Calendar className="h-4 w-4" />
-                        </span>
                         <input
                             id="tanggalDatang"
                             type="date"
@@ -126,7 +120,7 @@ export default function LayananPerpustakaanForm({
                             disabled={loading}
                             value={tanggalDatang}
                             onChange={(e) => setTanggalDatang(e.target.value)}
-                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-10 pr-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
                         />
                     </div>
                 </div>
@@ -138,9 +132,6 @@ export default function LayananPerpustakaanForm({
                     Asal Instansi <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400 dark:text-zinc-500">
-                        <MapPin className="h-4 w-4" />
-                    </span>
                     <input
                         id="asalInstansi"
                         type="text"
@@ -148,7 +139,7 @@ export default function LayananPerpustakaanForm({
                         disabled={loading}
                         value={asalInstansi}
                         onChange={(e) => setAsalInstansi(e.target.value)}
-                        className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-10 pr-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
                         placeholder="Contoh: Universitas Indonesia, Instansi Pemerintahan, Swasta, Umum"
                     />
                 </div>
@@ -160,9 +151,6 @@ export default function LayananPerpustakaanForm({
                     Keperluan Kunjungan <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3.5 pt-3.5 flex items-start pointer-events-none text-zinc-400 dark:text-zinc-500">
-                        <FileText className="h-4 w-4" />
-                    </span>
                     <textarea
                         id="keperluan"
                         required
@@ -170,7 +158,7 @@ export default function LayananPerpustakaanForm({
                         disabled={loading}
                         value={keperluan}
                         onChange={(e) => setKeperluan(e.target.value)}
-                        className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-10 pr-4 py-2.5 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 resize-none"
+                        className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
                         placeholder="Tuliskan tujuan dan keperluan kunjungan Anda (misal: Membaca buku, Mencari jurnal ilmiah, dll.)"
                     />
                 </div>

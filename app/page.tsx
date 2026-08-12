@@ -4,8 +4,11 @@ import Navbar from "@/components/navbar/Navbar";
 import Hero from "@/components/landing-page/Hero";
 import Layanan from "@/components/landing-page/Layanan";
 import Tentang from "@/components/landing-page/Tentang";
+import Keunggulan from "@/components/landing-page/Keunggulan";
 import Faq from "@/components/landing-page/Faq";
 import Kontak from "@/components/landing-page/Kontak";
+import CaraMengajukan from "@/components/landing-page/CaraMengajukan";
+import Pengaduan from "@/components/landing-page/Pengaduan";
 
 export default function Home() {
   return (
@@ -36,13 +39,22 @@ export default function Home() {
       <Navbar />
 
       {/* Hero & Layanan sections */}
-      <main className="flex-1">
+      <main className="flex-1 bg-[#F8FAFC] dark:bg-[#0E1715]">
         <Hero />
         <div className="max-w-[85rem] mx-auto px-8 sm:px-6 lg:px-8 py-8 space-y-16">
           <Tentang />
-          <Layanan />
-          <Faq />
         </div>
+        <div className="space-y-8">
+          <Keunggulan />
+          <CaraMengajukan />
+          <Layanan />
+        </div>
+
+        <div className="max-w-[85rem] mx-auto px-8 sm:px-6 lg:px-8 py-16 space-y-16">
+          <Faq />
+          <Pengaduan />
+        </div>
+
 
         <Kontak />
       </main>
