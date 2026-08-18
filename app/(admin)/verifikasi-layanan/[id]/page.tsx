@@ -80,7 +80,6 @@ export default function VerifikasiLayananPage() {
     if (selectedStatus !== "semua") {
       if (selectedStatus === "selesai") {
         result = result.filter(t =>
-          t.status === "selesai_diproses" ||
           t.status === "menunggu_konfirmasi" ||
           t.status === "selesai"
         );

@@ -26,7 +26,7 @@ import {
 interface Tiket {
     id: number;
     no_tiket: string;
-    status: "diajukan" | "menunggu_verifikasi" | "perlu_revisi" | "diproses" | "menunggu_pembayaran" | "dibatalkan" | "ditolak" | "selesai_diproses" | "menunggu_konfirmasi" | "selesai";
+    status: "diajukan" | "menunggu_verifikasi" | "perlu_revisi" | "diproses" | "menunggu_pembayaran" | "dibatalkan" | "ditolak" | "menunggu_konfirmasi" | "selesai";
     createdAt: string;
     layanan: {
         id: number;
@@ -123,7 +123,6 @@ export default function LayananPegawaiDetailPage() {
         if (selectedStatus !== "semua") {
             if (selectedStatus === "selesai") {
                 result = result.filter(t =>
-                    t.status === "selesai_diproses" ||
                     t.status === "menunggu_konfirmasi" ||
                     t.status === "selesai"
                 );
@@ -187,7 +186,7 @@ export default function LayananPegawaiDetailPage() {
             setActionLoading(true);
             try {
                 await selesaiProsesTiket(ticketId);
-                alert("Status tiket berhasil diupdate menjadi selesai diproses!");
+                alert("Status tiket berhasil diupdate menjadi selesai!");
                 fetchTickets();
             } catch (err: any) {
                 alert(err.message || "Gagal memperbarui status");
@@ -203,7 +202,6 @@ export default function LayananPegawaiDetailPage() {
                 return "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-400 border border-blue-200/50";
             case "menunggu_pembayaran":
                 return "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-400 border border-amber-200/50";
-            case "selesai_diproses":
             case "menunggu_konfirmasi":
             case "selesai":
                 return "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400 border border-emerald-200/50";
@@ -218,8 +216,6 @@ export default function LayananPegawaiDetailPage() {
                 return "Perlu Diproses";
             case "menunggu_pembayaran":
                 return "Menunggu Pembayaran";
-            case "selesai_diproses":
-                return "Selesai Diproses";
             case "menunggu_konfirmasi":
                 return "Menunggu Konfirmasi";
             case "selesai":
@@ -246,18 +242,13 @@ export default function LayananPegawaiDetailPage() {
 
                 <main className="flex-1 p-6 space-y-6">
                     {/* Welcome Header */}
-                    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 p-6 text-white shadow-lg shadow-emerald-600/10">
-                        <div className="absolute right-0 top-0 -mr-6 -mt-6 opacity-10">
-                            <ClipboardList className="h-48 w-48" />
-                        </div>
-                        <div className="relative z-10 space-y-2">
-                            <h2 className="text-2xl font-extrabold md:text-3xl">
-                                Penugasan Layanan - {serviceName}
-                            </h2>
-                            <p className="max-w-xl text-sm text-emerald-50 font-medium">
-                                Kelola pengajuan untuk layanan {serviceName} yang diteruskan ke unit teknis Anda.
-                            </p>
-                        </div>
+                    <div className="relative overflow-hidden space-y-3">
+                        <h1 className="text-2xl font-semibold md:text-3xl text-[var(--foreground)] dark:text-zinc-50">
+                            Layanan <span className="text-[var(--green-color)]">{serviceName}</span>
+                        </h1>
+                        <p className="mt-2 text-md text-zinc-600 dark:text-zinc-400">
+                            Kelola pengajuan untuk layanan  {serviceName}
+                        </p>
                     </div>
 
                     {/* Filter Dropdown & Search Bar */}
@@ -284,7 +275,7 @@ export default function LayananPegawaiDetailPage() {
                             </select>
                             <button
                                 onClick={() => setSelectedStatus(tempStatus)}
-                                className="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-all shadow-xs cursor-pointer flex-shrink-0"
+                                className="px-4 py-2 text-xs font-semibold text-white bg-[var(--green-color)] hover:bg-emerald-700 rounded-lg transition-all shadow-xs cursor-pointer flex-shrink-0"
                             >
                                 Terapkan
                             </button>
@@ -366,7 +357,7 @@ export default function LayananPegawaiDetailPage() {
                                                     <div className="flex justify-center">
                                                         <button
                                                             onClick={() => router.push(`/layanan/${id}/${ticket.id}`)}
-                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-sm hover:shadow-md transition cursor-pointer text-xs"
+                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--green-color)] hover:bg-emerald-900 text-white font-semibold shadow-sm hover:shadow-md transition cursor-pointer text-xs"
                                                         >
                                                             Detail
                                                         </button>

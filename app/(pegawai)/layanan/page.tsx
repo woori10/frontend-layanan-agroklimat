@@ -26,7 +26,7 @@ import {
 interface Tiket {
     id: number;
     no_tiket: string;
-    status: "diajukan" | "menunggu_verifikasi" | "perlu_revisi" | "diproses" | "menunggu_pembayaran" | "dibatalkan" | "ditolak" | "selesai_diproses" | "menunggu_konfirmasi" | "selesai";
+    status: "diajukan" | "menunggu_verifikasi" | "perlu_revisi" | "diproses" | "menunggu_pembayaran" | "dibatalkan" | "ditolak" | "menunggu_konfirmasi" | "selesai";
     createdAt: string;
     layanan: {
         id: number;
@@ -104,7 +104,6 @@ export default function LayananPegawaiPage() {
             result = tickets.filter(t => t.status === "menunggu_pembayaran");
         } else if (activeTab === "selesai") {
             result = tickets.filter(t =>
-                t.status === "selesai_diproses" ||
                 t.status === "menunggu_konfirmasi" ||
                 t.status === "selesai"
             );
@@ -165,7 +164,7 @@ export default function LayananPegawaiPage() {
             setActionLoading(true);
             try {
                 await selesaiProsesTiket(ticketId);
-                alert("Status tiket berhasil diupdate menjadi selesai diproses!");
+                alert("Status tiket berhasil diupdate menjadi selesai!");
                 fetchTickets();
             } catch (err: any) {
                 alert(err.message || "Gagal memperbarui status");
@@ -181,7 +180,6 @@ export default function LayananPegawaiPage() {
                 return "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-400 border border-blue-200/50";
             case "menunggu_pembayaran":
                 return "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-400 border border-amber-200/50";
-            case "selesai_diproses":
             case "menunggu_konfirmasi":
             case "selesai":
                 return "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400 border border-emerald-200/50";
@@ -196,8 +194,6 @@ export default function LayananPegawaiPage() {
                 return "Perlu Diproses";
             case "menunggu_pembayaran":
                 return "Menunggu Pembayaran";
-            case "selesai_diproses":
-                return "Selesai Diproses";
             case "menunggu_konfirmasi":
                 return "Menunggu Konfirmasi";
             case "selesai":

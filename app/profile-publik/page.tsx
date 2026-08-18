@@ -27,12 +27,15 @@ export default function ProfilPublikPage() {
     const [userEmail, setUserEmail] = useState("");
     const [userName, setUserName] = useState("Pengguna");
     const [userRole, setUserRole] = useState("");
+    const [userNip, setUserNip] = useState("-");
+    const [userNoHp, setUserNoHp] = useState("-");
+    const [userInstansi, setUserInstansi] = useState("-");
+    const [userAlamat, setUserAlamat] = useState("-");
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
         setMounted(true);
         const token = localStorage.getItem("agro_token");
-        const storedEmail = localStorage.getItem("agro_user_email");
 
         if (!token) {
             router.push("/login");
@@ -44,17 +47,29 @@ export default function ProfilPublikPage() {
                     return;
                 }
                 setUserRole(user.role);
-                if (user.nama) {
-                    setUserName(user.nama);
-                } else if (storedEmail) {
-                    setUserName(storedEmail.split("@")[0]);
-                }
 
-                if (user.email) {
-                    setUserEmail(user.email);
-                } else if (storedEmail) {
-                    setUserEmail(storedEmail);
-                }
+                fetch("http://localhost:3000/auth/profile", {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error("Gagal mengambil profil");
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.nama) setUserName(data.nama);
+                    if (data.email) setUserEmail(data.email);
+                    if (data.nip) setUserNip(data.nip);
+                    if (data.no_hp) setUserNoHp(data.no_hp);
+                    if (data.instansi) setUserInstansi(data.instansi);
+                    if (data.alamat) setUserAlamat(data.alamat);
+                })
+                .catch(err => {
+                    console.error("Gagal mengambil data profil:", err);
+                    if (user.nama) setUserName(user.nama);
+                    if (user.email) setUserEmail(user.email);
+                });
             } else {
                 router.push("/login");
             }
@@ -163,7 +178,7 @@ export default function ProfilPublikPage() {
                                         NIK / No. Identitas
                                     </label>
                                     <div className="text-sm font-medium text-[var(--foreground)] mt-2 px-4 py-3 rounded-xl border border-zinc-200">
-                                        3273123456789001
+                                        {userNip}
                                     </div>
                                 </div>
 
@@ -183,7 +198,7 @@ export default function ProfilPublikPage() {
                                         No. Telepon / WhatsApp
                                     </label>
                                     <div className="text-sm font-medium text-[var(--foreground)] mt-2 px-4 py-3 rounded-xl border border-zinc-200">
-                                        +62 812-3456-7890
+                                        {userNoHp}
                                     </div>
                                 </div>
                             </div>
@@ -194,7 +209,7 @@ export default function ProfilPublikPage() {
                                     Asal Instansi
                                 </label>
                                 <div className="text-sm font-medium text-[var(--foreground)] mt-2 px-4 py-3 rounded-xl border border-zinc-200">
-                                    -
+                                    {userInstansi}
                                 </div>
                             </div>
 
@@ -204,7 +219,7 @@ export default function ProfilPublikPage() {
                                     Alamat Lengkap
                                 </label>
                                 <div className="text-sm font-medium text-[var(--foreground)] mt-2 px-4 py-3 rounded-xl border border-zinc-200">
-                                    Bogor
+                                    {userAlamat}
                                 </div>
                             </div>
 

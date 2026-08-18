@@ -360,18 +360,11 @@ export default function DashboardPegawaiPage() {
                 {/* Content Container */}
                 <main className="flex-1 p-6 space-y-6">
                     {/* Welcome Banner */}
-                    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 p-6 text-white shadow-lg shadow-emerald-600/10">
-                        <div className="absolute right-0 top-0 -mr-6 -mt-6 opacity-10">
-                            <Sprout className="h-48 w-48" />
-                        </div>
-                        <div className="relative z-10 space-y-2">
-                            <h2 className="text-2xl font-extrabold md:text-3xl">
-                                Selamat Datang di Dashboard Pegawai, <span className="capitalize">{userName}</span>!
-                            </h2>
-                            <p className="max-w-xl text-sm text-emerald-50 font-medium">
-                                Anda login sebagai pegawai: <span className="underline font-bold">{getUnitTeknisName(unitTeknisId)}</span>
-                            </p>
-                        </div>
+                    <div className="relative overflow-hidden space-y-2">
+                        <h1 className="text-2xl font-semibold md:text-3xl text-[var(--foreground)]">
+                            Dashboard Pegawai, <span className="capitalize">{userName}</span>!
+                        </h1>
+                        <p className="text-[var(--foreground)]">Selamat datang kembali <span className="font-bold">{getUnitTeknisName(unitTeknisId)}</span>. Pantau performa layanan BRMP secara real-time.</p>
                     </div>
                     {/* Statistik Permohonan Layanan */}
                     <div className="space-y-3">
@@ -412,7 +405,7 @@ export default function DashboardPegawaiPage() {
                                 iconBgClass="bg-emerald-400 dark:bg-emerald-750"
                                 iconColorClass="text-white"
                                 apiEndpoint="/tiket/unit-teknis/me"
-                                processData={(data) => Array.isArray(data) ? data.filter((t: any) => t.status === "selesai_diproses" || t.status === "menunggu_konfirmasi" || t.status === "selesai").length : 0}
+                                processData={(data) => Array.isArray(data) ? data.filter((t: any) => t.status === "menunggu_konfirmasi" || t.status === "selesai").length : 0}
                                 desc="tiket"
                             />
                         </div>
@@ -464,7 +457,7 @@ export default function DashboardPegawaiPage() {
                                             currentTikets.map((tiket) => (
                                                 <tr key={tiket.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50 transition-colors">
                                                     <td className="px-6 py-5.5 whitespace-nowrap text-sm text-[var(--foreground)] dark:text-zinc-100 font-base">
-                                                         {tiket.jawaban_form?.nama_lengkap || tiket.user?.nama || "-"}
+                                                        {tiket.jawaban_form?.nama_lengkap || tiket.user?.nama || "-"}
                                                     </td>
                                                     <td className="px-6 py-5.5 whitespace-nowrap text-sm text-[var(--foreground)] dark:text-zinc-100 font-base">
                                                         {tiket.layanan?.nama_layanan || "-"}
@@ -569,7 +562,7 @@ export default function DashboardPegawaiPage() {
 
 
                 </main>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }

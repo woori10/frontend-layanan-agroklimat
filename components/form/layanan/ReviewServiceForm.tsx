@@ -122,60 +122,60 @@ export default function ReviewServiceForm({
             <div className="grid gap-y-5 gap-x-6 sm:grid-cols-2 text-sm">
               {/* Nama Lengkap */}
               <div>
-                <span className="block text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
                   Nama Lengkap
                 </span>
-                <span className="block font-bold text-zinc-900 dark:text-white text-[15px] mt-1">
+                <span className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mt-1">
                   {commonData.namaLengkap}
                 </span>
               </div>
 
               {/* Instansi/Lembaga */}
               <div>
-                <span className="block text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
                   Instansi/Lembaga
                 </span>
-                <span className="block font-bold text-zinc-900 dark:text-white text-[15px] mt-1">
+                <span className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mt-1">
                   {commonData.alamatInstansi}
                 </span>
               </div>
 
               {/* Email */}
               <div>
-                <span className="block text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
                   Email
                 </span>
-                <span className="block font-bold text-zinc-900 dark:text-white text-[15px] mt-1">
+                <span className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mt-1">
                   {userEmail || "-"}
                 </span>
               </div>
 
               {/* Nomor Telepon */}
               <div>
-                <span className="block text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
                   Nomor Telepon
                 </span>
-                <span className="block font-bold text-zinc-900 dark:text-white text-[15px] mt-1">
+                <span className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mt-1">
                   {commonData.noTelp}
                 </span>
               </div>
 
               {/* Jenis Layanan */}
               <div>
-                <span className="block text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
                   Jenis Layanan
                 </span>
-                <span className="block font-bold text-zinc-900 dark:text-white text-[15px] mt-1">
+                <span className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mt-1">
                   Peminjaman Alat
                 </span>
               </div>
 
               {/* Periode */}
               <div>
-                <span className="block text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
                   Periode
                 </span>
-                <span className="block font-bold text-zinc-900 dark:text-white text-[15px] mt-1">
+                <span className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mt-1">
                   {formatDateRange(peminjamanAlatData.periodeMulai, peminjamanAlatData.periodeSelesai)} ({durationDays} Hari)
                 </span>
               </div>
@@ -183,20 +183,20 @@ export default function ReviewServiceForm({
 
             {/* Separator line */}
             <div className="border-t border-zinc-100 dark:border-zinc-900 pt-5">
-              <span className="block text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+              <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
                 Tujuan Penggunaan
               </span>
-              <p className="font-semibold text-zinc-700 dark:text-zinc-300 leading-relaxed text-sm mt-1">
+              <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 leading-relaxed mt-1">
                 {peminjamanAlatData.tujuanPenggunaan}
               </p>
             </div>
 
             {/* Wilayah Kajian */}
             <div className="border-t border-zinc-100 dark:border-zinc-900 pt-5">
-              <span className="block text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+              <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
                 Wilayah Kajian
               </span>
-              <p className="font-semibold text-zinc-700 dark:text-zinc-300 leading-relaxed text-sm mt-1">
+              <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 leading-relaxed mt-1">
                 {peminjamanAlatData.wilayahKajian}
               </p>
             </div>
@@ -204,7 +204,7 @@ export default function ReviewServiceForm({
             {/* Surat Pengantar */}
             {commonData.suratPengantar && (
               <div className="border-t border-zinc-100 dark:border-zinc-900 pt-5">
-                <span className="block text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
+                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
                   Surat Pengantar Instansi
                 </span>
                 <div className="inline-flex items-center gap-2 text-[var(--green-color)] dark:text-emerald-450 font-bold bg-emerald-50/50 dark:bg-emerald-950/20 px-3 py-1.5 rounded-lg border border-emerald-100 dark:border-emerald-900/30 text-xs mt-1.5">
@@ -225,7 +225,7 @@ export default function ReviewServiceForm({
                 return (
                   <div key={idx} className="flex justify-between items-center py-4 first:pt-0 last:pb-0">
                     <div className="space-y-1">
-                      <span className="font-bold text-[15px] text-[#2C5E3B] dark:text-emerald-400 block">
+                      <span className="font-bold text-sm text-[#2C5E3B] dark:text-emerald-400 block">
                         {tool.name}
                       </span>
                       <span className="text-xs text-zinc-400 dark:text-zinc-500 font-semibold block">
@@ -234,10 +234,10 @@ export default function ReviewServiceForm({
                     </div>
 
                     <div className="text-right">
-                      <span className="text-xs sm:text-sm text-zinc-400 dark:text-zinc-500 font-bold block">
+                      <span className="text-sm text-zinc-400 dark:text-zinc-500 font-bold block">
                         {tool.units} Unit × Rp {tool.price.toLocaleString("id-ID")}
                       </span>
-                      <span className="font-extrabold text-zinc-900 dark:text-white text-base mt-1 block">
+                      <span className="font-extrabold text-zinc-900 dark:text-white text-sm mt-1 block">
                         Rp {subtotal.toLocaleString("id-ID")}
                       </span>
                     </div>
@@ -248,10 +248,10 @@ export default function ReviewServiceForm({
 
             {/* Total Section */}
             <div className="border-t border-zinc-200 dark:border-zinc-800 pt-6 flex justify-between items-center">
-              <span className="text-lg font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
+              <span className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
                 Total Estimasi
               </span>
-              <span className="font-extrabold text-[22px] text-zinc-900 dark:text-white">
+              <span className="font-extrabold text-sm text-zinc-900 dark:text-white">
                 Rp {totalEstimasi.toLocaleString("id-ID")}
               </span>
             </div>
@@ -269,52 +269,52 @@ export default function ReviewServiceForm({
             </h3>
             <div className="grid gap-y-4 gap-x-6 sm:grid-cols-2 text-sm">
               <div>
-                <span className="block text-xs font-semibold text-zinc-500 dark:text-zinc-500 uppercase tracking-wider mb-1">
+                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider mb-1">
                   Nama Lengkap
                 </span>
-                <span className="font-bold text-zinc-800 dark:text-zinc-200">
+                <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
                   {commonData.namaLengkap}
                 </span>
               </div>
 
               <div>
-                <span className="block text-xs font-semibold text-zinc-500 dark:text-zinc-500 uppercase tracking-wider mb-1">
+                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider mb-1">
                   NIP / No. KTP
                 </span>
-                <span className="font-bold text-zinc-800 dark:text-zinc-200">
+                <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
                   {commonData.nipKtp}
                 </span>
               </div>
 
               <div>
-                <span className="block text-xs font-semibold text-zinc-500 dark:text-zinc-500 uppercase tracking-wider mb-1">
+                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider mb-1">
                   Alamat / Instansi Asal
                 </span>
-                <span className="font-bold text-zinc-800 dark:text-zinc-200">
+                <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
                   {commonData.alamatInstansi}
                 </span>
               </div>
 
               <div>
-                <span className="block text-xs font-semibold text-zinc-500 dark:text-zinc-500 uppercase tracking-wider mb-1">
+                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider mb-1">
                   No. Telepon / WhatsApp
                 </span>
-                <span className="font-bold text-zinc-800 dark:text-zinc-200">
+                <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
                   {commonData.noTelp}
                 </span>
               </div>
 
               <div>
-                <span className="block text-xs font-semibold text-zinc-500 dark:text-zinc-500 uppercase tracking-wider mb-1">
+                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider mb-1">
                   Tanggal Pengajuan Surat
                 </span>
-                <span className="font-bold text-zinc-800 dark:text-zinc-200">
+                <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
                   {formatDate(commonData.tanggalPengajuan)}
                 </span>
               </div>
 
               <div>
-                <span className="block text-xs font-semibold text-zinc-500 dark:text-zinc-500 uppercase tracking-wider mb-1">
+                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider mb-1">
                   Surat Pengantar
                 </span>
                 {commonData.suratPengantar ? (
@@ -337,10 +337,10 @@ export default function ReviewServiceForm({
             <div className="grid gap-y-4 gap-x-6 sm:grid-cols-2 text-sm">
               {serviceData.map((field, idx) => (
                 <div key={idx} className={field.isLongText ? "sm:col-span-2" : ""}>
-                  <span className="block text-xs font-semibold text-zinc-500 dark:text-zinc-500 uppercase tracking-wider mb-1">
+                  <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider mb-1">
                     {field.label}
                   </span>
-                  <span className="font-bold text-zinc-800 dark:text-zinc-200 leading-relaxed block whitespace-pre-wrap">
+                  <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 leading-relaxed block whitespace-pre-wrap">
                     {field.value || "-"}
                   </span>
                 </div>

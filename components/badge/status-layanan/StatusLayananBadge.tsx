@@ -6,54 +6,51 @@ interface StatusLayananBadgeProps {
 }
 
 const statusStyles: Record<string, string> = {
-  Diproses: "bg-[#FEF6E6] text-[#B27B1E] border border-[#FBE6C4] dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/50",
-  Selesai: "bg-[#E6F7ED] text-[#1E824C] border border-[#CBEED7] dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/50",
-  Ditolak: "bg-[#FCECEE] text-[#C0392B] border border-[#F9D6D9] dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/50",
+  // Menunggu / Netral (abu-abu, turunan slate)
+  diajukan: "bg-zinc-100 text-zinc-600 border border-zinc-200 dark:bg-zinc-800/40 dark:text-zinc-400 dark:border-zinc-700",
+  menunggu_verifikasi: "bg-zinc-100 text-zinc-600 border border-zinc-200 dark:bg-zinc-800/40 dark:text-zinc-400 dark:border-zinc-700",
+  menunggu_persetujuan_kepala_balai: "bg-zinc-100 text-zinc-600 border border-zinc-200 dark:bg-zinc-800/40 dark:text-zinc-400 dark:border-zinc-700",
 
-  // Tambahan status-status lain dari backend (jika ada lowercase/uppercase mapping)
-  diajukan: "bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/20 dark:text-blue-400 dark:border-blue-900/50",
-  menunggu_verifikasi: "bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950/20 dark:text-purple-400 dark:border-purple-900/50",
-  menunggu_persetujuan_kepala_balai: "bg-pink-50 text-pink-700 border border-pink-200 dark:bg-pink-950/20 dark:text-pink-400 dark:border-pink-900/50",
-  perlu_revisi: "bg-orange-50 text-orange-700 border border-orange-200 dark:bg-orange-950/20 dark:text-orange-400 dark:border-orange-900/50",
-  menunggu_pembayaran: "bg-yellow-50 text-yellow-700 border border-yellow-200 dark:bg-yellow-950/20 dark:text-yellow-400 dark:border-yellow-900/50",
-  diproses: "bg-[#FEF6E6] text-[#B27B1E] border border-[#FBE6C4] dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/50",
-  selesai_diproses: "bg-teal-50 text-teal-700 border border-teal-200 dark:bg-teal-950/20 dark:text-teal-400 dark:border-teal-900/50",
-  menunggu_konfirmasi: "bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950/20 dark:text-indigo-400 dark:border-indigo-900/50",
-  selesai: "bg-[#E6F7ED] text-[#1E824C] border border-[#CBEED7] dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/50",
-  ditolak: "bg-[#FCECEE] text-[#C0392B] border border-[#F9D6D9] dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/50",
-  dibatalkan: "bg-zinc-50 text-zinc-700 border border-zinc-200 dark:bg-zinc-950/20 dark:text-zinc-400 dark:border-zinc-900/50",
+  // Perlu Perhatian (kuning, dari --yellow-color)
+  perlu_revisi: "bg-[#FFFBE0] text-[#8A6D00] border border-[#FFF0A3] dark:bg-yellow-950/20 dark:text-yellow-400 dark:border-yellow-900/50",
+  menunggu_pembayaran: "bg-[#FFFBE0] text-[#8A6D00] border border-[#FFF0A3] dark:bg-yellow-950/20 dark:text-yellow-400 dark:border-yellow-900/50",
+  menunggu_konfirmasi: "bg-[#FFFBE0] text-[#8A6D00] border border-[#FFF0A3] dark:bg-yellow-950/20 dark:text-yellow-400 dark:border-yellow-900/50",
+
+  // Sedang Diproses (teal — hijau kebiruan, beda arah dari "selesai")
+  diproses: "bg-[#E6F4F4] text-[#0F6B6B] border border-[#C2E5E5] dark:bg-teal-950/20 dark:text-teal-400 dark:border-teal-900/50",
+
+  // Selesai / Berhasil (hijau pekat, green-color asli — lebih solid/pekat)
+  selesai: "bg-[#145326] text-white border border-[#145326] dark:bg-emerald-700 dark:text-white dark:border-emerald-600",
+
+  // Dibatalkan / Ditolak (merah muted)
+  ditolak: "bg-[#FCECEE] text-[#B3392B] border border-[#F5D2D5] dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/50",
+  dibatalkan: "bg-[#FCECEE] text-[#B3392B] border border-[#F5D2D5] dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/50",
 };
 
 const statusDots: Record<string, string> = {
-  Diproses: "bg-[#B27B1E] dark:bg-amber-400",
-  Selesai: "bg-[#1E824C] dark:bg-emerald-400",
-  Ditolak: "bg-[#C0392B] dark:bg-red-400",
+  diajukan: "bg-zinc-400",
+  menunggu_verifikasi: "bg-zinc-400",
+  menunggu_persetujuan_kepala_balai: "bg-zinc-400",
 
-  diajukan: "bg-blue-500",
-  menunggu_verifikasi: "bg-purple-500",
-  menunggu_persetujuan_kepala_balai: "bg-pink-500",
-  perlu_revisi: "bg-orange-500",
-  menunggu_pembayaran: "bg-yellow-500",
-  diproses: "bg-[#B27B1E] dark:bg-amber-400",
-  selesai_diproses: "bg-teal-500",
-  menunggu_konfirmasi: "bg-indigo-500",
-  selesai: "bg-[#1E824C] dark:bg-emerald-400",
-  ditolak: "bg-[#C0392B] dark:bg-red-400",
-  dibatalkan: "bg-zinc-500",
+  perlu_revisi: "bg-[#C9A200]",
+  menunggu_pembayaran: "bg-[#C9A200]",
+  menunggu_konfirmasi: "bg-[#C9A200]",
+
+  diproses: "bg-[#2E9B54]",
+
+  selesai: "bg-white",
+
+  ditolak: "bg-[#B3392B]",
+  dibatalkan: "bg-[#B3392B]",
 };
 
 const statusLabels: Record<string, string> = {
-  Diproses: "Diproses",
-  Selesai: "Selesai",
-  Ditolak: "Ditolak",
-
   diajukan: "Diajukan",
   menunggu_verifikasi: "Menunggu Verifikasi",
   menunggu_persetujuan_kepala_balai: "Menunggu Persetujuan",
   perlu_revisi: "Perlu Revisi",
   menunggu_pembayaran: "Menunggu Pembayaran",
   diproses: "Diproses",
-  selesai_diproses: "Selesai Diproses",
   menunggu_konfirmasi: "Menunggu Konfirmasi",
   selesai: "Selesai",
   ditolak: "Ditolak",
@@ -61,7 +58,6 @@ const statusLabels: Record<string, string> = {
 };
 
 export default function StatusLayananBadge({ status, className = "" }: StatusLayananBadgeProps) {
-  // Gunakan style bawaan atau fallback ke style default jika status tidak terdaftar
   const styleClass = statusStyles[status] || "bg-zinc-50 text-zinc-700 border border-zinc-200 dark:bg-zinc-950/20 dark:text-zinc-400 dark:border-zinc-800";
   const dotClass = statusDots[status] || "bg-zinc-500";
   const label = statusLabels[status] || status;

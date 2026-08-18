@@ -191,11 +191,11 @@ export default function DashboardKepalaBalaiPage() {
                                 desc="tiket"
                             />
                             <CardDashboard
-                                title="Selesai Diproses"
+                                title="Selesai"
                                 icon={CheckCircle2}
                                 iconBgClass="bg-emerald-400 dark:bg-emerald-750"
                                 iconColorClass="text-white"
-                                apiEndpoint="/tiket/kepala-balai?status=selesai_diproses"
+                                apiEndpoint="/tiket/kepala-balai?status=selesai"
                                 processData={(data) => Array.isArray(data) ? data.length : 0}
                                 desc="tiket"
                             />

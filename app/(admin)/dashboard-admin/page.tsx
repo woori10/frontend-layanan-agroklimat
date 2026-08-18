@@ -69,7 +69,6 @@ export default function DashboardAdminPage() {
         if (selectedStatus !== "semua") {
             if (selectedStatus === "selesai") {
                 result = result.filter(t =>
-                    t.status === "selesai_diproses" ||
                     t.status === "menunggu_konfirmasi" ||
                     t.status === "ditolak" ||
                     t.status === "selesai"
@@ -185,9 +184,9 @@ export default function DashboardAdminPage() {
                     {/* Welcome Banner */}
                     <div className="relative overflow-hidden space-y-2">
                         <h1 className="text-2xl font-semibold md:text-3xl text-[var(--foreground)]">
-                            Dashboard Analitik, <span className="capitalize">{userName}</span>!
+                            Dashboard Admin, <span className="capitalize">{userName}</span>!
                         </h1>
-                        <p className="text-[var(--foreground)]">Selamat datang kembali, Administrator. Pantau performa layanan BRMP secara real-time.</p>
+                        <p className="text-[var(--foreground)]">Selamat datang kembali <span className="font-bold">Admin</span>. Pantau performa layanan BRMP secara real-time.</p>
                     </div>
 
                     {/* Statistik Permohonan Layanan */}
@@ -224,11 +223,11 @@ export default function DashboardAdminPage() {
                                 desc="tiket"
                             />
                             <CardDashboard
-                                title="Selesai Diproses"
+                                title="Selesai"
                                 icon={CheckCircle2}
                                 iconBgClass="bg-emerald-400 dark:bg-emerald-750"
                                 iconColorClass="text-white"
-                                apiEndpoint="/tiket/admin?status=selesai_diproses"
+                                apiEndpoint="/tiket/admin?status=selesai"
                                 processData={(data) => Array.isArray(data) ? data.length : 0}
                                 desc="tiket"
                             />

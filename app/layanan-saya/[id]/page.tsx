@@ -110,19 +110,19 @@ function getSteps(status: string, hasTagihan: boolean, tagihanLunas: boolean, la
     ];
   }
 
-  const isVerifikasiDone = ["menunggu_pembayaran", "diproses", "selesai_diproses", "menunggu_konfirmasi", "selesai"].includes(status);
+  const isVerifikasiDone = ["menunggu_pembayaran", "diproses", "menunggu_konfirmasi", "selesai"].includes(status);
   const isVerifikasiActive = ["menunggu_verifikasi", "diajukan", "perlu_revisi"].includes(status);
 
   const isTagihanDone = isVerifikasiDone && (!hasTagihan || tagihanLunas);
   const isTagihanActive = status === "menunggu_pembayaran";
 
-  const isDisetujuiDone = ["diproses", "selesai_diproses", "selesai"].includes(status);
+  const isDisetujuiDone = ["diproses", "selesai"].includes(status);
   const isDisetujuiActive = status === "menunggu_konfirmasi";
 
-  const isDiprosesDone = ["selesai_diproses", "selesai"].includes(status);
+  const isDiprosesDone = status === "selesai";
   const isDiprosesActive = status === "diproses";
 
-  const isSelesaiDone = ["selesai_diproses", "selesai"].includes(status);
+  const isSelesaiDone = status === "selesai";
 
   return [
     {
@@ -420,39 +420,39 @@ export default function DetailLayananPage({ params }: PageProps) {
                   </h3>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8 text-sm">
+                <div className="grid gap-y-5 gap-x-6 sm:grid-cols-2 text-sm">
                   <div>
-                    <span className="block text-xs font-medium text-zinc-600 dark:text-zinc-550 uppercase tracking-wider mb-1">
+                    <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
                       Nama Lengkap
                     </span>
-                    <span className="font-semibold text-zinc-800 dark:text-zinc-200">
+                    <span className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mt-1">
                       {formAnswers.nama_lengkap || "-"}
                     </span>
                   </div>
 
                   <div>
-                    <span className="block text-xs font-medium text-zinc-600 dark:text-zinc-550 uppercase tracking-wider mb-1">
+                    <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
                       NIP / No. KTP
                     </span>
-                    <span className="font-semibold text-zinc-800 dark:text-zinc-200">
+                    <span className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mt-1">
                       {formAnswers.nip_ktp || "-"}
                     </span>
                   </div>
 
                   <div>
-                    <span className="block text-xs font-medium text-zinc-600 dark:text-zinc-555 uppercase tracking-wider mb-1">
+                    <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
                       Alamat Instansi / Asal
                     </span>
-                    <span className="font-semibold text-zinc-800 dark:text-zinc-200">
+                    <span className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mt-1">
                       {formAnswers.alamat_instansi || "-"}
                     </span>
                   </div>
 
                   <div>
-                    <span className="block text-xs font-medium text-zinc-600 dark:text-zinc-555 uppercase tracking-wider mb-1">
+                    <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
                       No. Telepon
                     </span>
-                    <span className="font-semibold text-zinc-800 dark:text-zinc-200">
+                    <span className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mt-1">
                       {formAnswers.no_telp || "-"}
                     </span>
                   </div>
@@ -469,28 +469,28 @@ export default function DetailLayananPage({ params }: PageProps) {
                 </div>
 
                 <div className="space-y-6 text-sm">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid gap-y-5 gap-x-6 sm:grid-cols-2">
                     <div>
-                      <span className="block text-xs font-medium text-zinc-600 dark:text-zinc-555 uppercase tracking-wider mb-1">
+                      <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
                         Nama Layanan
                       </span>
-                      <span className="font-semibold text-zinc-800 dark:text-zinc-200">
+                      <span className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mt-1">
                         {tiket.layanan.nama_layanan}
                       </span>
                     </div>
 
                     <div>
-                      <span className="block text-xs font-medium text-zinc-600 dark:text-zinc-555 uppercase tracking-wider mb-1">
+                      <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
                         Tanggal Pengajuan
                       </span>
-                      <span className="font-semibold text-zinc-800 dark:text-zinc-200">
+                      <span className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mt-1">
                         {formatDate(tiket.tanggal_submit)}
                       </span>
                     </div>
                   </div>
 
                   {/* Render custom fields from jawaban_form dynamically */}
-                  <div className="grid grid-cols-2 gap-6 pt-4 ">
+                  <div className="grid gap-y-5 gap-x-6 sm:grid-cols-2 pt-4">
                     {Object.entries(formAnswers)
                       .filter(([key]) => !commonFields.includes(key))
                       .map(([key, value]) => {
@@ -499,14 +499,31 @@ export default function DetailLayananPage({ params }: PageProps) {
                           .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                           .join(" ");
 
+                        const isAlatList = key === "selected_alat_list" && Array.isArray(value);
+
                         return (
-                          <div key={key}>
-                            <span className="block text-xs font-medium text-zinc-600 dark:text-zinc-555 uppercase tracking-wider mb-1">
+                          <div key={key} className={isAlatList ? "col-span-2" : ""}>
+                            <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
                               {formattedKey}
                             </span>
-                            <span className="font-semibold text-zinc-800 dark:text-zinc-200 leading-relaxed block whitespace-pre-line">
-                              {value ? String(value) : "-"}
-                            </span>
+                            <div className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mt-1 leading-relaxed whitespace-pre-line">
+                              {key === "total_estimasi" ? (
+                                `Rp ${Number(value).toLocaleString("id-ID")}`
+                              ) : isAlatList ? (
+                                <div className="mt-1.5 border border-zinc-200/80 dark:border-zinc-800 rounded-xl p-3.5 bg-zinc-50/50 dark:bg-zinc-950/20 divide-y divide-zinc-100 dark:divide-zinc-800/60 font-semibold text-sm">
+                                  {value.map((tool: any, idx: number) => (
+                                    <div key={idx} className="flex justify-between items-center py-2 first:pt-0 last:pb-0 text-xs font-semibold">
+                                      <span className="font-semibold text-[#2C5E3B] dark:text-emerald-450">{tool.name}</span>
+                                      <span className="text-zinc-500 dark:text-zinc-400 font-medium">
+                                        {tool.units} Unit × Rp {tool.price.toLocaleString("id-ID")}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                value ? String(value) : "-"
+                              )}
+                            </div>
                           </div>
                         );
                       })}
@@ -525,8 +542,8 @@ export default function DetailLayananPage({ params }: PageProps) {
                   </div>
                   <Link href={`/layanan-saya/${tiket.id}/ajukan-kembali`}>
                     <button
-                      disabled={!["selesai", "selesai_diproses"].includes(tiket.status)}
-                      className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-sm font-bold transition whitespace-nowrap ${["selesai", "selesai_diproses"].includes(tiket.status)
+                      disabled={tiket.status !== "selesai"}
+                      className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-sm font-bold transition whitespace-nowrap ${tiket.status === "selesai"
                         ? "bg-[var(--green-color)] hover:opacity-90 text-white hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-sm"
                         : "bg-zinc-300 text-white dark:bg-zinc-850 dark:text-zinc-500 cursor-not-allowed"
                         }`}
