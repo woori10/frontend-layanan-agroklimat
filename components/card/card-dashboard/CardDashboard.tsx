@@ -2,8 +2,7 @@
 
 import React, { ComponentType, useEffect, useState } from "react";
 import { LucideIcon } from "lucide-react";
-
-const API_BASE_URL = "http://localhost:3000";
+import { getApiUrl } from "@/lib/api";
 
 export interface CardDashboardProps {
   /**
@@ -102,7 +101,7 @@ export default function CardDashboard({
           const token = localStorage.getItem("agro_token");
           const url = apiEndpoint.startsWith("http")
             ? apiEndpoint
-            : `${API_BASE_URL}${apiEndpoint.startsWith("/") ? apiEndpoint : `/${apiEndpoint}`}`;
+            : `${getApiUrl()}${apiEndpoint.startsWith("/") ? apiEndpoint : `/${apiEndpoint}`}`;
 
           const res = await fetch(url, {
             headers: {

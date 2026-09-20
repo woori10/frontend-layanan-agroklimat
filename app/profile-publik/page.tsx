@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/navbar/Navbar";
 import { getUserFromToken } from "@/lib/auth";
+import { getApiUrl } from "@/lib/api";
 import {
     Sprout,
     User as UserIcon,
@@ -21,6 +22,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import ProfileBanner from "@/components/banner/ProfileBanner";
+import VerifyPasswordModal from "@/components/modal/VerifyPasswordModal";
 
 export default function ProfilPublikPage() {
     const router = useRouter();
@@ -32,6 +34,7 @@ export default function ProfilPublikPage() {
     const [userInstansi, setUserInstansi] = useState("-");
     const [userAlamat, setUserAlamat] = useState("-");
     const [mounted, setMounted] = useState(false);
+    const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
 
     useEffect(() => {
         setMounted(true);
@@ -48,28 +51,28 @@ export default function ProfilPublikPage() {
                 }
                 setUserRole(user.role);
 
-                fetch("http://localhost:3000/auth/profile", {
+                fetch(`${getApiUrl()}/auth/profile`, {
                     headers: {
                         Authorization: `Bearer ${token}`
                     }
                 })
-                .then(res => {
-                    if (!res.ok) throw new Error("Gagal mengambil profil");
-                    return res.json();
-                })
-                .then(data => {
-                    if (data.nama) setUserName(data.nama);
-                    if (data.email) setUserEmail(data.email);
-                    if (data.nip) setUserNip(data.nip);
-                    if (data.no_hp) setUserNoHp(data.no_hp);
-                    if (data.instansi) setUserInstansi(data.instansi);
-                    if (data.alamat) setUserAlamat(data.alamat);
-                })
-                .catch(err => {
-                    console.error("Gagal mengambil data profil:", err);
-                    if (user.nama) setUserName(user.nama);
-                    if (user.email) setUserEmail(user.email);
-                });
+                    .then(res => {
+                        if (!res.ok) throw new Error("Gagal mengambil profil");
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (data.nama) setUserName(data.nama);
+                        if (data.email) setUserEmail(data.email);
+                        if (data.nip) setUserNip(data.nip);
+                        if (data.no_hp) setUserNoHp(data.no_hp);
+                        if (data.instansi) setUserInstansi(data.instansi);
+                        if (data.alamat) setUserAlamat(data.alamat);
+                    })
+                    .catch(err => {
+                        console.error("Gagal mengambil data profil:", err);
+                        if (user.nama) setUserName(user.nama);
+                        if (user.email) setUserEmail(user.email);
+                    });
             } else {
                 router.push("/login");
             }
@@ -79,7 +82,7 @@ export default function ProfilPublikPage() {
     if (!mounted) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"></div>
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-secondary-green-color border-t-transparent"></div>
             </div>
         );
     }
@@ -117,17 +120,17 @@ export default function ProfilPublikPage() {
                     </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div className="space-y-6 md:col-span-1">
-                        {/* Right Column 1: Profile Summary Card */}
-                        <div className="w-full rounded-2xl border border-zinc-200/60 bg-white p-8 shadow-sm dark:bg-zinc-900 dark:border-zinc-800 text-center flex flex-col items-center h-fit">
-                            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[var(--green-color)] dark:bg-emerald-950 dark:text-emerald-400 text-xl font-extrabold shadow-inner mb-3">
+                    <div className="contents md:flex md:flex-col md:gap-6 md:col-span-1">
+                        {/* Profile Summary Card */}
+                        <div className="order-1 w-full rounded-2xl border border-zinc-200/60 bg-white p-8 shadow-sm dark:bg-zinc-900 dark:border-zinc-800 text-center flex flex-col items-center h-fit">
+                            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-secondary-green-color text-[var(--green-color)] dark:bg-secondary-green-color dark:text-secondary-green-color text-xl font-extrabold shadow-inner mb-3">
                                 {getInitials(userName)}
                             </div>
                             <h3 className="text-lg font-bold text-zinc-900 dark:text-white leading-tight">{userName}</h3>
                             <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400 pt-2">{userEmail}</p>
                         </div>
-                        {/* Rigth Column 2 : Profile Summary Card */}
-                        <div className="w-full rounded-2xl border border-zinc-200/60 bg-white p-8 shadow-sm dark:bg-zinc-900 dark:border-zinc-800 flex flex-col h-fit">
+                        {/* Keamanan Akun Card */}
+                        <div className="order-3 md:order-2 w-full rounded-2xl border border-zinc-200/60 bg-white p-8 shadow-sm dark:bg-zinc-900 dark:border-zinc-800 flex flex-col h-fit">
                             <div className="w-full space-y-4 text-left">
                                 <div className="flex gap-3 items-center">
                                     <Lock className="w-8 h-8 text-[var(--foreground)] bg-red-200 p-2 rounded-lg" />
@@ -136,22 +139,23 @@ export default function ProfilPublikPage() {
                                 <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
                                     Jaga keamanan akun Anda dengan mengganti password secara berkala.
                                 </p>
-                                <Link href="#" className="w-full block">
-                                    <button className="w-full flex items-center justify-center gap-2 rounded-xl bg-zinc-50 border border-[var(--green-color)]/80 hover:bg-zinc-100 py-2.5 text-sm font-bold text-[var(--green-color)] dark:bg-zinc-950 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-900 transition cursor-pointer">
-                                        <Edit className="h-4 w-4" />
-                                        <span>Ganti Kata Sandi</span>
-                                    </button>
-                                </Link>
-
+                                <button
+                                    type="button"
+                                    onClick={() => setIsVerifyModalOpen(true)}
+                                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-zinc-50 border border-[var(--green-color)]/80 hover:bg-zinc-100 py-2.5 text-sm font-bold text-[var(--green-color)] dark:bg-zinc-950 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-900 transition cursor-pointer"
+                                >
+                                    <Edit className="h-4 w-4" />
+                                    <span>Ganti Kata Sandi</span>
+                                </button>
                             </div>
                         </div>
                     </div>
                     {/* Left Column: Account Details Grid */}
-                    <div className="md:col-span-2 h-full rounded-2xl border border-zinc-200/60 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800 overflow-hidden text-left flex flex-col">
+                    <div className="order-2 md:order-none md:col-span-2 h-full rounded-2xl border border-zinc-200/60 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800 overflow-hidden text-left flex flex-col">
                         {/* Header */}
                         <div className="px-8 py-6">
                             <div className="flex items-center gap-3">
-                                <UserCheck className="w-10 h-10 bg-emerald-100 p-2.5 text-[var(--green-color)] dark:text-emerald-400 rounded-lg" />
+                                <UserCheck className="w-10 h-10 bg-secondary-green-color p-2.5 text-[var(--green-color)] dark:text-secondary-green-color rounded-lg" />
                                 <div className="flex flex-col">
                                     <h3 className="text-lg font-bold text-zinc-850 dark:text-white">Informasi Pribadi</h3>
                                     <p className="text-sm font-base text-[var(--foreground)]">Lengkapi data diri anda.</p>
@@ -235,6 +239,11 @@ export default function ProfilPublikPage() {
                     </div>
                 </div>
             </main>
+
+            <VerifyPasswordModal
+                isOpen={isVerifyModalOpen}
+                onClose={() => setIsVerifyModalOpen(false)}
+            />
         </div>
     );
 }

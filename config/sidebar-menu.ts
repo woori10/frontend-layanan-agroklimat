@@ -17,6 +17,8 @@ import {
     Receipt,
     History,
     ClipboardCheck,
+    HelpCircle,
+    Wrench,
     type LucideIcon,
 } from "lucide-react";
 
@@ -35,24 +37,24 @@ export interface MenuItem {
 
 export const layananByUnitTeknis: Record<number, SubMenuItem[]> = {
     1: [
-        { label: "Rekomendasi & Penilaian SNI", href: "/layanan/14" },
-        { label: "Konsultasi Rekomendasi SNI", href: "/layanan/15" },
-        { label: "Permohonan Data", href: "/layanan/18" },
+        { label: "Rekomendasi & Penilaian SNI", href: "/penugasan-layanan/rekomendasi-sni" },
+        { label: "Konsultasi Rekomendasi SNI", href: "/penugasan-layanan/konsultasi-rekomendasi" },
+        { label: "Permohonan Data", href: "/penugasan-layanan/permohonan-data" },
     ],
     2: [
-        { label: "Peminjaman Alat", href: "/layanan/19" },
+        { label: "Peminjaman Alat", href: "/penugasan-layanan/peminjaman-alat" },
     ],
     3: [
-        { label: "Bimbingan Teknis & Narasumber", href: "/layanan/17" },
-        { label: "Magang Teknis / PKL", href: "/layanan/20" },
-        { label: "Agroedukasi / Kunjungan Edukasi", href: "/layanan/21" },
-        { label: "Layanan Perpustakaan", href: "/layanan/22" },
+        { label: "Bimbingan Teknis & Narasumber", href: "/penugasan-layanan/bimbingan-teknis" },
+        { label: "Magang Teknis / PKL", href: "/penugasan-layanan/magang-pkl" },
+        { label: "Agroedukasi / Kunjungan Edukasi", href: "/penugasan-layanan/agroedukasi" },
+        { label: "Layanan Perpustakaan", href: "/penugasan-layanan/layanan-perpustakaan" },
     ],
     4: [
-        { label: "Rekomendasi Siap Tanam", href: "/layanan/16" },
+        { label: "Rekomendasi Siap Tanam", href: "/penugasan-layanan/rekomendasi-siap-tanam" },
     ],
     5: [
-        { label: "Layanan Mess", href: "/layanan/23" },
+        { label: "Layanan Mess", href: "/penugasan-layanan/layanan-mess" },
     ],
 };
 
@@ -82,16 +84,16 @@ export const sidebarMenuByRole: Record<string, MenuItem[]> = {
             label: "Verifikasi Layanan",
             icon: FileCheck,
             subItems: [
-                { label: "Rekomendasi Siap Tanam", href: "/verifikasi-layanan/16" },
-                { label: "Rekomendasi & Penilaian SNI", href: "/verifikasi-layanan/14" },
-                { label: "Konsultasi Rekomendasi SNI", href: "/verifikasi-layanan/15" },
-                { label: "Bimbingan Teknis & Narasumber", href: "/verifikasi-layanan/17" },
-                { label: "Magang Teknis / PKL", href: "/verifikasi-layanan/20" },
-                { label: "Layanan Perpustakaan", href: "/verifikasi-layanan/22" },
-                { label: "Agroedukasi / Kunjungan Edukasi", href: "/verifikasi-layanan/21" },
-                { label: "Permohonan Data", href: "/verifikasi-layanan/18" },
-                { label: "Peminjaman Alat", href: "/verifikasi-layanan/19" },
-                { label: "Layanan Mess", href: "/verifikasi-layanan/23" },
+                { label: "Rekomendasi Siap Tanam", href: "/verifikasi-layanan/rekomendasi-siap-tanam" },
+                { label: "Rekomendasi & Penilaian SNI", href: "/verifikasi-layanan/rekomendasi-sni" },
+                { label: "Konsultasi Rekomendasi SNI", href: "/verifikasi-layanan/konsultasi-rekomendasi" },
+                { label: "Bimbingan Teknis & Narasumber", href: "/verifikasi-layanan/bimbingan-teknis" },
+                { label: "Magang Teknis / PKL", href: "/verifikasi-layanan/magang-pkl" },
+                { label: "Layanan Perpustakaan", href: "/verifikasi-layanan/layanan-perpustakaan" },
+                { label: "Agroedukasi / Kunjungan Edukasi", href: "/verifikasi-layanan/agroedukasi" },
+                { label: "Permohonan Data", href: "/verifikasi-layanan/permohonan-data" },
+                { label: "Peminjaman Alat", href: "/verifikasi-layanan/peminjaman-alat" },
+                { label: "Layanan Mess", href: "/verifikasi-layanan/layanan-mess" },
             ],
         },
         { label: "Tagihan", href: "/tagihan", icon: Receipt },
@@ -101,7 +103,7 @@ export const sidebarMenuByRole: Record<string, MenuItem[]> = {
     pegawai: [
         { label: "Dashboard", href: "/dashboard-pegawai", icon: LayoutDashboard },
         {
-            label: "Layanan",
+            label: "Penugasan Layanan",
             icon: ClipboardList,
             subItems: [],
         },
@@ -120,6 +122,8 @@ export const sidebarMenuByRole: Record<string, MenuItem[]> = {
         },
         { label: "Kelola Layanan", href: "/kelola-layanan", icon: Settings },
         { label: "Kelola Tagihan", href: "/kelola-tagihan", icon: Receipt },
+        { label: "Kelola FAQ", href: "/kelola-faq", icon: HelpCircle },
+
         { label: "Audit Log", href: "/audit-log", icon: History },
         { label: "Profil", href: "/profile", icon: User },
     ],
@@ -127,13 +131,19 @@ export const sidebarMenuByRole: Record<string, MenuItem[]> = {
     kepala_balai: [
         { label: "Dashboard", href: "/dashboard-kepala-balai", icon: LayoutDashboard },
         {
-            label: "Persetujuan",
-            href: "/dashboard-kepala-balai/layanan",
+            label: "Persetujuan Layanan",
             icon: ClipboardCheck,
             subItems: [
-                { label: "Bimbingan Teknis & Narasumber", href: "/persetujuan-layanan/17" },
-                { label: "Magang Teknis / PKL", href: "/persetujuan-layanan/20" },
-                { label: "Agroedukasi / Kunjungan Edukasi", href: "/persetujuan-layanan/21" },
+                { label: "Rekomendasi Siap Tanam", href: "/persetujuan-layanan/rekomendasi-siap-tanam" },
+                { label: "Rekomendasi & Penilaian SNI", href: "/persetujuan-layanan/rekomendasi-sni" },
+                { label: "Konsultasi Rekomendasi SNI", href: "/persetujuan-layanan/konsultasi-rekomendasi" },
+                { label: "Bimbingan Teknis & Narasumber", href: "/persetujuan-layanan/bimbingan-teknis" },
+                { label: "Magang Teknis / PKL", href: "/persetujuan-layanan/magang-pkl" },
+                { label: "Layanan Perpustakaan", href: "/persetujuan-layanan/layanan-perpustakaan" },
+                { label: "Agroedukasi / Kunjungan Edukasi", href: "/persetujuan-layanan/agroedukasi" },
+                { label: "Permohonan Data", href: "/persetujuan-layanan/permohonan-data" },
+                { label: "Peminjaman Alat", href: "/persetujuan-layanan/peminjaman-alat" },
+                { label: "Layanan Mess", href: "/persetujuan-layanan/layanan-mess" },
             ],
         },
         { label: "Audit Log", href: "/audit-log", icon: History },

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Navbar from "@/components/navbar/Navbar";
 import Hero from "@/components/landing-page/Hero";
@@ -12,11 +12,11 @@ import Pengaduan from "@/components/landing-page/Pengaduan";
 
 export default function Home() {
   return (
-    <div className="relative flex min-h-screen flex-col bg-gradient-to-b from-emerald-50/50 via-white to-teal-50/30 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 text-zinc-900 dark:text-zinc-50 overflow-x-hidden font-sans">
+    <div className="relative flex min-h-screen flex-col bg-gradient-to-b from-secondary-green-color/50 via-white to-teal-50/30 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 text-zinc-900 dark:text-zinc-50 overflow-x-hidden font-sans">
       {/* Background patterns */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <svg
-          className="absolute left-[max(50%,25rem)] top-0 h-[64rem] w-[128rem] -translate-x-1/2 stroke-emerald-200/30 [mask-image:radial-gradient(64rem_64rem_at_top,white,transparent)] dark:stroke-emerald-950/10"
+          className="absolute left-[max(50%,25rem)] top-0 h-[64rem] w-[128rem] -translate-x-1/2 stroke-secondary-green-color/30 [mask-image:radial-gradient(64rem_64rem_at_top,white,transparent)] dark:stroke-secondary-green-color/10"
           aria-hidden="true"
         >
           <defs>

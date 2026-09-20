@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { AlertCircle, CheckCircle2, FileText, Info, Phone, User, Calendar, Clock, HelpCircle, FileUp, X } from "lucide-react";
+import { getApiUrl } from "@/lib/api";
 
 interface LayananItem {
     id: number;
@@ -11,8 +12,6 @@ interface LayananItem {
 interface PengaduanFormProps {
     onClose: () => void;
 }
-
-const API_URL = "http://localhost:3000";
 
 export default function PengaduanForm({ onClose }: PengaduanFormProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -49,7 +48,7 @@ export default function PengaduanForm({ onClose }: PengaduanFormProps) {
             }
 
             try {
-                const response = await fetch(`${API_URL}/layanan`, {
+                const response = await fetch(`${getApiUrl()}/layanan`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -172,7 +171,7 @@ export default function PengaduanForm({ onClose }: PengaduanFormProps) {
                 formData.append("file", buktiFile);
             }
 
-            const response = await fetch(`${API_URL}/pengaduan`, {
+            const response = await fetch(`${getApiUrl()}/pengaduan`, {
                 method: "POST",
                 body: formData,
             });
@@ -218,7 +217,7 @@ export default function PengaduanForm({ onClose }: PengaduanFormProps) {
         return (
             <div className="p-6 text-center space-y-4">
                 <div className="flex justify-center">
-                    <CheckCircle2 className="w-16 h-16 text-emerald-500 animate-bounce" />
+                    <CheckCircle2 className="w-16 h-16 text-secondary-green-color animate-bounce" />
                 </div>
                 <h3 className="text-xl font-extrabold text-zinc-900 dark:text-white">
                     Pengaduan Berhasil Dikirim!
@@ -229,7 +228,7 @@ export default function PengaduanForm({ onClose }: PengaduanFormProps) {
                 <div className="pt-4">
                     <button
                         onClick={onClose}
-                        className="px-6 py-2.5 bg-[var(--green-color)] hover:bg-emerald-650 text-white rounded-xl text-sm font-bold shadow-md transition"
+                        className="px-6 py-2.5 bg-[var(--green-color)] hover:bg-[var(--hover-green-color)] text-white rounded-xl text-sm font-bold shadow-md transition"
                     >
                         Tutup
                     </button>
@@ -267,7 +266,7 @@ export default function PengaduanForm({ onClose }: PengaduanFormProps) {
                             disabled={loading || loadingLayanan}
                             value={namaPelapor}
                             onChange={(e) => setNamaPelapor(e.target.value)}
-                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-9 pr-3 py-2 text-xs sm:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-9 pr-3 py-2 text-xs sm:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-secondary-green-color focus:outline-none focus:ring-1 focus:ring-secondary-green-color"
                             placeholder="Masukkan nama Anda"
                         />
                     </div>
@@ -288,7 +287,7 @@ export default function PengaduanForm({ onClose }: PengaduanFormProps) {
                             disabled={loading || loadingLayanan}
                             value={noHp}
                             onChange={(e) => setNoHp(e.target.value)}
-                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-9 pr-3 py-2 text-xs sm:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-9 pr-3 py-2 text-xs sm:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-secondary-green-color focus:outline-none focus:ring-1 focus:ring-secondary-green-color"
                             placeholder="Contoh: 08123456789"
                         />
                     </div>
@@ -306,7 +305,7 @@ export default function PengaduanForm({ onClose }: PengaduanFormProps) {
                         disabled={loading || loadingLayanan}
                         value={statusPelapor}
                         onChange={(e) => setStatusPelapor(e.target.value)}
-                        className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3 py-2 text-xs sm:text-sm text-zinc-900 dark:text-white shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3 py-2 text-xs sm:text-sm text-zinc-900 dark:text-white shadow-sm focus:border-secondary-green-color focus:outline-none focus:ring-1 focus:ring-secondary-green-color"
                     >
                         <option value="Masyarakat Umum">Masyarakat Umum</option>
                         <option value="Pengguna Layanan">Pengguna Layanan</option>
@@ -325,7 +324,7 @@ export default function PengaduanForm({ onClose }: PengaduanFormProps) {
                         disabled={loading || loadingLayanan}
                         value={layananId}
                         onChange={(e) => setLayananId(e.target.value)}
-                        className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3 py-2 text-xs sm:text-sm text-zinc-900 dark:text-white shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                        className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3 py-2 text-xs sm:text-sm text-zinc-900 dark:text-white shadow-sm focus:border-secondary-green-color focus:outline-none focus:ring-1 focus:ring-secondary-green-color"
                     >
                         {loadingLayanan ? (
                             <option>Memuat layanan...</option>
@@ -357,7 +356,7 @@ export default function PengaduanForm({ onClose }: PengaduanFormProps) {
                             disabled={loading || loadingLayanan}
                             value={tanggalKejadian}
                             onChange={(e) => setTanggalKejadian(e.target.value)}
-                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-9 pr-3 py-2 text-xs sm:text-sm text-zinc-900 dark:text-white shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-9 pr-3 py-2 text-xs sm:text-sm text-zinc-900 dark:text-white shadow-sm focus:border-secondary-green-color focus:outline-none focus:ring-1 focus:ring-secondary-green-color"
                         />
                     </div>
                 </div>
@@ -377,7 +376,7 @@ export default function PengaduanForm({ onClose }: PengaduanFormProps) {
                             disabled={loading || loadingLayanan}
                             value={waktu}
                             onChange={(e) => setWaktu(e.target.value)}
-                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-9 pr-3 py-2 text-xs sm:text-sm text-zinc-900 dark:text-white shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 pl-9 pr-3 py-2 text-xs sm:text-sm text-zinc-900 dark:text-white shadow-sm focus:border-secondary-green-color focus:outline-none focus:ring-1 focus:ring-secondary-green-color"
                         />
                     </div>
                 </div>
@@ -395,7 +394,7 @@ export default function PengaduanForm({ onClose }: PengaduanFormProps) {
                     disabled={loading || loadingLayanan}
                     value={detailKejadian}
                     onChange={(e) => setDetailKejadian(e.target.value)}
-                    className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3.5 py-2 text-xs sm:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 resize-none"
+                    className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3.5 py-2 text-xs sm:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-secondary-green-color focus:outline-none focus:ring-1 focus:ring-secondary-green-color resize-none"
                     placeholder="Jelaskan kronologi kejadian secara rinci..."
                 />
             </div>
@@ -412,7 +411,7 @@ export default function PengaduanForm({ onClose }: PengaduanFormProps) {
                     disabled={loading || loadingLayanan}
                     value={dampak}
                     onChange={(e) => setDampak(e.target.value)}
-                    className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3.5 py-2 text-xs sm:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 resize-none"
+                    className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3.5 py-2 text-xs sm:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-secondary-green-color focus:outline-none focus:ring-1 focus:ring-secondary-green-color resize-none"
                     placeholder="Apa dampak merugikan yang Anda rasakan?"
                 />
             </div>
@@ -429,7 +428,7 @@ export default function PengaduanForm({ onClose }: PengaduanFormProps) {
                     disabled={loading || loadingLayanan}
                     value={harapan}
                     onChange={(e) => setHarapan(e.target.value)}
-                    className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3.5 py-2 text-xs sm:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 resize-none"
+                    className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 px-3.5 py-2 text-xs sm:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-secondary-green-color focus:outline-none focus:ring-1 focus:ring-secondary-green-color resize-none"
                     placeholder="Apa harapan Anda setelah menyampaikan laporan ini?"
                 />
             </div>
@@ -441,13 +440,13 @@ export default function PengaduanForm({ onClose }: PengaduanFormProps) {
                 </label>
 
                 {!buktiFile ? (
-                    <div className="mt-1 flex justify-center px-4 py-4 border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-xl hover:border-emerald-500 dark:hover:border-emerald-500/50 hover:bg-emerald-50/10 dark:hover:bg-emerald-950/5 transition cursor-pointer">
+                    <div className="mt-1 flex justify-center px-4 py-4 border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-xl hover:border-secondary-green-color dark:hover:border-secondary-green-color/50 hover:bg-secondary-green-color/10 dark:hover:bg-secondary-green-color/5 transition cursor-pointer">
                         <div className="space-y-1 text-center flex flex-col items-center">
                             <FileUp className="mx-auto h-8 w-8 text-zinc-450 dark:text-zinc-650" />
                             <div className="flex text-xs text-zinc-600 dark:text-zinc-450 justify-center">
                                 <label
                                     htmlFor="bukti-file-upload"
-                                    className="relative cursor-pointer rounded-md font-bold text-[var(--green-color)] dark:text-emerald-400 hover:text-emerald-500 focus-within:outline-none"
+                                    className="relative cursor-pointer rounded-md font-bold text-[var(--green-color)] dark:text-secondary-green-color hover:text-secondary-green-color focus-within:outline-none"
                                 >
                                     <span>Pilih berkas</span>
                                     <input
@@ -469,9 +468,9 @@ export default function PengaduanForm({ onClose }: PengaduanFormProps) {
                         </div>
                     </div>
                 ) : (
-                    <div className="flex items-center justify-between p-2.5 bg-emerald-50/30 dark:bg-emerald-950/10 border border-emerald-200/50 dark:border-emerald-900/30 rounded-xl">
+                    <div className="flex items-center justify-between p-2.5 bg-secondary-green-color/30 dark:bg-secondary-green-color/10 border border-secondary-green-color/50 dark:border-secondary-green-color/30 rounded-xl">
                         <div className="flex items-center gap-2">
-                            <div className="p-1.5 bg-emerald-100 dark:bg-emerald-950 rounded-lg text-emerald-600 dark:text-emerald-400">
+                            <div className="p-1.5 bg-secondary-green-color dark:bg-secondary-green-color rounded-lg text-secondary-green-color dark:text-secondary-green-color">
                                 <FileText className="w-4 h-4" />
                             </div>
                             <div className="max-w-[180px] sm:max-w-[350px] truncate">
@@ -505,7 +504,7 @@ export default function PengaduanForm({ onClose }: PengaduanFormProps) {
                             checked={bersediaDihubungi === true}
                             onChange={() => setBersediaDihubungi(true)}
                             disabled={loading}
-                            className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-zinc-300"
+                            className="h-4 w-4 text-secondary-green-color focus:ring-secondary-green-color border-zinc-300"
                         />
                         Ya, bersedia
                     </label>
@@ -516,7 +515,7 @@ export default function PengaduanForm({ onClose }: PengaduanFormProps) {
                             checked={bersediaDihubungi === false}
                             onChange={() => setBersediaDihubungi(false)}
                             disabled={loading}
-                            className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-zinc-300"
+                            className="h-4 w-4 text-secondary-green-color focus:ring-secondary-green-color border-zinc-300"
                         />
                         Tidak
                     </label>
@@ -536,7 +535,7 @@ export default function PengaduanForm({ onClose }: PengaduanFormProps) {
                 <button
                     type="submit"
                     disabled={loading || loadingLayanan}
-                    className="px-5 py-2 bg-[var(--green-color)] hover:bg-emerald-650 text-white rounded-xl text-xs sm:text-sm font-extrabold shadow-md transition disabled:opacity-50"
+                    className="px-5 py-2 bg-[var(--green-color)] hover:bg-[var(--hover-green-color)] text-white rounded-xl text-xs sm:text-sm font-extrabold shadow-md transition disabled:opacity-50"
                 >
                     Kirim Pengaduan
                 </button>

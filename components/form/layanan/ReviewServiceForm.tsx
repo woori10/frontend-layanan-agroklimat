@@ -87,7 +87,6 @@ export default function ReviewServiceForm({
 
   // Calculate loan duration and tools total price
   let durationDays = 1;
-  let totalEstimasi = 0;
   if (isPeminjamanAlat && peminjamanAlatData) {
     try {
       const start = new Date(peminjamanAlatData.periodeMulai);
@@ -99,6 +98,14 @@ export default function ReviewServiceForm({
       durationDays = 1;
     }
   }
+
+  const totalEstimasi = (isPeminjamanAlat && peminjamanAlatData?.selectedAlatList)
+    ? peminjamanAlatData.selectedAlatList.reduce((acc, tool) => acc + (tool.price * tool.units * durationDays), 0)
+    : 0;
+
+  const displayServiceData = isPeminjamanAlat
+    ? serviceData.filter((field) => field.label !== "Jenis Alat Yang Dipinjam")
+    : serviceData;
 
   return (
     <form onSubmit={handleSubmitClick} className="space-y-8">
@@ -112,243 +119,176 @@ export default function ReviewServiceForm({
         </p>
       </div>
 
-      {isPeminjamanAlat && peminjamanAlatData ? (
-        // ==========================================
-        // SPECIAL LAYOUT FOR PEMINJAMAN ALAT
-        // ==========================================
-        <div className="space-y-6">
-          {/* Card 1: Informasi Pemohon */}
-          <div className="border border-zinc-200/80 dark:border-zinc-800 rounded-2xl p-6 sm:p-8 space-y-6 bg-white dark:bg-zinc-950 shadow-sm relative transition duration-300">
-            <div className="grid gap-y-5 gap-x-6 sm:grid-cols-2 text-sm">
-              {/* Nama Lengkap */}
-              <div>
-                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
-                  Nama Lengkap
-                </span>
-                <span className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mt-1">
-                  {commonData.namaLengkap}
-                </span>
-              </div>
-
-              {/* Instansi/Lembaga */}
-              <div>
-                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
-                  Instansi/Lembaga
-                </span>
-                <span className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mt-1">
-                  {commonData.alamatInstansi}
-                </span>
-              </div>
-
-              {/* Email */}
-              <div>
-                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
-                  Email
-                </span>
-                <span className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mt-1">
-                  {userEmail || "-"}
-                </span>
-              </div>
-
-              {/* Nomor Telepon */}
-              <div>
-                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
-                  Nomor Telepon
-                </span>
-                <span className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mt-1">
-                  {commonData.noTelp}
-                </span>
-              </div>
-
-              {/* Jenis Layanan */}
-              <div>
-                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
-                  Jenis Layanan
-                </span>
-                <span className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mt-1">
-                  Peminjaman Alat
-                </span>
-              </div>
-
-              {/* Periode */}
-              <div>
-                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
-                  Periode
-                </span>
-                <span className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mt-1">
-                  {formatDateRange(peminjamanAlatData.periodeMulai, peminjamanAlatData.periodeSelesai)} ({durationDays} Hari)
-                </span>
-              </div>
-            </div>
-
-            {/* Separator line */}
-            <div className="border-t border-zinc-100 dark:border-zinc-900 pt-5">
-              <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
-                Tujuan Penggunaan
+      <div className="space-y-6">
+        {/* Section 1: Informasi Pemohon */}
+        <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 sm:p-8 bg-zinc-50/50 dark:bg-zinc-950/10 space-y-4">
+          <h3 className="text-sm font-bold text-[var(--foreground)] dark:text-zinc-200 border-b border-zinc-200 dark:border-zinc-800 pb-2">
+            Informasi Pemohon
+          </h3>
+          <div className="grid gap-y-4 gap-x-6 grid-cols-1 md:grid-cols-2 text-sm">
+            <div>
+              <span className="text-zinc-500 block text-sm">
+                Nama Lengkap
               </span>
-              <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 leading-relaxed mt-1">
-                {peminjamanAlatData.tujuanPenggunaan}
-              </p>
-            </div>
-
-            {/* Wilayah Kajian */}
-            <div className="border-t border-zinc-100 dark:border-zinc-900 pt-5">
-              <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
-                Wilayah Kajian
+              <span className="font-medium text-zinc-900 dark:text-white text-sm break-words">
+                {commonData.namaLengkap}
               </span>
-              <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 leading-relaxed mt-1">
-                {peminjamanAlatData.wilayahKajian}
-              </p>
             </div>
 
-            {/* Surat Pengantar */}
-            {commonData.suratPengantar && (
-              <div className="border-t border-zinc-100 dark:border-zinc-900 pt-5">
-                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider">
-                  Surat Pengantar Instansi
-                </span>
-                <div className="inline-flex items-center gap-2 text-[var(--green-color)] dark:text-emerald-450 font-bold bg-emerald-50/50 dark:bg-emerald-950/20 px-3 py-1.5 rounded-lg border border-emerald-100 dark:border-emerald-900/30 text-xs mt-1.5">
+            <div>
+              <span className="text-zinc-500 block text-sm">
+                NIP / No. KTP
+              </span>
+              <span className="font-medium text-zinc-900 dark:text-white text-sm break-words">
+                {commonData.nipKtp}
+              </span>
+            </div>
+
+            <div>
+              <span className="text-zinc-500 block text-sm">
+                Alamat / Instansi Asal
+              </span>
+              <span className="font-medium text-zinc-900 dark:text-white text-sm break-words">
+                {commonData.alamatInstansi}
+              </span>
+            </div>
+
+            <div>
+              <span className="text-zinc-500 block text-sm">
+                No. Telepon / WhatsApp
+              </span>
+              <span className="font-medium text-zinc-900 dark:text-white text-sm break-words">
+                {commonData.noTelp}
+              </span>
+            </div>
+
+            <div>
+              <span className="text-zinc-500 block text-sm">
+                Tanggal Pengajuan Surat
+              </span>
+              <span className="font-medium text-zinc-900 dark:text-white text-sm break-words">
+                {formatDate(commonData.tanggalPengajuan)}
+              </span>
+            </div>
+
+            <div>
+              <span className="text-zinc-500 block text-sm">
+                Surat Pengantar
+              </span>
+              {commonData.suratPengantar ? (
+                <div className="inline-flex items-center gap-2 text-[var(--green-color)] dark:text-secondary-green-color font-bold bg-secondary-green-color dark:bg-secondary-green-color/20 px-3 py-1 rounded-lg border border-secondary-green-color dark:border-secondary-green-color/30 text-xs mt-1">
                   <FileText className="h-4 w-4" />
                   <span>{commonData.suratPengantar.name}</span>
                 </div>
-              </div>
-            )}
-          </div>
-
-          {/* Card 2: Alat & Estimasi Biaya */}
-          <div className="border border-zinc-200/80 dark:border-zinc-800 rounded-2xl p-6 sm:p-8 space-y-6 bg-white dark:bg-zinc-950 shadow-sm relative transition duration-300">
-            <div className="divide-y divide-zinc-100 dark:divide-zinc-900">
-              {peminjamanAlatData.selectedAlatList.map((tool, idx) => {
-                const subtotal = tool.price * tool.units * durationDays;
-                totalEstimasi += subtotal;
-
-                return (
-                  <div key={idx} className="flex justify-between items-center py-4 first:pt-0 last:pb-0">
-                    <div className="space-y-1">
-                      <span className="font-bold text-sm text-[#2C5E3B] dark:text-emerald-400 block">
-                        {tool.name}
-                      </span>
-                      <span className="text-xs text-zinc-400 dark:text-zinc-500 font-semibold block">
-                        Durasi: {durationDays} Hari ({formatDateRange(peminjamanAlatData.periodeMulai, peminjamanAlatData.periodeSelesai)})
-                      </span>
-                    </div>
-
-                    <div className="text-right">
-                      <span className="text-sm text-zinc-400 dark:text-zinc-500 font-bold block">
-                        {tool.units} Unit × Rp {tool.price.toLocaleString("id-ID")}
-                      </span>
-                      <span className="font-extrabold text-zinc-900 dark:text-white text-sm mt-1 block">
-                        Rp {subtotal.toLocaleString("id-ID")}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Total Section */}
-            <div className="border-t border-zinc-200 dark:border-zinc-800 pt-6 flex justify-between items-center">
-              <span className="text-sm font-bold text-zinc-900 dark:text-white uppercase tracking-wider">
-                Total Estimasi
-              </span>
-              <span className="font-extrabold text-sm text-zinc-900 dark:text-white">
-                Rp {totalEstimasi.toLocaleString("id-ID")}
-              </span>
+              ) : (
+                <span className="text-zinc-400 dark:text-zinc-600 font-base">Tidak ada berkas</span>
+              )}
             </div>
           </div>
         </div>
-      ) : (
-        // ==========================================
-        // DEFAULT FALLBACK LAYOUT FOR OTHER SERVICES
-        // ==========================================
-        <div className="space-y-6">
-          {/* Section 1: Informasi Pemohon */}
+
+        {/* Section 2: Detail Pengajuan Layanan */}
+        <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 sm:p-8 bg-zinc-50/50 dark:bg-zinc-950/10 space-y-4">
+          <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 border-b border-zinc-200 dark:border-zinc-800 pb-2">
+            Detail Pengajuan Layanan
+          </h3>
+          <div className="grid gap-y-4 gap-x-6 grid-cols-1 md:grid-cols-2 text-sm">
+            {displayServiceData.map((field, idx) => (
+              <div key={idx} className={field.isLongText ? "col-span-1 md:col-span-2" : "col-span-1"}>
+                <span className="text-zinc-500 block text-sm">
+                  {field.label}
+                </span>
+                <span className="font-medium text-zinc-900 dark:text-white text-sm break-words whitespace-pre-line">
+                  {field.value || "-"}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Section 3: Daftar Alat Yang Dipinjam (Khusus Peminjaman Alat) */}
+        {isPeminjamanAlat && peminjamanAlatData && (
           <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 sm:p-8 bg-zinc-50/50 dark:bg-zinc-950/10 space-y-4">
             <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 border-b border-zinc-200 dark:border-zinc-800 pb-2">
-              1. Informasi Pemohon
+              Daftar Alat Yang Dipinjam
             </h3>
-            <div className="grid gap-y-4 gap-x-6 sm:grid-cols-2 text-sm">
-              <div>
-                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider mb-1">
-                  Nama Lengkap
-                </span>
-                <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-                  {commonData.namaLengkap}
-                </span>
-              </div>
 
-              <div>
-                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider mb-1">
-                  NIP / No. KTP
-                </span>
-                <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-                  {commonData.nipKtp}
-                </span>
-              </div>
-
-              <div>
-                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider mb-1">
-                  Alamat / Instansi Asal
-                </span>
-                <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-                  {commonData.alamatInstansi}
-                </span>
-              </div>
-
-              <div>
-                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider mb-1">
-                  No. Telepon / WhatsApp
-                </span>
-                <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-                  {commonData.noTelp}
-                </span>
-              </div>
-
-              <div>
-                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider mb-1">
-                  Tanggal Pengajuan Surat
-                </span>
-                <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-                  {formatDate(commonData.tanggalPengajuan)}
-                </span>
-              </div>
-
-              <div>
-                <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider mb-1">
-                  Surat Pengantar
-                </span>
-                {commonData.suratPengantar ? (
-                  <div className="inline-flex items-center gap-2 text-[var(--green-color)] dark:text-emerald-450 font-bold bg-emerald-50 dark:bg-emerald-950/20 px-3 py-1 rounded-lg border border-emerald-100 dark:border-emerald-900/30 text-xs mt-1">
-                    <FileText className="h-4 w-4" />
-                    <span>{commonData.suratPengantar.name}</span>
-                  </div>
-                ) : (
-                  <span className="text-zinc-400 dark:text-zinc-600 font-semibold italic">Tidak ada berkas</span>
+            <div className="overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800">
+              <table className="min-w-full divide-y divide-zinc-200 dark:divide-zinc-800">
+                <thead>
+                  <tr className="bg-zinc-100/70 dark:bg-zinc-800/40">
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-bold text-zinc-700 dark:text-zinc-300">
+                      No
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-bold text-zinc-700 dark:text-zinc-300">
+                      Nama Alat
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-center text-xs font-bold text-zinc-700 dark:text-zinc-300">
+                      Jumlah
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-center text-xs font-bold text-zinc-700 dark:text-zinc-300">
+                      Durasi
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-center text-xs font-bold text-zinc-700 dark:text-zinc-300">
+                      Tarif / Hari
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-center text-xs font-bold text-zinc-700 dark:text-zinc-300">
+                      Subtotal
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800 bg-white dark:bg-zinc-900 text-xs">
+                  {peminjamanAlatData.selectedAlatList && peminjamanAlatData.selectedAlatList.length > 0 ? (
+                    peminjamanAlatData.selectedAlatList.map((tool, idx) => {
+                      const subtotal = tool.price * tool.units * durationDays;
+                      return (
+                        <tr key={idx} className="transition-colors hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50">
+                          <td className="px-4 py-3 text-left text-zinc-500 dark:text-zinc-400 font-medium">
+                            {idx + 1}
+                          </td>
+                          <td className="px-4 py-3 text-left text-zinc-800 dark:text-zinc-200 font-medium">
+                            {tool.name}
+                          </td>
+                          <td className="px-4 py-3 text-center text-zinc-600 dark:text-zinc-400 font-medium whitespace-nowrap">
+                            {tool.units} Unit
+                          </td>
+                          <td className="px-4 py-3 text-center text-zinc-600 dark:text-zinc-400 font-medium whitespace-nowrap">
+                            {durationDays} Hari
+                          </td>
+                          <td className="px-4 py-3 text-center text-zinc-600 dark:text-zinc-400 font-medium whitespace-nowrap">
+                            Rp {Number(tool.price).toLocaleString("id-ID")}
+                          </td>
+                          <td className="px-4 py-3 text-center text-zinc-800 dark:text-zinc-200 font-medium whitespace-nowrap">
+                            Rp {Number(subtotal).toLocaleString("id-ID")}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="px-4 py-6 text-center text-zinc-500 dark:text-zinc-400 font-medium text-xs">
+                        Tidak ada data alat yang dipinjam
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+                {peminjamanAlatData.selectedAlatList && peminjamanAlatData.selectedAlatList.length > 0 && (
+                  <tfoot className="border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-850/60">
+                    <tr>
+                      <td colSpan={5} className="px-4 py-3 text-left font-bold text-zinc-800 dark:text-zinc-200 text-xs">
+                        Total Estimasi Biaya
+                      </td>
+                      <td className="px-4 py-3 text-center font-extrabold text-[var(--green-color)] dark:text-secondary-green-color text-xs whitespace-nowrap">
+                        Rp {Number(totalEstimasi).toLocaleString("id-ID")}
+                      </td>
+                    </tr>
+                  </tfoot>
                 )}
-              </div>
+              </table>
             </div>
           </div>
-
-          {/* Section 2: Detail Peminjaman */}
-          <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 sm:p-8 bg-zinc-50/50 dark:bg-zinc-950/10 space-y-4">
-            <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 border-b border-zinc-200 dark:border-zinc-800 pb-2">
-              2. Detail Pengajuan Layanan
-            </h3>
-            <div className="grid gap-y-4 gap-x-6 sm:grid-cols-2 text-sm">
-              {serviceData.map((field, idx) => (
-                <div key={idx} className={field.isLongText ? "sm:col-span-2" : ""}>
-                  <span className="block text-xs font-medium text-[var(--foreground)] dark:text-zinc-500 uppercase tracking-wider mb-1">
-                    {field.label}
-                  </span>
-                  <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 leading-relaxed block whitespace-pre-wrap">
-                    {field.value || "-"}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Warning Box */}
       <div className="rounded-xl bg-amber-50 dark:bg-amber-950/20 p-4 border border-amber-200 dark:border-amber-900/30 flex items-start gap-3 shadow-sm">
@@ -380,20 +320,18 @@ export default function ReviewServiceForm({
           type="button"
           onClick={onBack}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2.5 border border-[var(--green-color)] dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-900 text-[var(--green-color)] dark:text-zinc-300 rounded-xl text-sm font-bold transition disabled:opacity-50 cursor-pointer"
+          className="flex items-center gap-2 px-4 py-2.5 border border-[var(--green-color)] dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-900 text-[var(--green-color)] dark:text-zinc-300 rounded-xl text-xs md:text-sm font-bold transition disabled:opacity-50 cursor-pointer"
         >
-          <ArrowLeft className="h-4 w-4" />
           Kembali
         </button>
         <button
           type="submit"
           disabled={loading || !agreed}
-          className={`px-6 py-2.5 rounded-xl text-sm font-extrabold shadow-md transition flex items-center gap-2 cursor-pointer ${agreed && !loading
-            ? "bg-[var(--green-color)] hover:bg-emerald-650 text-white"
+          className={`px-6 py-2.5 rounded-xl text-xs md:text-sm font-extrabold shadow-md transition flex items-center gap-2 cursor-pointer ${agreed && !loading
+            ? "bg-[var(--green-color)] hover:bg-[var(--hover-green-color)] text-white"
             : "bg-zinc-300 text-white dark:bg-zinc-850 dark:text-zinc-500 cursor-not-allowed shadow-none"
             }`}
         >
-          <Check className="h-4 w-4" />
           Kirim Pengajuan
         </button>
       </div>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ShieldCheck, Award, UserCheck } from "lucide-react";
 
@@ -27,13 +27,13 @@ export default function Tentang() {
                 <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-center">
 
                     {/* Left Column: Text Content */}
-                    <div className="flex-1 space-y-6 text-left">
+                    <div className="flex-1 space-y-6 text-center md:text-left">
 
                         <div className="space-y-4">
-                            <p className="text-md sm:text-lg font-bold text-[var(--yellow-color)] dark:text-emerald-450 leading-tight">
+                            <p className="text-md sm:text-lg font-bold text-[var(--yellow-color)] dark:text-secondary-green-color leading-tight">
                                 Tentang Kami
                             </p>
-                            <h2 className="text-3xl sm:text-4xl font-bold text-[var(--green-color)] dark:text-emerald-450 leading-tight">
+                            <h2 className="text-3xl sm:text-4xl font-bold text-[var(--green-color)] dark:text-secondary-green-color leading-tight">
                                 Layanan Agroklimat Terintegrasi
                             </h2>
                         </div>

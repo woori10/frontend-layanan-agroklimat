@@ -12,13 +12,15 @@ export default function Pengaduan() {
                     <p className="text-sm sm:text-base font-bold text-[var(--yellow-color)] mt-2 max-w-2xl">
                         Pengaduan dan Bantuan
                     </p>
-                    <h1 className="text-4xl sm:text-5xl md:max-w-5xl mx-auto leading-tight font-semibold text-center text-white">Sampaikan kendala atau keluhan terkait layanan BRMP Agroklimat</h1>
-                    <button
-                        onClick={() => setIsPengaduanOpen(true)}
-                        className="px-6 py-3.5 mt-4 text-sm font-bold text-[var(--green-color)] bg-white rounded-xl shadow-md hover:cursor-pointer"
+                    <h1 className="text-2xl md:text-4xl md:max-w-4xl mx-auto leading-tight font-semibold text-center text-white">Sampaikan kendala atau keluhan terkait layanan BRMP Agroklimat</h1>
+                    <a
+                        href="https://docs.google.com/forms/d/e/1FAIpQLSej6HyWOxU4hkdt1m74gmNx_oFn1Px-8OQ5Vb4cfmHZanjcvA/viewform"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-6 py-3.5 mt-4 text-xs md:text-sm font-bold text-[var(--green-color)] bg-white rounded-xl shadow-md hover:cursor-pointer inline-block"
                     >
                         Buat Pengaduan
-                    </button>
+                    </a>
 
                 </div>
             </div>

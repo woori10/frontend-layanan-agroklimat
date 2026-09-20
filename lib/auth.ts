@@ -1,8 +1,9 @@
-const API_URL = "http://localhost:3000";
+import { getApiUrl } from "./api";
 
 export interface JwtPayload {
     sub: number;
     email: string | null;
+    nip?: string | null;
     role: string;
     nama: string;
     unit_teknis_id?: number | null;
@@ -42,13 +43,20 @@ function extractErrorMessage(data: any, fallback: string): string {
 
 // ── Register (pengguna publik) ──
 export async function registerUser(payload: RegisterPayload): Promise<AuthResponse> {
-    const response = await fetch(`${API_URL}/auth/register`, {
+    const response = await fetch(`${getApiUrl()}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
     });
 
-    const data = await response.json();
+    let data: any = null;
+    try {
+        data = await response.json();
+    } catch {
+        if (!response.ok) {
+            throw new Error(`Terjadi kesalahan pada server backend (${response.status}). Pastikan backend dan database aktif.`);
+        }
+    }
 
     if (!response.ok) {
         throw new Error(extractErrorMessage(data, "Registrasi gagal!"));
@@ -59,13 +67,20 @@ export async function registerUser(payload: RegisterPayload): Promise<AuthRespon
 
 // ── Login pengguna publik (pakai email) ──
 export async function loginUser(payload: LoginPayload): Promise<AuthResponse> {
-    const response = await fetch(`${API_URL}/auth/login`, {
+    const response = await fetch(`${getApiUrl()}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
     });
 
-    const data = await response.json();
+    let data: any = null;
+    try {
+        data = await response.json();
+    } catch {
+        if (!response.ok) {
+            throw new Error(`Terjadi kesalahan pada server backend (${response.status}). Pastikan backend dan database aktif.`);
+        }
+    }
 
     if (!response.ok) {
         throw new Error(extractErrorMessage(data, "Login gagal!"));
@@ -76,13 +91,20 @@ export async function loginUser(payload: LoginPayload): Promise<AuthResponse> {
 
 // ── Login staff/pegawai (pakai NIP) ──
 export async function loginStaff(payload: LoginStaffPayload): Promise<AuthResponse> {
-    const response = await fetch(`${API_URL}/auth/login/pegawai`, {
+    const response = await fetch(`${getApiUrl()}/auth/login/pegawai`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
     });
 
-    const data = await response.json();
+    let data: any = null;
+    try {
+        data = await response.json();
+    } catch {
+        if (!response.ok) {
+            throw new Error(`Terjadi kesalahan pada server backend (${response.status}). Pastikan backend dan database aktif.`);
+        }
+    }
 
     if (!response.ok) {
         throw new Error(extractErrorMessage(data, "Login gagal!"));
@@ -124,7 +146,7 @@ export function getRedirectPath(role: string): string {
         case "super_admin":
             return "/dashboard-super-admin";
         case "admin":
-            return "/verifikasi-layanan/16";
+            return "/dashboard-admin";
         case "publik":
             return "/";
         case "pegawai":

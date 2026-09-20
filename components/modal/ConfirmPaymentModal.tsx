@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 interface ConfirmPaymentModalProps {
     isOpen: boolean;
@@ -19,16 +19,16 @@ export default function ConfirmPaymentModal({
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-xs p-4">
-            <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-6 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 animate-in fade-in zoom-in duration-200 text-left font-sans">
-                <h3 className="text-base font-bold text-zinc-900 dark:text-white mb-2">
+            <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl p-6 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 animate-in fade-in zoom-in duration-200 text-left font-sans">
+                <h3 className="text-base text-center font-bold text-zinc-900 dark:text-white mb-2">
                     Konfirmasi Lunas Pembayaran
                 </h3>
-                <p className="text-xs text-zinc-650 dark:text-zinc-400 mb-4 leading-relaxed font-medium">
-                    Apakah Anda yakin telah menerima pembayaran sebesar <strong className="text-[#2C5E3B] dark:text-emerald-400">{jumlah ? `Rp ${jumlah.toLocaleString("id-ID")}` : "-"}</strong> dan ingin menyatakan pembayaran tiket ini **Lunas**? 
-                    Setelah dikonfirmasi, status permohonan akan berganti menjadi **Diproses** untuk dikerjakan oleh unit teknis terkait.
+                <p className="text-xs text-center text-zinc-650 dark:text-zinc-400 mb-4 leading-relaxed font-medium">
+                    Apakah Anda yakin telah menerima pembayaran sebesar <strong className="text-green-color dark:text-secondary-green-color">{jumlah ? `Rp ${jumlah.toLocaleString("id-ID")}` : "-"}</strong>?
+                    Layanan akan didisposisi ke Koordinator Laboratorium
                 </p>
 
-                <div className="flex justify-end gap-3">
+                <div className="flex justify-center gap-3">
                     <button
                         type="button"
                         onClick={onClose}
@@ -40,9 +40,9 @@ export default function ConfirmPaymentModal({
                         type="button"
                         onClick={onConfirm}
                         disabled={actionLoading}
-                        className="px-4 py-2 text-xs font-semibold rounded-lg bg-[#2C5E3B] hover:bg-[#1E4329] text-white cursor-pointer shadow-xs disabled:opacity-50"
+                        className="px-4 py-2 text-xs font-semibold rounded-lg bg-green-color hover:bg-[var(--hover-green-color)] text-white cursor-pointer shadow-xs disabled:opacity-50"
                     >
-                        {actionLoading ? "Memproses..." : "Ya, Konfirmasi Lunas"}
+                        {actionLoading ? "Memproses..." : "Konfirmasi Lunas"}
                     </button>
                 </div>
             </div>

@@ -86,7 +86,15 @@ export default function LoginPage() {
             Silahkan masuk menggunakan akun yang telah terdaftar.
           </p>
 
-          <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+          <form
+            className="mt-8 space-y-6"
+            action="#"
+            method="POST"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleLogin(e);
+            }}
+          >
             {error && (
               <div className="rounded-lg bg-red-50 p-4 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-400 border border-red-200 dark:border-red-900/50 flex items-center gap-2">
                 <svg
@@ -125,7 +133,13 @@ export default function LoginPage() {
                     required
                     value={nip}
                     onChange={(e) => setNIP(e.target.value)}
-                    className="block w-full rounded-lg border border-zinc-300 bg-white pl-10 pr-3 py-2 text-zinc-900 placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder-zinc-600 dark:focus:border-emerald-500"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleLogin(e);
+                      }
+                    }}
+                    className="block w-full rounded-lg border border-zinc-300 bg-white pl-10 pr-3 py-2 text-zinc-900 placeholder-zinc-400 shadow-sm focus:border-green-color focus:outline-none focus:ring-green-color dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder-zinc-600 dark:focus:border-green-color"
                     placeholder="19850101201001"
                   />
                 </div>
@@ -150,7 +164,13 @@ export default function LoginPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full rounded-lg border border-zinc-300 bg-white pl-10 pr-3 py-2 text-zinc-900 placeholder-zinc-400 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder-zinc-600 dark:focus:border-emerald-500"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleLogin(e);
+                      }
+                    }}
+                    className="block w-full rounded-lg border border-zinc-300 bg-white pl-10 pr-3 py-2 text-zinc-900 placeholder-zinc-400 shadow-sm focus:border-green-color focus:outline-none focus:ring-green-color dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder-zinc-600 dark:focus:border-green-color"
                     placeholder="••••••••"
                   />
                 </div>
@@ -163,7 +183,7 @@ export default function LoginPage() {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-950 dark:text-emerald-500"
+                  className="h-4 w-4 rounded border-zinc-300 text-secondary-green-color focus:ring-secondary-green-color dark:border-zinc-700 dark:bg-zinc-950 dark:text-secondary-green-color"
                 />
                 <label
                   htmlFor="remember-me"
@@ -174,7 +194,7 @@ export default function LoginPage() {
               </div>
               <a
                 href="#"
-                className="font-medium text-[var(--green-color)] hover:text-emerald-500 dark:text-emerald-400"
+                className="font-medium text-[var(--green-color)] hover:text-[var(--hover-green-color)] dark:text-secondary-green-color"
               >
                 Lupa password?
               </a>
@@ -183,8 +203,9 @@ export default function LoginPage() {
             <div>
               <button
                 type="submit"
+                onClick={handleLogin}
                 disabled={loading}
-                className="flex w-full justify-center rounded-lg bg-[var(--green-color)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                className="flex w-full justify-center rounded-lg bg-[var(--green-color)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[var(--hover-green-color)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-secondary-green-color disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
                 {loading ? (
                   <svg
@@ -214,15 +235,15 @@ export default function LoginPage() {
             </div>
           </form>
 
-          <div className="mt-6 text-center text-sm">
+          {/* <div className="mt-6 text-center text-sm">
             <span className="text-zinc-500 dark:text-zinc-400">Belum punya akun? </span>
             <Link
               href="/register"
-              className="font-semibold text-[var(--foreground)] hover:text-[var(--green-color)] dark:text-emerald-400"
+              className="font-semibold text-[var(--foreground)] hover:text-[var(--green-color)] dark:text-secondary-green-color"
             >
               Daftar Sekarang
             </Link>
-          </div>
+          </div> */}
         </div>
       </div >
     </div >

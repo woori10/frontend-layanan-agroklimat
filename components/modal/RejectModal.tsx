@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { AlertTriangle, X } from "lucide-react";
@@ -48,7 +48,7 @@ export default function RejectModal({
                             <h3 className="text-lg font-bold text-zinc-900 dark:text-white leading-tight">
                                 Konfirmasi Penolakan
                             </h3>
-                            <p className="text-xs font-bold text-emerald-650 dark:text-emerald-400 tracking-wide mt-0.5">
+                            <p className="text-xs font-bold text-green-color dark:text-secondary-green-color tracking-wide mt-0.5">
                                 ID: {tiket?.no_tiket || "-"}
                             </p>
                         </div>

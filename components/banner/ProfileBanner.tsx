@@ -1,8 +1,8 @@
-'use client';
+﻿'use client';
 
 export default function ProfileBanner() {
     return (
-        <div className="relative overflow-hidden bg-[#244E2B] dark:bg-[#17331D] py-12 px-6 sm:px-12 text-center shadow-lg border border-emerald-800/10">
+        <div className="relative overflow-hidden bg-[#244E2B] dark:bg-[#17331D] py-12 px-6 sm:px-12 text-center shadow-lg border border-secondary-green-color/10">
             {/* Decorative Left Blobs */}
             <div className="absolute -left-16 -bottom-16 w-52 h-52 rounded-full bg-black/10 dark:bg-black/20 pointer-events-none"></div>
 

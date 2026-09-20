@@ -10,7 +10,7 @@ export default function Hero() {
     return (
         <div
             className="relative w-full h-[calc(100vh-80px)] min-h-[500px] flex items-center justify-start text-left bg-cover bg-center"
-            style={{ backgroundImage: "url('/images/hero.webp')" }}
+            style={{ backgroundImage: "url('/images/kantor.webp')" }}
         >
             {/* Dark tint gradient overlay matching the photo */}
             <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/85 via-zinc-900/60 to-zinc-900/40" />
@@ -26,19 +26,19 @@ export default function Hero() {
                 </p>
 
                 {/* Action Buttons */}
-                <div className="flex flex-row justify-center md:justify-start gap-4 pt-4">
+                <div className="flex flex-row flex-nowrap justify-center md:justify-start items-center gap-3 sm:gap-4 pt-4">
                     <button
                         onClick={() => setIsVideoOpen(true)}
-                        className="inline-flex items-center justify-center rounded-xl bg-white gap-2 px-8 py-4 text-base font-bold text-[#267D48] shadow-lg hover:bg-zinc-100 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer"
+                        className="inline-flex items-center justify-center rounded-xl bg-white gap-1.5 sm:gap-2 px-4 sm:px-6 md:px-8 py-3 md:py-4 text-xs sm:text-sm md:text-base font-bold text-[#267D48] shadow-lg hover:bg-zinc-100 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0"
                     >
-                        <CirclePlay className="w-5 h-5" />
-                        Putar Video
+                        <CirclePlay className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+                        <span>Putar Video</span>
                     </button>
                     <Link
                         href="#tentang"
-                        className="inline-flex items-center justify-center rounded-xl border border-white/40 px-8 py-4 text-base font-bold text-white hover:bg-white/10 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer"
+                        className="inline-flex items-center justify-center rounded-xl border border-white/40 px-4 sm:px-6 md:px-8 py-3 md:py-4 text-xs sm:text-sm md:text-base font-bold text-white hover:bg-white/10 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0"
                     >
-                        Buku Panduan
+                        <span>Buku Panduan</span>
                     </Link>
                 </div>
             </div>

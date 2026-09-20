@@ -39,7 +39,7 @@ export default function LogoutModal({ isOpen, onClose, onConfirm }: LogoutModalP
                         Konfirmasi Logout
                     </h3>
                     <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2 leading-relaxed font-medium">
-                        Apakah Anda yakin ingin keluar dari logout?
+                        Apakah Anda yakin ingin keluar dari akun ini?
                     </p>
                 </div>
 

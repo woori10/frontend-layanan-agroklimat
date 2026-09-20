@@ -10,9 +10,10 @@ import RekomendasiSNIStep2Form from "@/components/form/layanan/rekomendasi-sni/p
 import ReviewServiceForm from "@/components/form/layanan/ReviewServiceForm";
 import { Loader2 } from "lucide-react";
 import FormLayout from "@/components/form/layanan/FormLayout";
+import { getLayananBySlug } from "@/lib/layanan";
+import { getApiUrl } from "@/lib/api";
 
-const API_URL = "http://localhost:3000";
-const LAYANAN_ID = 14; // Rekomendasi & Penilaian Kesesuaian Agroklimat/Hidrologi (SNI)
+const SLUG = "rekomendasi-sni";
 
 export default function RekomendasiSNIPage() {
   const router = useRouter();
@@ -41,6 +42,7 @@ export default function RekomendasiSNIPage() {
   const [success, setSuccess] = useState(false);
   const [progressMsg, setProgressMsg] = useState("");
   const [createdTiketNo, setCreatedTiketNo] = useState("");
+  const [layananId, setLayananId] = useState<number | null>(null);
 
   // Authenticate on mount
   useEffect(() => {
@@ -48,7 +50,11 @@ export default function RekomendasiSNIPage() {
     const token = localStorage.getItem("agro_token");
     if (!token) {
       router.push("/login");
+      return;
     }
+    getLayananBySlug(SLUG)
+      .then((l) => setLayananId(l.id))
+      .catch(() => setError("Gagal memuat data layanan. Silahkan muat ulang halaman."));
   }, [router]);
 
   const handleSubmit = async () => {
@@ -100,17 +106,30 @@ export default function RekomendasiSNIPage() {
       return;
     }
 
+    let currentLayananId = layananId;
+    if (!currentLayananId) {
+      try {
+        const l = await getLayananBySlug(SLUG);
+        currentLayananId = l.id;
+        setLayananId(l.id);
+      } catch {
+        setError("Data layanan belum siap atau tidak ditemukan. Silahkan muat ulang halaman.");
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       // 1. Submit ticket data
       setProgressMsg("Mengirimkan formulir pengajuan...");
-      const response = await fetch(`${API_URL}/tiket`, {
+      const response = await fetch(`${getApiUrl()}/tiket`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          layanan_id: LAYANAN_ID,
+          layanan_id: currentLayananId,
           jawaban_form: {
             nama_lengkap: formData.namaLengkap.trim(),
             no_telp: formData.noTelp.trim(),
@@ -144,7 +163,7 @@ export default function RekomendasiSNIPage() {
         uploadFormData.append("file", formData.suratPengantar);
         uploadFormData.append("tipe", "surat_pengantar");
 
-        const uploadResponse = await fetch(`${API_URL}/tiket/${tiketId}/dokumen`, {
+        const uploadResponse = await fetch(`${getApiUrl()}/tiket/${tiketId}/dokumen`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -192,7 +211,7 @@ export default function RekomendasiSNIPage() {
   if (!mounted) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"></div>
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-secondary-green-color border-t-transparent"></div>
       </div>
     );
   }
@@ -226,6 +245,7 @@ export default function RekomendasiSNIPage() {
           />
         ) : step === 2 ? (
           <RekomendasiSNIStep2Form
+            initialData={step2Data}
             onBack={() => setStep(1)}
             onSubmit={(data) => {
               setStep2Data(data);

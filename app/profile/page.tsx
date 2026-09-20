@@ -7,28 +7,36 @@ import Image from "next/image";
 import Sidebar from "@/components/sidebar/Sidebar";
 import AppBar from "@/components/appbar/AppBar";
 import { getUserFromToken } from "@/lib/auth";
+import { getApiUrl } from "@/lib/api";
 import {
-    Sprout,
     User as UserIcon,
-    ChevronDown,
-    LogOut,
     Lock,
-    Mail,
-    Phone,
-    Briefcase,
-    CheckCircle,
-    UserCheck,
+    Pencil,
     Edit
 } from "lucide-react";
+import VerifyPasswordModal from "@/components/modal/VerifyPasswordModal";
 
 export default function ProfilPage() {
     const router = useRouter();
     const [userEmail, setUserEmail] = useState("");
+    const [userNip, setUserNip] = useState("");
     const [userName, setUserName] = useState("Pengguna");
     const [userRole, setUserRole] = useState("");
+    const [userNoHp, setUserNoHp] = useState("");
     const [unitTeknisId, setUnitTeknisId] = useState<number | null>(null);
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
+
+    const getRoleLabel = (role: string) => {
+        switch (role) {
+            case "super_admin": return "Super Admin";
+            case "admin": return "Admin";
+            case "pegawai": return "Pegawai";
+            case "kepala_balai": return "Kepala Balai";
+            default: return role || "-";
+        }
+    };
 
     // Authenticate mockup on client side
     useEffect(() => {
@@ -50,24 +58,35 @@ export default function ProfilPage() {
                     router.push("/profil-publik");
                     return;
                 }
+
+                // Set initial data from token
                 setUserRole(user.role);
-                if (user.nama) {
-                    setUserName(user.nama);
-                } else if (storedEmail) {
-                    setUserName(storedEmail.split("@")[0]);
-                }
+                setUserName(user.nama || "Pengguna");
+                setUserEmail(user.email || "");
+                setUserNip(user.nip || "");
+                setUnitTeknisId(user.unit_teknis_id ?? null);
 
-                if (user.email) {
-                    setUserEmail(user.email);
-                } else if (storedEmail) {
-                    setUserEmail(storedEmail);
-                } else if (storedNip) {
-                    setUserEmail(`NIP: ${storedNip}`);
-                }
-
-                if (user.unit_teknis_id) {
-                    setUnitTeknisId(user.unit_teknis_id);
-                }
+                // Fetch details from backend API
+                fetch(`${getApiUrl()}/auth/profile`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
+                    .then(res => {
+                        if (!res.ok) throw new Error("Gagal mengambil profil");
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (data.nama) setUserName(data.nama);
+                        if (data.email) setUserEmail(data.email);
+                        if (data.nip) setUserNip(data.nip);
+                        if (data.role) setUserRole(data.role);
+                        if (data.no_hp) setUserNoHp(data.no_hp);
+                        if (data.unit_teknis_id !== undefined) setUnitTeknisId(data.unit_teknis_id);
+                    })
+                    .catch(err => {
+                        console.error("Gagal mengambil data profil:", err);
+                    });
             }
         }
     }, [router]);
@@ -75,7 +94,7 @@ export default function ProfilPage() {
     if (!mounted) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"></div>
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-secondary-green-color border-t-transparent"></div>
             </div>
         );
     }
@@ -116,89 +135,128 @@ export default function ProfilPage() {
                 <main className="flex-1 p-8 space-y-6">
                     {/* Welcome Banner */}
                     <div className="flex flex-row justify-between items-center gap-8 w-full">
-                        <h1 className="text-2xl sm:text-3xl font-semibold text-[var(--green-color)] dark:text-white tracking-tight">
-                            Profil Saya
-                        </h1>
-                        <Link href="/profil-publik/edit">
-                            <button className="flex items-center gap-2 bg-[var(--green-color)] hover:bg-[#1E4329] text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-md transition cursor-pointer">
-                                <Edit className="w-4 h-4" />
-                                <span>Edit Profile</span>
-                            </button>
-                        </Link>
+                        <div className="space-y-2">
+                            <h1 className="text-2xl sm:text-3xl font-semibold text-[var(--foreground)] dark:text-white tracking-tight">
+                                Profil <span className="text-[var(--green-color)] dark:text-zinc-300">{getRoleLabel(userRole)}</span>
+                            </h1>
+                            <p className="text-sm font-medium text-[var(--foreground)] dark:text-zinc-400">Kelola profil anda</p>
+                        </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <div className="md:col-span-2 h-full rounded-2xl border border-zinc-200/60 bg-white shadow-sm dark:bg-zinc-900 dark:border-zinc-800 overflow-hidden text-left flex flex-col">
                             {/* Header */}
-                            <div className="bg-[#E5E7EB]/50 dark:bg-zinc-950/40 px-6 py-5">
+                            <div className="px-8 py-6">
                                 <div className="flex items-center gap-3">
-                                    <UserCheck className="h-5 w-5 text-[#2C5E3B] dark:text-emerald-400" />
-                                    <h3 className="text-base font-bold text-zinc-800 dark:text-white">Informasi Pribadi</h3>
+                                    <div className="flex flex-col">
+                                        <h3 className="text-lg font-bold text-[var(--foreground)] dark:text-white">Informasi Pribadi</h3>
+                                        <p className="text-sm font-base text-[var(--foreground)]">Lengkapi data diri anda.</p>
+                                    </div>
                                 </div>
                             </div>
-                            <div className="p-8 flex-grow">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12">
-                                    <div className="space-y-1">
-                                        <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+
+                            {/* Fields */}
+                            <div className="px-8 py-2 flex-grow">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+                                    {/* Nama Lengkap */}
+                                    <div className="space-y-1.5 pb-3">
+                                        <label className="text-sm font-medium text-zinc-600">
                                             Nama Lengkap
                                         </label>
-                                        <div className="flex items-center gap-2.5 bg-zinc-50 dark:bg-zinc-950 px-4 py-3 rounded-xl border border-zinc-200/40 dark:border-zinc-850">
-                                            <UserIcon className="h-4 w-4 text-zinc-400" />
-                                            <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">{userName}</span>
+                                        <div className="text-sm font-medium text-[var(--foreground)] mt-2 px-4 py-3 rounded-xl border border-zinc-200">
+                                            {userName}
                                         </div>
                                     </div>
 
-                                    <div className="space-y-1">
-                                        <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-                                            Email / NIP Dinas
+                                    {/* NIP */}
+                                    <div className="space-y-1.5 pb-3">
+                                        <label className="text-sm font-medium text-zinc-600">
+                                            NIK / No. Identitas
                                         </label>
-                                        <div className="flex items-center gap-2.5 bg-zinc-50 dark:bg-zinc-950 px-4 py-3 rounded-xl border border-zinc-200/40 dark:border-zinc-850">
-                                            <Mail className="h-4 w-4 text-zinc-400" />
-                                            <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">{userEmail || "-"}</span>
+                                        <div className="text-sm font-medium text-[var(--foreground)] mt-2 px-4 py-3 rounded-xl border border-zinc-200">
+                                            {userNip}
                                         </div>
                                     </div>
 
-                                    <div className="space-y-1 md:col-span-2">
-                                        <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-                                            Unit Teknis / Unit Kerja
+                                    {/* Role */}
+                                    <div className="space-y-1.5 pb-3">
+                                        <label className="text-sm font-medium text-zinc-600">
+                                            Role
                                         </label>
-                                        <div className="flex items-center gap-2.5 bg-zinc-50 dark:bg-zinc-950 px-4 py-3 rounded-xl border border-zinc-200/40 dark:border-zinc-850">
-                                            <Briefcase className="h-4 w-4 text-zinc-400" />
-                                            <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">{getUnitName(unitTeknisId)}</span>
+                                        <div className="text-sm font-medium text-[var(--foreground)] mt-2 px-4 py-3 rounded-xl border border-zinc-200">
+                                            {getRoleLabel(userRole)}
                                         </div>
                                     </div>
 
-                                    <div className="space-y-1 md:col-span-2">
-                                        <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-                                            Status Kepegawaian
+                                    {/* Unit Teknis */}
+                                    <div className="space-y-1.5 pb-3">
+                                        <label className="text-sm font-medium text-zinc-600">
+                                            Unit Teknis
                                         </label>
-                                        <div className="flex items-center gap-2.5 bg-zinc-50 dark:bg-zinc-950 px-4 py-3 rounded-xl border border-zinc-200/40 dark:border-zinc-850">
-                                            <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
-                                            <span className="text-sm font-bold text-emerald-600 dark:text-emerald-500">Aktif & Berwenang</span>
+                                        <div className="text-sm font-medium text-[var(--foreground)] mt-2 px-4 py-3 rounded-xl border border-zinc-200">
+                                            {userRole === "pegawai" ? (getUnitName(unitTeknisId) || "-") : "-"}
+                                        </div>
+                                    </div>
+
+
+                                    {/* No Telepon */}
+                                    <div className="space-y-1.5 pb-3">
+                                        <label className="text-sm font-medium text-zinc-600">
+                                            No. Telepon
+                                        </label>
+                                        <div className="text-sm font-medium text-[var(--foreground)] mt-2 px-4 py-3 rounded-xl border border-zinc-200">
+                                            {userNoHp || "-"}
+                                        </div>
+                                    </div>
+
+                                    {/* Email */}
+                                    <div className="space-y-1.5 pb-3">
+                                        <label className="text-sm font-medium text-zinc-600">
+                                            Email
+                                        </label>
+                                        <div className="text-sm font-medium text-[var(--foreground)] mt-2 px-4 py-3 rounded-xl border border-zinc-200">
+                                            {userEmail || "-"}
                                         </div>
                                     </div>
                                 </div>
-
-
+                                <div className="flex justify-end py-4">
+                                    <Link href="/profile/edit">
+                                        <button className="flex items-center justify-center gap-2 bg-[var(--green-color)] hover:bg-[#1E4329] text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-md transition cursor-pointer">
+                                            <Pencil className="w-4 h-4" />
+                                            <span>Edit Profile</span>
+                                        </button>
+                                    </Link>
+                                </div>
                             </div>
                         </div>
-                        <div className="w-full rounded-2xl border border-zinc-200/60 bg-white p-6 shadow-sm dark:bg-zinc-900 dark:border-zinc-800 text-center flex flex-col items-center">
-                            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400 text-3xl font-extrabold shadow-inner mb-4">
-                                {getInitials(userName)}
+                        <div className="flex grid grid-row-1 md:grid-rows-2 gap-8">
+                            <div className="w-full rounded-2xl border border-zinc-200/60 bg-white p-6 shadow-sm dark:bg-zinc-900 dark:border-zinc-800 text-center flex flex-col items-center">
+                                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-secondary-green-color text-[var(--green-color)] dark:bg-secondary-green-color dark:text-secondary-green-color text-3xl font-extrabold shadow-inner mb-4">
+                                    {getInitials(userName)}
+                                </div>
+                                <h3 className="text-xl font-bold text-zinc-900 dark:text-white">{userName}</h3>
+                                <p className="text-xs text-zinc-400 mt-1">{userNip}</p>
                             </div>
-                            <h3 className="text-xl font-bold text-zinc-900 dark:text-white">{userName}</h3>
-                            <p className="text-xs text-zinc-400 mt-1">Staf Internal Balai</p>
-
-                            <div className="w-full border-t border-zinc-100 dark:border-zinc-850 mt-6 pt-6 space-y-3 text-left">
-                                <button className="w-full flex items-center justify-center gap-2 rounded-xl bg-zinc-50 border border-zinc-200/80 hover:bg-zinc-100 py-2.5 text-sm font-bold text-zinc-700 dark:bg-zinc-950 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-900 transition cursor-pointer">
-                                    <Lock className="h-4 w-4" />
-                                    <span>Ganti Kata Sandi</span>
-                                </button>
-                                <button className="w-full flex items-center justify-center gap-2 rounded-xl bg-zinc-50 border border-zinc-200/80 hover:bg-zinc-100 py-2.5 text-sm font-bold text-zinc-700 dark:bg-zinc-950 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-900 transition cursor-pointer">
-                                    <Lock className="h-4 w-4" />
-                                    <span>Edit Profile</span>
-                                </button>
+                            <div className="w-full rounded-2xl border border-zinc-200/60 bg-white p-6 shadow-sm dark:bg-zinc-900 dark:border-zinc-800 text-center flex flex-col items-center">
+                                <div className="w-full space-y-4 text-left">
+                                    <div className="flex gap-3 items-center">
+                                        <Lock className="w-8 h-8 text-[var(--foreground)] bg-red-200 p-2 rounded-lg" />
+                                        <p className="text-md font-semibold text-[var(--foreground)] dark:text-zinc-500">Keamanan Akun</p>
+                                    </div>
+                                    <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                                        Jaga keamanan akun Anda dengan mengganti password secara berkala.
+                                    </p>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsVerifyModalOpen(true)}
+                                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-zinc-50 border border-[var(--green-color)]/80 hover:bg-zinc-100 py-2.5 text-sm font-bold text-[var(--green-color)] dark:bg-zinc-950 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-900 transition cursor-pointer"
+                                    >
+                                        <Pencil className="h-4 w-4" />
+                                        <span>Ganti Kata Sandi</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
+
                     </div>
 
 
@@ -207,6 +265,10 @@ export default function ProfilPage() {
                 </main>
             </div>
 
+            <VerifyPasswordModal
+                isOpen={isVerifyModalOpen}
+                onClose={() => setIsVerifyModalOpen(false)}
+            />
         </div>
     );
 }

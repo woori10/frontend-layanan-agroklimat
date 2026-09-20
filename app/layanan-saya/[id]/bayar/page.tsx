@@ -13,11 +13,16 @@ import {
   Receipt,
   ExternalLink,
   ShieldCheck,
-  Check
+  Check,
+  CloudUpload
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getUserTiketDetail } from "@/lib/tiket";
+import StatusPembayaranBadge from "@/components/badge/status-pembayaran/StatusPembayaranBadge";
+import SuccessModal from "@/components/modal/SuccessModal";
+import ErrorModal from "@/components/modal/ErrorModal";
+import { getApiUrl } from "@/lib/api";
 
 interface PageProps {
   params: Promise<{
@@ -87,10 +92,64 @@ export default function BayarTagihanPage({ params }: PageProps) {
   const [tanggalTransfer, setTanggalTransfer] = useState(new Date().toISOString().split('T')[0]);
   const [namaPengirim, setNamaPengirim] = useState("");
 
-  const handleCopy = (text: string, type: string) => {
-    navigator.clipboard.writeText(text);
-    setCopySuccess(type);
-    setTimeout(() => setCopySuccess(null), 2000);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+
+  const [rekeningInfo, setRekeningInfo] = useState({
+    namaBank: "Bank Mandiri",
+    noRekening: "137-00-1234567-8",
+    namaPemilik: "Balai Agroklimatologi & Hidrologi",
+  });
+
+  const handleCopy = async (text: string, type: string) => {
+    // Bersihkan tanda hubung dan spasi untuk nomor rekening agar bisa langsung dipaste ke m-banking
+    const textToCopy = type === "rekening" ? text.replace(/[-\s]/g, "") : text;
+
+    let success = false;
+
+    // Coba Clipboard API modern jika didukung (HTTPS / localhost)
+    if (typeof navigator !== "undefined" && navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(textToCopy);
+        success = true;
+      } catch (err) {
+        success = false;
+      }
+    }
+
+    // Fallback otomatis menggunakan document.execCommand('copy') untuk akses HTTP / LAN IP di HP
+    if (!success && typeof document !== "undefined") {
+      try {
+        const textArea = document.createElement("textarea");
+        textArea.value = textToCopy;
+        textArea.style.position = "fixed";
+        textArea.style.top = "0";
+        textArea.style.left = "0";
+        textArea.style.width = "2em";
+        textArea.style.height = "2em";
+        textArea.style.padding = "0";
+        textArea.style.border = "none";
+        textArea.style.outline = "none";
+        textArea.style.boxShadow = "none";
+        textArea.style.background = "transparent";
+        textArea.setAttribute("readonly", "");
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        textArea.setSelectionRange(0, textToCopy.length);
+        success = document.execCommand("copy");
+        document.body.removeChild(textArea);
+      } catch (err) {
+        console.error("Gagal menyalin nomor rekening:", err);
+      }
+    }
+
+    if (success) {
+      setCopySuccess(type);
+      setTimeout(() => setCopySuccess(null), 2000);
+    }
   };
 
   const handleUploadBukti = async () => {
@@ -105,7 +164,7 @@ export default function BayarTagihanPage({ params }: PageProps) {
       uploadFormData.append("tanggal_transfer", tanggalTransfer);
 
       const token = localStorage.getItem("agro_token");
-      const res = await fetch(`http://localhost:3000/tiket/${tiket.id}/dokumen`, {
+      const res = await fetch(`${getApiUrl()}/tiket/${tiket.id}/dokumen`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -118,8 +177,8 @@ export default function BayarTagihanPage({ params }: PageProps) {
         throw new Error(errorData.message || "Gagal mengunggah bukti pembayaran");
       }
 
-      alert("Bukti pembayaran berhasil diunggah! Menunggu konfirmasi admin.");
       setSelectedFile(null);
+      setSuccessModalOpen(true);
 
       // Re-fetch ticket details
       const updatedTiket = await getUserTiketDetail(idStr);
@@ -144,6 +203,17 @@ export default function BayarTagihanPage({ params }: PageProps) {
     if (!token) {
       router.push("/login");
       return;
+    }
+
+    const savedBank = localStorage.getItem("agro_rekening_bank");
+    const savedNo = localStorage.getItem("agro_rekening_nomor");
+    const savedPemilik = localStorage.getItem("agro_rekening_pemilik");
+    if (savedBank || savedNo || savedPemilik) {
+      setRekeningInfo({
+        namaBank: savedBank || "Bank Mandiri",
+        noRekening: savedNo || "137-00-1234567-8",
+        namaPemilik: savedPemilik || "Balai Agroklimatologi & Hidrologi",
+      });
     }
 
     if (!idStr) {
@@ -172,7 +242,7 @@ export default function BayarTagihanPage({ params }: PageProps) {
   if (!mounted) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"></div>
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-secondary-green-color border-t-transparent"></div>
       </div>
     );
   }
@@ -236,18 +306,13 @@ export default function BayarTagihanPage({ params }: PageProps) {
         <div className="rounded-2xl border border-zinc-200/80 bg-white p-6 md:p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
           {/* Header */}
           <div className="pb-6 border-b border-zinc-200 dark:border-zinc-800 mb-8">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-[#2C5E3B]">
-                <Receipt className="h-5.5 w-5.5" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-semibold text-zinc-900 dark:text-white tracking-tight">
-                  Pembayaran Tagihan
-                </h1>
-                <p className="text-sm text-zinc-500 dark:text-zinc-450 font-medium">
-                  Selesaikan proses pembayaran layanan Anda melalui transfer bank. Harap unggah bukti transfer setelah melakukan pembayaran.
-                </p>
-              </div>
+            <div className="flex flex-col space-y-2">
+              <h1 className="text-xl md:text-2xl font-semibold text-zinc-900 dark:text-white tracking-tight">
+                Pembayaran Tagihan
+              </h1>
+              <p className="text-xs md:text-sm text-zinc-500 dark:text-zinc-450 font-medium text-justify md:text-left">
+                Selesaikan proses pembayaran layanan Anda melalui transfer bank dan unggah bukti transfer setelah melakukan pembayaran.
+              </p>
             </div>
             <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
               <div>No. Tiket: <span className="text-zinc-800 dark:text-zinc-300">{tiket.no_tiket}</span></div>
@@ -260,23 +325,25 @@ export default function BayarTagihanPage({ params }: PageProps) {
             <div className="space-y-6">
               <div className="rounded-2xl border border-zinc-200/60 bg-white p-6 dark:border-zinc-800/80 dark:bg-zinc-950/20 space-y-4">
                 <div className="flex items-start">
-                  <p className="text-[var(--foreground)] text-md font-semibold">Rincian Pembayaran</p>
+                  <p className="text-[var(--green-color)] text-md font-bold">Rincian Pembayaran</p>
                 </div>
-                <div className="bg-[#F8FAFC] dark:bg-zinc-950/20 rounded-xl p-4">
-                  <span className="block text-base font-semibold text-zinc-500 dark:text-zinc-550">
+                <div className="">
+                  <span className="block text-sm font-medium text-zinc-500 dark:text-zinc-400">
                     Total Tagihan
                   </span>
                   <div className="flex items-center justify-between mt-1">
-                    <span className="text-lg font-semibold text-[#2C5E3B] dark:text-emerald-450">
+                    <span className="text-lg font-bold text-foreground dark:text-zinc-200">
                       Rp {tagihan.jumlah.toLocaleString("id-ID")}
                     </span>
                     <button
+                      type="button"
                       onClick={() => handleCopy(tagihan.jumlah.toString(), "nominal")}
-                      className="text-xs text-emerald-650 dark:text-emerald-450 hover:underline flex items-center gap-1 font-semibold cursor-pointer"
+                      className="text-xs text-[var(--green-color)] dark:text-secondary-green-color hover:underline flex items-center gap-1 font-semibold cursor-pointer"
+                      title="Salin nominal total tagihan"
                     >
                       {copySuccess === "nominal" ? (
                         <>
-                          <Check className="h-3.5 w-3.5" /> Disalin
+                          <Check className="h-3.5 w-3.5 text-[var(--green-color)]" /> <span className="text-[var(--green-color)] font-bold">Disalin</span>
                         </>
                       ) : (
                         <>
@@ -287,13 +354,13 @@ export default function BayarTagihanPage({ params }: PageProps) {
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center space-y-2">
+                <div className="flex flex-col md:flex-row justify-between space-y-2">
                   <div>
                     <span className="block text-sm font-medium text-zinc-500 dark:text-zinc-400">
                       Nama Bank
                     </span>
                     <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-                      Bank Mandiri
+                      {rekeningInfo.namaBank}
                     </span>
                   </div>
                   <div>
@@ -301,7 +368,7 @@ export default function BayarTagihanPage({ params }: PageProps) {
                       Atas Nama / Penerima
                     </span>
                     <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-                      Balai Agroklimatologi & Hidrologi
+                      {rekeningInfo.namaPemilik}
                     </span>
                   </div>
                 </div>
@@ -310,16 +377,18 @@ export default function BayarTagihanPage({ params }: PageProps) {
                     Nomor Rekening
                   </span>
                   <div className="flex items-center justify-between mt-1">
-                    <span className="text-base font-bold text-zinc-900 dark:text-white tracking-wide">
-                      137-00-1234567-8
+                    <span className="text-base font-bold text-zinc-900 dark:text-white tracking-wide select-all font-mono">
+                      {rekeningInfo.noRekening}
                     </span>
                     <button
-                      onClick={() => handleCopy("137-00-1234567-8", "rekening")}
-                      className="text-xs text-emerald-600 dark:text-emerald-450 hover:underline flex items-center gap-1 font-semibold cursor-pointer"
+                      type="button"
+                      onClick={() => handleCopy(rekeningInfo.noRekening, "rekening")}
+                      className="text-xs text-[var(--green-color)] dark:text-secondary-green-color hover:underline flex items-center gap-1 font-semibold cursor-pointer"
+                      title="Salin nomor rekening"
                     >
                       {copySuccess === "rekening" ? (
                         <>
-                          <Check className="h-3.5 w-3.5" /> Disalin
+                          <Check className="h-3.5 w-3.5 text-[var(--green-color)]" /> <span className="text-[var(--green-color)] font-bold">Disalin</span>
                         </>
                       ) : (
                         <>
@@ -352,29 +421,16 @@ export default function BayarTagihanPage({ params }: PageProps) {
               <div className="rounded-2xl border border-zinc-200/80 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 space-y-5">
                 <div className="flex justify-between items-center gap-2">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4.5 w-4.5 text-[var(--green-color)]" />
-                    <p className="text-[var(--foreground)] text-md font-semibold">Konfirmasi Pembayaran</p>
+                    <p className="text-[var(--green-color)] text-md font-bold">Konfirmasi Pembayaran</p>
                   </div>
                   <div className="flex items-center gap-1">
-                    {isLunas ? (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-250 dark:bg-emerald-950/20 dark:text-emerald-455">
-                        Lunas
-                      </span>
-                    ) : isBatal ? (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-700 border border-red-250 dark:bg-red-950/20 dark:text-red-455">
-                        Batal
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-yellow-50 text-yellow-750 border border-yellow-250 dark:bg-yellow-950/20 dark:text-yellow-455">
-                        Menunggu Pembayaran
-                      </span>
-                    )}
+                    <StatusPembayaranBadge status={tagihan.status_bayar} />
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center gap-2">
+                <div className="flex flex-col md:flex-row gap-2 space-y-2 md:space-y-0 md:space-x-2">
                   <div className="space-y-2 w-full">
-                    <p className="block text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
+                    <p className="block text-xs md:text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
                       Bank Pengirim
                     </p>
                     <input
@@ -382,26 +438,26 @@ export default function BayarTagihanPage({ params }: PageProps) {
                       value={bankPengirim}
                       onChange={(e) => setBankPengirim(e.target.value)}
                       placeholder="Contoh : BCA, BNI, Mandiri"
-                      className="w-full rounded-lg bg-[#F8FAFC] border border-zinc-200/60 dark:border-zinc-800 px-3 py-2 text-sm text-[var(--foreground)] dark:bg-zinc-950/50 dark:text-zinc-50 focus:border-[var(--green-color)] focus:ring-1 focus:ring-[var(--green-color)] focus:outline-none disabled:opacity-70"
+                      className="w-full rounded-lg bg-[#F8FAFC] border border-zinc-200/60 dark:border-zinc-800 px-3 py-2 text-xs md:text-sm text-[var(--foreground)] dark:bg-zinc-950/50 dark:text-zinc-50 focus:border-[var(--green-color)] focus:ring-1 focus:ring-[var(--green-color)] focus:outline-none disabled:opacity-70"
                       disabled={!!tagihan?.bukti_bayar || uploadLoading}
                     />
                   </div>
                   <div className="space-y-2 w-full">
-                    <p className="block text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
+                    <p className="block text-xs md:text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
                       Tanggal Transfer
                     </p>
                     <input
                       type="date"
                       value={tanggalTransfer}
                       onChange={(e) => setTanggalTransfer(e.target.value)}
-                      className="w-full rounded-lg bg-[#F8FAFC] border border-zinc-200/60 dark:border-zinc-800 px-4 py-2 text-sm text-[var(--foreground)] dark:bg-zinc-950/50 dark:text-zinc-50 focus:border-[var(--green-color)] focus:ring-1 focus:ring-[var(--green-color)] focus:outline-none disabled:opacity-70"
+                      className="w-full rounded-lg bg-[#F8FAFC] border border-zinc-200/60 dark:border-zinc-800 px-4 py-2 text-xs md:text-sm text-[var(--foreground)] dark:bg-zinc-950/50 dark:text-zinc-50 focus:border-[var(--green-color)] focus:ring-1 focus:ring-[var(--green-color)] focus:outline-none disabled:opacity-70"
                       disabled={!!tagihan?.bukti_bayar || uploadLoading}
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <p className="block text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
+                  <p className="block text-xs md:text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
                     Nama Pengirim
                   </p>
                   <input
@@ -409,15 +465,15 @@ export default function BayarTagihanPage({ params }: PageProps) {
                     value={namaPengirim}
                     onChange={(e) => setNamaPengirim(e.target.value)}
                     placeholder="Nama sesuai buku tabungan atau nomor rekening pengirim"
-                    className="w-full rounded-lg bg-[#F8FAFC] border border-zinc-200/60 dark:border-zinc-800 px-4 py-2 text-sm text-[var(--foreground)] dark:bg-zinc-950/50 dark:text-zinc-50 focus:border-[var(--green-color)] focus:ring-1 focus:ring-[var(--green-color)] focus:outline-none disabled:opacity-70"
+                    className="w-full rounded-lg bg-[#F8FAFC] border border-zinc-200/60 dark:border-zinc-800 px-4 py-2 text-xs md:text-sm text-[var(--foreground)] dark:bg-zinc-950/50 dark:text-zinc-50 focus:border-[var(--green-color)] focus:ring-1 focus:ring-[var(--green-color)] focus:outline-none disabled:opacity-70"
                     disabled={!!tagihan?.bukti_bayar || uploadLoading}
                   />
                 </div>
 
                 {isLunas && (
-                  <div className="rounded-xl bg-emerald-50/50 dark:bg-emerald-950/10 border border-emerald-100 dark:border-emerald-900/20 p-4 text-center">
-                    <CheckCircle2 className="h-10 w-10 text-emerald-600 mx-auto mb-2" />
-                    <p className="text-xs font-semibold text-emerald-800 dark:text-emerald-400">
+                  <div className="rounded-xl bg-white dark:bg-secondary-green-color/10 border border-green-color dark:border-secondary-green-color/20 p-4 text-center">
+                    <CheckCircle2 className="h-10 w-10 text-green-color mx-auto mb-2" />
+                    <p className="text-xs font-semibold text-green-color dark:text-green-color">
                       Terima kasih! Pembayaran Anda telah dikonfirmasi dan divalidasi oleh Admin.
                     </p>
                   </div>
@@ -431,9 +487,11 @@ export default function BayarTagihanPage({ params }: PageProps) {
                         <span className="block text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-2">
                           Bukti yang Diunggah
                         </span>
-                        <div className="flex items-center justify-between p-3 rounded-lg border border-zinc-150 dark:border-zinc-800 bg-white dark:bg-zinc-900/50">
+                        <div className="flex items-center justify-between p-3.5 rounded-xl bg-secondary-green-color/30 border border-green-color/50">
                           <div className="flex items-center gap-2">
-                            <FileText className="h-5 w-5 text-emerald-600" />
+                            <div className="p-2 bg-secondary-green-color dark:bg-secondary-green-color rounded-lg text-green-color dark:text-secondary-green-color">
+                              <FileText className="h-4.5 w-4.5" />
+                            </div>
                             <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-350 truncate max-w-[150px]">
                               Bukti Transfer
                             </span>
@@ -442,7 +500,7 @@ export default function BayarTagihanPage({ params }: PageProps) {
                             href={tagihan.bukti_bayar}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-[#2C5E3B] hover:text-emerald-700 text-xs font-bold flex items-center gap-1 cursor-pointer"
+                            className="text-[#2C5E3B] hover:text-secondary-green-color text-xs font-bold flex items-center gap-1 cursor-pointer"
                           >
                             Lihat <ExternalLink className="h-3.5 w-3.5" />
                           </a>
@@ -460,7 +518,7 @@ export default function BayarTagihanPage({ params }: PageProps) {
                         </span>
 
                         {!selectedFile && (
-                          <div className="flex flex-col items-center justify-center border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-2xl p-6 bg-slate-50/50 dark:bg-zinc-950/10 text-center hover:bg-slate-50 dark:hover:bg-zinc-950/20 transition-all duration-200">
+                          <div className="flex flex-col items-center justify-center border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-2xl p-6 bg-slate-50/50 dark:bg-zinc-950/10 text-center hover:bg-secondary-green-color/10 hover:border-green-color dark:hover:bg-zinc-950/20 transition-all duration-200">
                             <input
                               type="file"
                               id="bukti_bayar_upload"
@@ -476,12 +534,12 @@ export default function BayarTagihanPage({ params }: PageProps) {
                               htmlFor="bukti_bayar_upload"
                               className="cursor-pointer flex flex-col items-center justify-center space-y-2 w-full h-full"
                             >
-                              <Upload className="h-8 w-8 text-zinc-400" />
+                              <CloudUpload className="h-8 w-8 text-green-color" />
                               <div>
-                                <span className="text-xs font-bold text-[#2C5E3B] dark:text-emerald-450 hover:underline">
-                                  Klik untuk mengunggah
+                                <span className="text-xs font-bold text-[#2C5E3B] dark:text-secondary-green-color hover:underline">
+                                  Klik untuk upload
                                 </span>
-                                <span className="text-xs font-semibold text-zinc-400 block mt-0.5">
+                                <span className="text-xs text-zinc-400 block mt-0.5">
                                   format JPG, PNG, atau PDF (maks. 5MB)
                                 </span>
                               </div>
@@ -490,9 +548,11 @@ export default function BayarTagihanPage({ params }: PageProps) {
                         )}
 
                         {selectedFile && (
-                          <div className="flex items-center justify-between p-3.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 shadow-xs">
-                            <div className="flex items-center gap-2">
-                              <FileText className="h-4.5 w-4.5 text-[#2C5E3B]" />
+                          <div className="flex items-center justify-between p-3.5 rounded-xl bg-secondary-green-color/30 border border-green-color/30">
+                            <div className="flex items-center gap-2 ">
+                              <div className="p-2 bg-secondary-green-color dark:bg-secondary-green-color rounded-lg text-green-color dark:text-secondary-green-color">
+                                <FileText className="h-4.5 w-4.5" />
+                              </div>
                               <div className="flex flex-col text-left">
                                 <span className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate max-w-[180px]">
                                   {selectedFile.name}
@@ -515,7 +575,7 @@ export default function BayarTagihanPage({ params }: PageProps) {
                           disabled={!isFormValid || uploadLoading}
                           onClick={handleUploadBukti}
                           className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm flex items-center justify-center gap-2 ${isFormValid && !uploadLoading
-                            ? "bg-[#2C5E3B] text-white hover:opacity-90 active:scale-[0.99] cursor-pointer"
+                            ? "bg-green-color text-white hover:bg-[var(--hover-green-color)]  cursor-pointer"
                             : "bg-zinc-200 text-zinc-450 dark:bg-zinc-800 dark:text-zinc-600 cursor-not-allowed"
                             }`}
                         >
@@ -540,6 +600,23 @@ export default function BayarTagihanPage({ params }: PageProps) {
           </div>
         </div>
       </main>
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={successModalOpen}
+        onClose={() => setSuccessModalOpen(false)}
+        title="Bukti Pembayaran Terkirim!"
+        message="Bukti pembayaran Anda berhasil diunggah. Silakan menunggu konfirmasi verifikasi dari admin."
+        confirmText="Tutup"
+        onConfirm={() => setSuccessModalOpen(false)}
+      />
+
+      {/* Error Modal */}
+      <ErrorModal
+        isOpen={errorModalOpen}
+        onClose={() => setErrorModalOpen(false)}
+        title="Gagal Mengunggah"
+        message={errorMessage}
+      />
     </div>
   );
 }

@@ -113,7 +113,7 @@ export default function AjukanKembaliPage({ params }: PageProps) {
     if (!mounted) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"></div>
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-secondary-green-color border-t-transparent"></div>
             </div>
         );
     }
@@ -273,16 +273,20 @@ export default function AjukanKembaliPage({ params }: PageProps) {
                                                         {key === "total_estimasi" ? (
                                                             `Rp ${Number(value).toLocaleString("id-ID")}`
                                                         ) : isAlatList ? (
-                                                            <div className="mt-1.5 border border-zinc-200/80 dark:border-zinc-800 rounded-xl p-3.5 bg-zinc-50/50 dark:bg-zinc-950/20 divide-y divide-zinc-100 dark:divide-zinc-800/60 font-semibold text-sm">
-                                                                {value.map((tool: any, idx: number) => (
-                                                                    <div key={idx} className="flex justify-between items-center py-2 first:pt-0 last:pb-0 text-xs font-semibold">
-                                                                        <span className="font-semibold text-[#2C5E3B] dark:text-emerald-450">{tool.name}</span>
-                                                                        <span className="text-zinc-500 dark:text-zinc-400 font-medium">
-                                                                            {tool.units} Unit × Rp {tool.price.toLocaleString("id-ID")}
-                                                                        </span>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
+                                                            value.length > 0 ? (
+                                                                <div className="mt-1.5 border border-zinc-200/80 dark:border-zinc-800 rounded-xl p-3.5 bg-zinc-50/50 dark:bg-zinc-950/20 divide-y divide-zinc-100 dark:divide-zinc-800/60 font-semibold text-sm">
+                                                                    {value.map((tool: any, idx: number) => (
+                                                                        <div key={idx} className="flex justify-between items-center py-2 first:pt-0 last:pb-0 text-xs font-semibold">
+                                                                            <span className="font-semibold text-[#2C5E3B] dark:text-secondary-green-color">{tool.name}</span>
+                                                                            <span className="text-zinc-500 dark:text-zinc-400 font-medium">
+                                                                                {tool.units} Unit × Rp {tool.price.toLocaleString("id-ID")}
+                                                                            </span>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            ) : (
+                                                                <span className="text-zinc-500 dark:text-zinc-400 text-xs mt-1 block font-normal">Tidak ada data alat yang dipinjam</span>
+                                                            )
                                                         ) : (
                                                             value ? String(value) : "-"
                                                         )}

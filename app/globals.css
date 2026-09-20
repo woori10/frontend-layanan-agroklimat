@@ -5,26 +5,25 @@
   --foreground: #121C2A;
 
   /* Custom colors */
-  --green-color: #145326;
+  --green-color: #244E2B;
+  --hover-green-color: #1E4329;
+  --secondary-green-color: #F3FCEB;
   --slate-color: #F8FAFC;
   --yellow-color: #FFE000;
-
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+
+  --font-sans: var(--font-poppins);
   --font-mono: var(--font-geist-mono);
 
   /* Theme utilities */
   --color-green-color: var(--green-color);
+  --color-secondary-green-color: var(--secondary-green-color);
   --color-slate-color: var(--slate-color);
   --color-yellow-color: var(--yellow-color);
-
-  --color-brmp-green: var(--brmp-green);
-  --color-brmp-slate: var(--brmp-slate);
-  --color-brmp-yellow: var(--brmp-yellow);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -37,5 +36,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
 }

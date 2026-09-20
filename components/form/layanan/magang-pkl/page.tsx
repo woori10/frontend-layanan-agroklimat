@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { AlertCircle, FileText, Info, Clock, CloudUpload, ArrowLeft, X } from "lucide-react";
 
 export interface MagangPKLStep2 {
@@ -13,20 +13,30 @@ interface MagangPKLStep2FormProps {
   onBack: () => void;
   onSubmit: (data: MagangPKLStep2) => void;
   loading: boolean;
+  initialData?: MagangPKLStep2;
 }
 
 export default function MagangPKLStep2Form({
   onBack,
   onSubmit,
-  loading
+  loading,
+  initialData,
 }: MagangPKLStep2FormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Local states for custom fields
-  const [topik, setTopik] = useState("");
-  const [durasi, setDurasi] = useState("");
-  const [proposal, setProposal] = useState<File | null>(null);
+  const [topik, setTopik] = useState(initialData?.topik || "");
+  const [durasi, setDurasi] = useState(initialData?.durasi || "");
+  const [proposal, setProposal] = useState<File | null>(initialData?.proposal || null);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (initialData) {
+      setTopik(initialData.topik || "");
+      setDurasi(initialData.durasi || "");
+      setProposal(initialData.proposal || null);
+    }
+  }, [initialData]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -81,12 +91,12 @@ export default function MagangPKLStep2Form({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Step 2 Header */}
-      <div className="mb-6 pb-4 border-b border-zinc-200 dark:border-zinc-800">
-        <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
-          Langkah 2 dari 2: Informasi Tambahan Layanan
+      <div className="flex justify-between items-center mb-6 pb-4 border-b border-zinc-200 dark:border-zinc-800">
+        <h2 className="text-sm md:text-lg font-bold text-zinc-900 dark:text-white">
+          Informasi Layanan
         </h2>
-        <p className="text-zinc-500 dark:text-zinc-400 text-xs sm:text-sm mt-1">
-          Silakan lengkapi informasi detail pengajuan Magang / PKL Anda.
+        <p className="text-[var(--green-color)] dark:text-white text-[10px] md:text-xs font-semibold bg-secondary-green-color dark:bg-secondary-green-color border border-[var(--green-color)]/50 px-2 py-1 rounded-xl whitespace-nowrap">
+          Langkah 2 dari 2
         </p>
       </div>
 
@@ -104,7 +114,7 @@ export default function MagangPKLStep2Form({
       <div className="grid gap-6 sm:grid-cols-2">
         {/* Topik Magang/PKL */}
         <div className="space-y-2">
-          <label htmlFor="topik" className="block text-sm font-bold text-zinc-700 dark:text-zinc-300">
+          <label htmlFor="topik" className="block text-xs md:text-sm font-semibold text-zinc-700 dark:text-zinc-300">
             Topik Magang/PKL <span className="text-red-500">*</span>
           </label>
           <div className="relative">
@@ -115,7 +125,7 @@ export default function MagangPKLStep2Form({
               disabled={loading}
               value={topik}
               onChange={(e) => setTopik(e.target.value)}
-              className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
+              className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-xs md:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
               placeholder="Contoh: Analisis Iklim Makro, Pengembangan IoT Pertanian"
             />
           </div>
@@ -123,7 +133,7 @@ export default function MagangPKLStep2Form({
 
         {/* Durasi Magang/PKL */}
         <div className="space-y-2">
-          <label htmlFor="durasi" className="block text-sm font-bold text-zinc-700 dark:text-zinc-300">
+          <label htmlFor="topik" className="block text-xs md:text-sm font-semibold text-zinc-700 dark:text-zinc-300">
             Durasi Magang/PKL <span className="text-red-500">*</span>
           </label>
           <div className="relative">
@@ -134,7 +144,7 @@ export default function MagangPKLStep2Form({
               disabled={loading}
               value={durasi}
               onChange={(e) => setDurasi(e.target.value)}
-              className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
+              className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-xs md:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
               placeholder="Contoh: 1 Bulan, 3 Bulan, atau 6 Bulan"
             />
           </div>
@@ -143,18 +153,18 @@ export default function MagangPKLStep2Form({
 
       {/* Proposal File Upload */}
       <div className="space-y-2">
-        <label className="block text-sm font-bold text-zinc-700 dark:text-zinc-300">
+        <label htmlFor="topik" className="block text-xs md:text-sm font-semibold text-zinc-700 dark:text-zinc-300">
           Proposal Magang / PKL <span className="text-red-500">*</span>
         </label>
 
         {!proposal ? (
-          <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-xl hover:border-emerald-500 dark:hover:border-emerald-500/50 hover:bg-emerald-50/10 dark:hover:bg-emerald-950/5 transition cursor-pointer">
+          <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-xl hover:border-green-color dark:hover:border-secondary-green-color/50 hover:bg-secondary-green-color/10 dark:hover:bg-secondary-green-color/5 transition cursor-pointer">
             <div className="space-y-2 text-center flex flex-col items-center">
               <CloudUpload className="mx-auto h-10 w-10 text-zinc-450 dark:text-zinc-600" />
               <div className="flex text-sm text-zinc-600 dark:text-zinc-400 justify-center">
                 <label
                   htmlFor="proposal-file-upload"
-                  className="relative cursor-pointer rounded-md font-bold text-[var(--green-color)] dark:text-emerald-400 hover:text-emerald-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-emerald-500"
+                  className="relative cursor-pointer rounded-md font-bold text-[var(--green-color)] dark:text-secondary-green-color hover:text-green-color focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-secondary-green-color"
                 >
                   <span>Pilih berkas</span>
                   <input
@@ -176,9 +186,9 @@ export default function MagangPKLStep2Form({
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-between p-3.5 bg-emerald-50/30 dark:bg-emerald-950/10 border border-emerald-200/50 dark:border-emerald-900/30 rounded-xl">
+          <div className="flex items-center justify-between p-3.5 bg-secondary-green-color/30 dark:bg-secondary-green-color/10 border border-green-color/50 dark:border-secondary-green-color/30 rounded-xl">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-emerald-100 dark:bg-emerald-950 rounded-lg text-emerald-600 dark:text-emerald-400">
+              <div className="p-2 bg-secondary-green-color dark:bg-secondary-green-color rounded-lg text-green-color dark:text-secondary-green-color">
                 <FileText className="w-5 h-5" />
               </div>
               <div className="max-w-[200px] sm:max-w-[400px] truncate">
@@ -205,15 +215,14 @@ export default function MagangPKLStep2Form({
           type="button"
           onClick={onBack}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2.5 border border-[var(--green-color)] dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-900 text-[var(--green-color)] dark:text-zinc-300 rounded-xl text-sm font-bold transition disabled:opacity-50"
+          className="px-5 py-2.5 border border-zinc-300 dark:border-zinc-700 hover:cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-300 rounded-xl text-xs md:text-sm font-bold transition"
         >
-          <ArrowLeft className="h-4 w-4 " />
           Kembali
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="px-4 py-2.5 bg-[var(--green-color)] hover:bg-emerald-650 text-white rounded-xl text-sm font-extrabold shadow-md transition disabled:opacity-50 flex items-center gap-2"
+          className="px-6 py-2 bg-[var(--green-color)] hover:cursor-pointer hover:bg-[var(--hover-green-color)] text-white rounded-xl text-xs md:text-sm font-bold shadow-md transition flex items-center gap-2"
         >
           Kirim Pengajuan
         </button>

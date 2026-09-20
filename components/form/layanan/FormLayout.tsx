@@ -28,11 +28,11 @@ export default function FormLayout({
   children,
 }: FormLayoutProps) {
   return (
-    <div className="relative flex min-h-screen flex-col bg-gradient-to-b from-emerald-50/50 via-white to-teal-50/30 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 text-zinc-900 dark:text-zinc-50 overflow-x-hidden font-sans">
+    <div className="relative flex min-h-screen flex-col bg-gradient-to-b from-secondary-green-color/50 via-white to-teal-50/30 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 text-zinc-900 dark:text-zinc-50 overflow-x-hidden font-sans">
       {/* Background patterns */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <svg
-          className="absolute left-[max(50%,25rem)] top-0 h-[64rem] w-[128rem] -translate-x-1/2 stroke-emerald-200/30 [mask-image:radial-gradient(64rem_64rem_at_top,white,transparent)] dark:stroke-emerald-950/10"
+          className="absolute left-[max(50%,25rem)] top-0 h-[64rem] w-[128rem] -translate-x-1/2 stroke-secondary-green-color/30 [mask-image:radial-gradient(64rem_64rem_at_top,white,transparent)] dark:stroke-secondary-green-color/10"
           aria-hidden="true"
         >
           <defs>
@@ -60,27 +60,28 @@ export default function FormLayout({
         {/* Header Section / Breadcrumb */}
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="flex items-center gap-2 text-sm text-[var(--foreground)] dark:text-emerald-400 font-semibold mb-1">
+            <div className="flex items-center gap-2 text-xs md:text-sm text-[var(--foreground)] dark:text-secondary-green-color font-semibold mb-1">
               <Link href="/" className="flex items-center gap-1 hover:underline">
                 <ChevronLeft className="w-4 h-4" /> {serviceName}
               </Link>
-              {step > 0 && (
+              {step === 3 ? (
                 <>
                   <span>/</span>
-                  <span>Langkah 1</span>
-                  {step >= 2 && (
-                    <>
-                      <span>/</span>
-                      <span>Langkah 2</span>
-                    </>
-                  )}
-                  {step === 3 && (
-                    <>
-                      <span>/</span>
-                      <span>Langkah 3</span>
-                    </>
-                  )}
+                  <span>Tinjau dan Konfirmasi</span>
                 </>
+              ) : (
+                step > 0 && (
+                  <>
+                    <span>/</span>
+                    <span>Langkah 1</span>
+                    {step >= 2 && (
+                      <>
+                        <span>/</span>
+                        <span>Langkah 2</span>
+                      </>
+                    )}
+                  </>
+                )
               )}
             </div>
           </div>
@@ -98,33 +99,42 @@ export default function FormLayout({
         )}
 
         {success && (
-          <div className="rounded-xl bg-emerald-50 p-6 text-sm text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-200/40 dark:border-emerald-900/40 flex flex-col items-center text-center gap-3 shadow-lg transition duration-300">
-            <CheckCircle2 className="h-12 w-12 text-emerald-600 dark:text-emerald-400 animate-bounce" />
+          <div className="rounded-xl bg-secondary-green-color p-6 text-sm text-secondary-green-color dark:bg-secondary-green-color/40 dark:text-secondary-green-color border border-secondary-green-color/40 dark:border-secondary-green-color/40 flex flex-col items-center text-center gap-3 shadow-lg transition duration-300">
+            <CheckCircle2 className="h-12 w-12 text-green-color dark:text-secondary-green-color" />
             <div className="space-y-1">
-              <h3 className="text-lg font-bold text-emerald-900 dark:text-white">
+              <h3 className="text-lg font-bold text-green-color dark:text-white">
                 {successTitle || "Pengajuan Berhasil!"}
               </h3>
               {successDescription ? (
                 successDescription
               ) : (
-                <p className="text-emerald-700 dark:text-emerald-400">
-                  Formulir {serviceName.toLowerCase()} telah diajukan dengan nomor tiket{" "}
-                  <span className="font-extrabold text-emerald-900 dark:text-white">{createdTiketNo}</span>.
-                </p>
+                <div className="flex flex-col items-center justify-center gap-2">
+                  <p className="text-green-color dark:text-secondary-green-color max-w-sm md:max-w-xl">
+                    Formulir {serviceName.toLowerCase()} telah diajukan dengan nomor tiket
+                  </p>
+                  <span className="font-extrabold text-green-color dark:text-white">{createdTiketNo}</span>
+                </div>
               )}
             </div>
-            <div className="mt-4 flex gap-4 w-full sm:w-auto">
+            <div className="mt-4 flex justify-center items-center gap-4 w-full">
               <button
                 onClick={onAjukanLagi}
-                className="flex-1 px-4 py-2 border border-emerald-300 hover:bg-emerald-100 text-emerald-800 dark:border-emerald-800 dark:hover:bg-emerald-950/30 rounded-xl font-semibold transition cursor-pointer"
+                className="px-4 py-2 border border-[var(--green-color)] bg-white text-[var(--green-color)] dark:border-secondary-green-color dark:hover:bg-secondary-green-color/30 rounded-xl font-semibold transition cursor-pointer"
               >
                 Ajukan Lagi
               </button>
-              <Link href="/" className="flex">
-                <button className="w-full px-5 py-2 bg-[var(--green-color)] hover:bg-emerald-650 text-white rounded-xl font-bold shadow-md transition cursor-pointer">
-                  Kembali ke Beranda
+              <Link
+                href={createdTiketNo ? `/layanan-saya/${createdTiketNo}` : "/layanan-saya"}
+                className="flex"
+              >
+                <button
+                  type="button"
+                  className="px-5 py-2 bg-[var(--green-color)] hover:bg-[var(--hover-green-color)] text-white rounded-xl font-bold shadow-md transition cursor-pointer"
+                >
+                  Lihat Status Tiket
                 </button>
               </Link>
+
             </div>
           </div>
         )}

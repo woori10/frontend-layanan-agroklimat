@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { ClipboardList, FileText, Search, Settings, CheckCircle } from "lucide-react";
 
@@ -37,13 +37,13 @@ export default function CaraMengajukan() {
     ];
 
     return (
-        <div className="relative w-full py-16 bg-zinc-50/50 dark:bg-zinc-950/40 rounded-3xl border border-zinc-200/40 dark:border-zinc-800/40 overflow-hidden">
+        <div className="relative w-full py-16 bg-zinc-50/50 dark:bg-zinc-950/40 rounded-3xl overflow-hidden">
             <div className="relative z-10 max-w-[85rem] mx-auto px-8 sm:px-6 lg:px-8">
                 <div className="flex flex-col items-center mb-16">
-                    <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--green-color)] dark:text-white text-center">
+                    <h2 className="text-xl md:text-3xl font-extrabold text-[var(--green-color)] dark:text-white text-center">
                         Cara Mengajukan Layanan
                     </h2>
-                    <p className="text-zinc-500 dark:text-zinc-400 text-center mt-2 max-w-xl text-sm sm:text-base">
+                    <p className="text-zinc-500 dark:text-zinc-400 text-center mt-2 max-w-xl text-xs md:text-sm sm:text-base">
                         Informasi lengkap mengenai cara mengajukan layanan di Agroklimat
                     </p>
                 </div>
@@ -68,16 +68,16 @@ export default function CaraMengajukan() {
                                     </span> */}
 
                                     {/* Circle Icon Container */}
-                                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white dark:bg-zinc-900 border border-[var(--green-color)] dark:border-emerald-500 flex items-center justify-center text-[var(--green-color)] dark:text-emerald-450 group-hover:scale-105 transition-transform duration-300 shrink-0 shadow-md z-10 ring-4 ring-zinc-50 dark:ring-zinc-950">
+                                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white dark:bg-zinc-900 border border-[var(--green-color)] dark:border-secondary-green-color flex items-center justify-center text-[var(--green-color)] dark:text-secondary-green-color group-hover:scale-105 transition-transform duration-300 shrink-0 shadow-md z-10 ring-4 ring-zinc-50 dark:ring-zinc-950">
                                         <Icon className="w-7 h-7 sm:w-8 sm:h-8 stroke-[1.5]" />
                                     </div>
 
                                     {/* Step Title & Description */}
                                     <div className="flex flex-col items-start md:items-center text-left md:text-center flex-grow mt-0 md:mt-5 ml-2 md:ml-0">
-                                        <h3 className="text-lg md:text-base font-extrabold text-zinc-900 dark:text-white leading-snug">
+                                        <h3 className="text-base md:text-lg font-bold text-[var(--foreground)]/90 dark:text-white leading-snug">
                                             {step.title}
                                         </h3>
-                                        <p className="text-sm md:text-xs text-zinc-500 dark:text-zinc-400 mt-1 md:mt-2 leading-relaxed md:max-w-[185px]">
+                                        <p className="text-xs md:text-sm text-zinc-500 dark:text-zinc-400 mt-1 md:mt-2 leading-relaxed md:max-w-[185px]">
                                             {step.desc}
                                         </p>
                                     </div>

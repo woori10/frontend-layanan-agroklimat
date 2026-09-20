@@ -20,10 +20,14 @@ import { useRouter } from "next/navigation";
 import { getTiketDetail, konfirmasiPembayaranTiket } from "@/lib/tiket";
 import Sidebar from "@/components/sidebar/Sidebar";
 import AppBar from "@/components/appbar/AppBar";
+import StatusPembayaranBadge from "@/components/badge/status-pembayaran/StatusPembayaranBadge";
+import SuccessModal from "@/components/modal/SuccessModal";
+import ErrorModal from "@/components/modal/ErrorModal";
+import { getApiUrl } from "@/lib/api";
 
 interface PageProps {
     params: Promise<{
-        id: string;
+        noTiket: string;
     }>;
 }
 
@@ -77,30 +81,40 @@ function formatDate(dateString: string) {
 export default function TagihanDetailPage({ params }: PageProps) {
     const resolvedParams = use(params);
     const router = useRouter();
-    const idStr = resolvedParams.id;
-    const tiketId = parseInt(idStr, 10);
+    const noTiketStr = resolvedParams.noTiket;
 
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [tiket, setTiket] = useState<TiketDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [mounted, setMounted] = useState(false);
+    const [alatMaster, setAlatMaster] = useState<any[]>([]);
 
     const [confirmModalOpen, setConfirmModalOpen] = useState(false);
     const [actionLoading, setActionLoading] = useState(false);
 
+    const [successModalOpen, setSuccessModalOpen] = useState(false);
+    const [errorModalOpen, setErrorModalOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+
+
+
     const handleConfirmPayment = async () => {
-        if (!tiket) return;
+        if (!tiket || !tiket.tagihan?.bukti_bayar) return;
+
         setActionLoading(true);
+
         try {
             await konfirmasiPembayaranTiket(tiket.id);
-            alert("Pembayaran berhasil dikonfirmasi lunas!");
-            router.push("/tagihan");
+
+            setConfirmModalOpen(false);
+            setSuccessModalOpen(true);
         } catch (err: any) {
-            alert(err.message || "Gagal mengonfirmasi pembayaran");
+            setConfirmModalOpen(false);
+            setErrorMessage(err.message || "Gagal mengonfirmasi pembayaran");
+            setErrorModalOpen(true);
         } finally {
             setActionLoading(false);
-            setConfirmModalOpen(false);
         }
     };
 
@@ -112,45 +126,31 @@ export default function TagihanDetailPage({ params }: PageProps) {
             return;
         }
 
-        if (isNaN(tiketId)) {
-            setError("ID Tiket tidak valid");
+        if (!noTiketStr) {
+            setError("Nomor Tiket tidak valid");
             setLoading(false);
             return;
         }
 
-        getTiketDetail(tiketId)
+        getTiketDetail(noTiketStr)
             .then(setTiket)
             .catch((err: any) => setError(err.message))
             .finally(() => setLoading(false));
-    }, [tiketId, router]);
 
-    const getPaymentStatusBadge = (status?: string) => {
-        switch (status) {
-            case "lunas":
-                return (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-450">
-                        Lunas
-                    </span>
-                );
-            case "batal":
-                return (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200 dark:bg-red-950/20 dark:text-red-450">
-                        Batal
-                    </span>
-                );
-            default:
-                return (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-yellow-50 text-yellow-700 border border-yellow-200 dark:bg-yellow-950/20 dark:text-yellow-450">
-                        Menunggu Pembayaran
-                    </span>
-                );
-        }
-    };
+        fetch(`${getApiUrl()}/alat`, {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                if (Array.isArray(data)) setAlatMaster(data);
+            })
+            .catch(() => { });
+    }, [noTiketStr, router]);
 
     if (!mounted) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"></div>
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-secondary-green-color border-t-transparent"></div>
             </div>
         );
     }
@@ -159,7 +159,7 @@ export default function TagihanDetailPage({ params }: PageProps) {
         return (
             <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 overflow-hidden font-sans">
                 <div className="flex h-screen items-center justify-center">
-                    <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"></div>
+                    <div className="h-10 w-10 animate-spin rounded-full border-4 border-secondary-green-color border-t-transparent"></div>
                 </div>
             </div>
         );
@@ -199,7 +199,7 @@ export default function TagihanDetailPage({ params }: PageProps) {
             durationDays = 1;
         }
     }
-    const selectedAlatList: Array<{ name: string; price: number; units: number }> = formAnswers.selected_alat_list || [];
+    const selectedAlatList: Array<{ alatId?: string | number; name: string; price: number; units: number }> = formAnswers.selected_alat_list || [];
     let totalEstimasi = 0;
     selectedAlatList.forEach(tool => {
         totalEstimasi += tool.price * tool.units * durationDays;
@@ -217,17 +217,17 @@ export default function TagihanDetailPage({ params }: PageProps) {
                         <div className="flex items-center gap-2">
                             <Link
                                 href="/tagihan"
-                                className="flex items-center text-xs lg:text-sm font-medium text-[var(--foreground)] transition hover:text-zinc-600 dark:hover:text-zinc-300"
+                                className="flex items-center text-sm font-medium text-[var(--foreground)] hover:cursor-pointer transition"
                             >
                                 <ChevronLeft className="h-4 w-4 mr-0.5" />
                                 Daftar Tagihan
                             </Link>
-                            <span className="text-xs lg:text-sm text-zinc-450 dark:text-zinc-600">/</span>
-                            <span className="text-xs lg:text-sm font-medium text-[var(--foreground)] dark:text-zinc-450">
+                            <span className="text-sm text-[var(--foreground)] dark:text-zinc-600">/</span>
+                            <span className="text-sm font-medium text-[var(--foreground)] dark:text-zinc-450">
                                 Detail Tagihan
                             </span>
-                            <span className="text-xs lg:text-sm text-zinc-450 dark:text-zinc-600">/</span>
-                            <span className="text-xs lg:text-sm font-semibold text-[var(--green-color)]">
+                            <span className="text-sm text-[var(--foreground)] dark:text-zinc-600">/</span>
+                            <span className="text-sm font-semibold text-[var(--green-color)]">
                                 {tiket.no_tiket}
                             </span>
                         </div>
@@ -240,8 +240,7 @@ export default function TagihanDetailPage({ params }: PageProps) {
                             {/* Card 1: Informasi Pemohon */}
                             <div className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
                                 <div className="flex border-b border-zinc-300 dark:border-zinc-800/80 pb-4 mb-6 items-center gap-2">
-                                    <User className="h-5 w-5 text-[var(--green-color)]" />
-                                    <h3 className="text-base font-semibold text-zinc-800 dark:text-zinc-200">
+                                    <h3 className="text-base font-bold text-[var(--green-color)] dark:text-zinc-200">
                                         Informasi Pemohon
                                     </h3>
                                 </div>
@@ -282,89 +281,99 @@ export default function TagihanDetailPage({ params }: PageProps) {
                                 </div>
                             </div>
 
-                            {/* Card 2: Detail Layanan */}
-                            <div className="rounded-2xl border border-zinc-200/80 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 overflow-hidden">
-                                <div className="flex items-center justify-start border-b border-zinc-300 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-800/40 p-4 md:px-8">
-                                    <h3 className="text-base font-bold text-zinc-800 dark:text-zinc-200">
+                            {/* Card 2: Rincian Biaya Alat */}
+                            <div className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+                                <div className="flex border-b border-zinc-300 dark:border-zinc-800/80 pb-4 mb-6 items-center gap-2">
+                                    <h3 className="text-base font-bold text-[var(--green-color)] dark:text-zinc-200">
                                         Rincian Biaya Alat
                                     </h3>
                                 </div>
-                                <div className="p-6 md:p-8">
-                                    <div className="overflow-x-auto">
-                                        <table className="min-w-full">
-                                            <thead>
-                                                <tr className="text-[var(--foreground)] dark:text-zinc-400 text-sm font-light tracking-wider border-b border-zinc-200 dark:border-zinc-800">
-                                                    <th scope="col" className="pb-3 text-left">
-                                                        Deskripsi Alat
-                                                    </th>
-                                                    <th scope="col" className="pb-3 text-center w-24">
-                                                        Jumlah
-                                                    </th>
-                                                    <th scope="col" className="pb-3 text-right w-36">
-                                                        Harga Satuan
-                                                    </th>
-                                                    <th scope="col" className="pb-3 text-right w-36">
-                                                        Subtotal
-                                                    </th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="text-sm">
-                                                {selectedAlatList.length > 0 ? (
-                                                    selectedAlatList.map((tool, idx) => {
-                                                        const subtotal = tool.price * tool.units * durationDays;
-                                                        return (
-                                                            <tr key={idx} className="align-top border-b border-zinc-100 dark:border-zinc-800 last:border-0">
-                                                                <td className="py-4 text-left font-semibold text-zinc-850 dark:text-zinc-200">
-                                                                    <div className="space-y-0.5">
-                                                                        <span className="block font-semibold">{tool.name}</span>
-                                                                        <span className="block text-xs text-zinc-400 dark:text-zinc-500 font-medium">
-                                                                            Durasi: {durationDays} Hari
-                                                                        </span>
-                                                                    </div>
-                                                                </td>
-                                                                <td className="py-4 text-center text-zinc-700 dark:text-zinc-300 font-semibold">
-                                                                    {tool.units} Unit
-                                                                </td>
-                                                                <td className="py-4 text-right text-zinc-700 dark:text-zinc-300 font-semibold">
-                                                                    Rp {tool.price.toLocaleString("id-ID")}
-                                                                </td>
-                                                                <td className="py-4 text-right text-zinc-800 dark:text-zinc-100 font-bold">
-                                                                    Rp {subtotal.toLocaleString("id-ID")}
-                                                                </td>
-                                                            </tr>
-                                                        );
-                                                    })
-                                                ) : (
-                                                    <tr className="align-top">
-                                                        <td className="pt-5 pb-2 text-left font-semibold text-zinc-850 dark:text-zinc-200 block">
-                                                            {formAnswers.jenis_alat || tiket.layanan.nama_layanan}
-                                                        </td>
-                                                        <td className="pt-5 pb-2 text-center text-zinc-700 dark:text-zinc-300 font-semibold">
-                                                            1 Paket
-                                                        </td>
-                                                        <td className="pt-5 pb-2 text-right text-zinc-700 dark:text-zinc-300 font-semibold">
-                                                            Rp {(tiket.tagihan?.jumlah || 150000).toLocaleString("id-ID")}
-                                                        </td>
-                                                        <td className="pt-5 pb-2 text-right text-zinc-800 dark:text-zinc-100 font-bold">
-                                                            Rp {(tiket.tagihan?.jumlah || 150000).toLocaleString("id-ID")}
-                                                        </td>
-                                                    </tr>
-                                                )}
-                                            </tbody>
-                                        </table>
-                                    </div>
 
-                                    {/* Total Keseluruhan Row */}
-                                    <div className="mt-4 flex justify-end">
-                                        <div className="w-full sm:w-[50%] bg-[#F5F8FC] dark:bg-zinc-850/40 rounded-xl px-6 py-3.5 flex items-center justify-between">
-                                            <span className="font-bold text-zinc-800 dark:text-zinc-200 text-sm">
-                                                Total Tagihan
-                                            </span>
-                                            <span className="font-extrabold text-[#2C5E3B] dark:text-emerald-450 text-base">
-                                                Rp {(tiket.tagihan?.jumlah || totalEstimasi || 150000).toLocaleString("id-ID")}
-                                            </span>
-                                        </div>
-                                    </div>
+                                <div className="overflow-x-auto rounded-2xl border border-zinc-200/80 dark:border-zinc-800">
+                                    <table className="min-w-full divide-y divide-zinc-200/80 dark:divide-zinc-800">
+                                        <thead>
+                                            <tr className="bg-zinc-50/50 dark:bg-zinc-800/40">
+                                                <th scope="col" className="px-5 py-3.5 text-center text-xs font-bold text-zinc-800 dark:text-zinc-200 w-16">
+                                                    No
+                                                </th>
+                                                <th scope="col" className="px-5 py-3.5 text-left text-xs font-bold text-zinc-800 dark:text-zinc-200">
+                                                    ID Alat
+                                                </th>
+                                                <th scope="col" className="px-5 py-3.5 text-left text-xs font-bold text-zinc-800 dark:text-zinc-200">
+                                                    Nama Alat
+                                                </th>
+                                                <th scope="col" className="px-5 py-3.5 text-left text-xs font-bold text-zinc-800 dark:text-zinc-200">
+                                                    Jumlah
+                                                </th>
+                                                <th scope="col" className="px-5 py-3.5 text-left text-xs font-bold text-zinc-800 dark:text-zinc-200">
+                                                    Harga
+                                                </th>
+                                                <th scope="col" className="px-5 py-3.5 text-left text-xs font-bold text-zinc-800 dark:text-zinc-200">
+                                                    Subtotal
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800 bg-white dark:bg-zinc-900 text-xs">
+                                            {selectedAlatList.length > 0 ? (
+                                                selectedAlatList.map((tool, idx) => {
+                                                    const subtotal = tool.price * tool.units * durationDays;
+                                                    const matched = alatMaster.find(
+                                                        (a) => (tool.alatId && String(a.id) === String(tool.alatId)) ||
+                                                            (tool.name && a.nama_alat.trim().toLowerCase() === tool.name.trim().toLowerCase())
+                                                    );
+                                                    const idAlat = matched
+                                                        ? `ALT-${String(matched.id).padStart(3, "0")}`
+                                                        : (tool.alatId ? `ALT-${String(tool.alatId).padStart(3, "0")}` : `ALT-${String(idx + 1).padStart(3, "0")}`);
+
+                                                    return (
+                                                        <tr key={idx} className="transition-colors hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50">
+                                                            <td className="px-5 py-3 text-center text-zinc-500 dark:text-zinc-400 font-medium whitespace-nowrap">
+                                                                {idx + 1}
+                                                            </td>
+                                                            <td className="px-6 py-4 text-left text-zinc-500 dark:text-zinc-400 font-medium font-mono whitespace-nowrap">
+                                                                {idAlat}
+                                                            </td>
+                                                            <td className="px-6 py-4 text-left text-zinc-800 dark:text-zinc-200 font-medium">
+                                                                {tool.name}
+                                                            </td>
+                                                            <td className="px-6 py-4 text-left text-zinc-600 dark:text-zinc-400 font-medium whitespace-nowrap">
+                                                                {tool.units}
+                                                            </td>
+                                                            <td className="px-6 py-4 text-left text-zinc-600 dark:text-zinc-400 font-medium whitespace-nowrap">
+                                                                Rp {tool.price.toLocaleString("id-ID")}
+                                                            </td>
+                                                            <td className="px-6 py-4 text-left text-zinc-800 dark:text-zinc-200 font-medium whitespace-nowrap">
+                                                                Rp {subtotal.toLocaleString("id-ID")}
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan={6} className="px-5 py-8 text-center text-zinc-500 dark:text-zinc-400 font-medium text-xs">
+                                                        Tidak ada data alat yang dipinjam
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                        {/* Total Tagihan row inside table */}
+                                        {selectedAlatList.length > 0 && (
+                                            <tfoot className="border-t border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/60 dark:bg-zinc-850/40">
+                                                <tr>
+                                                    <td colSpan={5} className="px-5 py-3 text-left font-bold text-zinc-800 dark:text-zinc-200 text-xs">
+                                                        Total Tagihan {durationDays > 1 && (
+                                                            <span className="text-xs text-zinc-500 dark:text-zinc-400 font-normal ml-1.5">
+                                                                (Durasi: {durationDays} Hari)
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-5 py-3 text-center font-extrabold text-[#2C5E3B] dark:text-secondary-green-color text-xs whitespace-nowrap">
+                                                        Rp {(tiket.tagihan?.jumlah || totalEstimasi || 0).toLocaleString("id-ID")}
+                                                    </td>
+                                                </tr>
+                                            </tfoot>
+                                        )}
+                                    </table>
                                 </div>
                             </div>
                         </div>
@@ -374,26 +383,26 @@ export default function TagihanDetailPage({ params }: PageProps) {
                             {/* Card 3: Billing Info */}
                             <div className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 space-y-6">
                                 <div className="flex border-b border-zinc-300 dark:border-zinc-00 pb-3 items-center gap-2">
-                                    <h3 className="text-base font-semibold text-zinc-800 dark:text-zinc-200">
+                                    <h3 className="text-base font-bold text-[var(--green-color)] dark:text-zinc-200">
                                         Informasi Tagihan
                                     </h3>
                                 </div>
 
                                 <div className="space-y-4">
-                                    <div className="flex items-center justify-between text-sm">
+                                    <div className="flex items-center justify-between text-xs">
                                         <span className="text-zinc-500 font-medium">Nominal Tagihan</span>
-                                        <span className="font-bold text-zinc-850 dark:text-zinc-100 text-lg">
+                                        <span className="font-bold text-zinc-850 dark:text-zinc-100">
                                             {tiket.tagihan?.jumlah ? `Rp ${tiket.tagihan.jumlah.toLocaleString("id-ID")}` : "-"}
                                         </span>
                                     </div>
 
-                                    <div className="flex items-center justify-between text-sm">
+                                    <div className="flex items-center justify-between text-xs">
                                         <span className="text-zinc-500 font-medium">Status Pembayaran</span>
-                                        {getPaymentStatusBadge(tiket.tagihan?.status_bayar)}
+                                        <StatusPembayaranBadge status={tiket.tagihan?.status_bayar} />
                                     </div>
 
                                     {tiket.tagihan?.bank_pengirim && (
-                                        <div className="flex items-center justify-between text-sm">
+                                        <div className="flex items-center justify-between text-xs">
                                             <span className="text-zinc-500 font-medium">Bank Pengirim</span>
                                             <span className="font-semibold text-zinc-700 dark:text-zinc-300">
                                                 {tiket.tagihan.bank_pengirim}
@@ -402,7 +411,7 @@ export default function TagihanDetailPage({ params }: PageProps) {
                                     )}
 
                                     {tiket.tagihan?.nama_pengirim && (
-                                        <div className="flex items-center justify-between text-sm">
+                                        <div className="flex items-center justify-between text-xs">
                                             <span className="text-zinc-500 font-medium">Nama Pengirim</span>
                                             <span className="font-semibold text-zinc-700 dark:text-zinc-300">
                                                 {tiket.tagihan.nama_pengirim}
@@ -411,7 +420,7 @@ export default function TagihanDetailPage({ params }: PageProps) {
                                     )}
 
                                     {tiket.tagihan?.tanggal_transfer && (
-                                        <div className="flex items-center justify-between text-sm">
+                                        <div className="flex items-center justify-between text-xs">
                                             <span className="text-zinc-500 font-medium">Tanggal Transfer</span>
                                             <span className="font-semibold text-zinc-700 dark:text-zinc-300">
                                                 {formatDate(tiket.tagihan.tanggal_transfer)}
@@ -420,7 +429,7 @@ export default function TagihanDetailPage({ params }: PageProps) {
                                     )}
 
                                     {tiket.tagihan?.tanggal_lunas && (
-                                        <div className="flex items-center justify-between text-sm">
+                                        <div className="flex items-center justify-between text-xs">
                                             <span className="text-zinc-500 font-medium">Tanggal Lunas</span>
                                             <span className="font-semibold text-zinc-700 dark:text-zinc-300">
                                                 {formatDate(tiket.tagihan.tanggal_lunas)}
@@ -435,23 +444,25 @@ export default function TagihanDetailPage({ params }: PageProps) {
                                         Bukti Pembayaran
                                     </span>
                                     {tiket.tagihan?.bukti_bayar ? (
-                                        <div className="border border-zinc-150 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/20 p-3 rounded-xl space-y-3 text-center">
-
-                                            <div className="space-y-3">
-
-                                                <div className="flex justify-center px-1">
-                                                    <a
-                                                        href={tiket.tagihan?.bukti_bayar}
-                                                        target="_blank"
-                                                        rel="noreferrer"
-                                                        className="inline-flex items-center gap-1 text-xs text-[#2C5E3B] hover:text-emerald-700 font-bold hover:underline"
-                                                    >
-                                                        <ExternalLink className="h-3.5 w-3.5" />
-                                                        Buka di Tab Baru
-                                                    </a>
+                                        <div className="flex items-center justify-between p-2.5 bg-secondary-green-color/30 dark:bg-secondary-green-color/10 border border-green-color/30 dark:border-secondary-green-color/20 rounded-xl">
+                                            <div className="flex items-center gap-2 min-w-0">
+                                                <div className="p-1.5 bg-secondary-green-color dark:bg-secondary-green-color text-[var(--green-color)] dark:text-[var(--green-color)] rounded-lg shrink-0">
+                                                    <FileText className="w-4 h-4" />
                                                 </div>
+                                                <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-300 truncate">
+                                                    Bukti Transfer
+                                                </span>
                                             </div>
+                                            <a
+                                                href={tiket.tagihan?.bukti_bayar}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="inline-flex items-center gap-1 text-xs text-[#2C5E3B] hover:text-secondary-green-color font-bold hover:underline"
+                                            >
+                                                <ExternalLink className="h-3.5 w-3.5" /> Lihat
+                                            </a>
                                         </div>
+
                                     ) : (
                                         <div className="flex flex-col items-center justify-center p-6 border border-dashed border-zinc-300 dark:border-zinc-800 rounded-xl bg-zinc-50/30 dark:bg-zinc-950/10">
                                             <Clock className="h-6 w-6 text-zinc-400 mb-2 animate-pulse" />
@@ -466,8 +477,13 @@ export default function TagihanDetailPage({ params }: PageProps) {
                                 {tiket.tagihan?.status_bayar === "menunggu" && (
                                     <button
                                         onClick={() => setConfirmModalOpen(true)}
-                                        disabled={actionLoading}
-                                        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[#2C5E3B] hover:bg-[#1E4329] text-white rounded-xl text-xs font-semibold shadow-md transition disabled:opacity-50 cursor-pointer"
+                                        disabled={actionLoading || !tiket.tagihan?.bukti_bayar}
+                                        title={!tiket.tagihan?.bukti_bayar ? "Bukti pembayaran belum diunggah oleh pemohon" : undefined}
+                                        className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold transition ${
+                                            tiket.tagihan?.bukti_bayar && !actionLoading
+                                                ? "bg-[#2C5E3B] hover:bg-[#1E4329] text-white shadow-md cursor-pointer"
+                                                : "bg-zinc-200 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 cursor-not-allowed opacity-75 shadow-none"
+                                        }`}
                                     >
                                         <Check className="h-4 w-4" />
                                         <span>Konfirmasi Pembayaran Lunas</span>
@@ -486,6 +502,30 @@ export default function TagihanDetailPage({ params }: PageProps) {
                 onConfirm={handleConfirmPayment}
                 jumlah={tiket?.tagihan?.jumlah}
                 actionLoading={actionLoading}
+            />
+
+            {/* Success Modal */}
+            <SuccessModal
+                isOpen={successModalOpen}
+                onClose={() => {
+                    setSuccessModalOpen(false);
+                    router.push("/tagihan");
+                }}
+                title="Pembayaran Berhasil Dikonfirmasi!"
+                message="Pembayaran telah berhasil dikonfirmasi lunas."
+                confirmText="Kembali ke Daftar Tagihan"
+                onConfirm={() => {
+                    setSuccessModalOpen(false);
+                    router.push("/tagihan");
+                }}
+            />
+
+            {/* Error Modal */}
+            <ErrorModal
+                isOpen={errorModalOpen}
+                onClose={() => setErrorModalOpen(false)}
+                title="Gagal Mengonfirmasi Pembayaran"
+                message={errorMessage}
             />
         </div>
     );

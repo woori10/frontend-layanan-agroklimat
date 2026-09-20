@@ -33,7 +33,9 @@ import {
     Briefcase,
     ShieldCheck,
     Clock,
-    Activity
+    Activity,
+    ArrowUpDown,
+    Inbox
 } from "lucide-react";
 import CardDashboard from "@/components/card/card-dashboard/CardDashboard";
 
@@ -54,22 +56,69 @@ export default function DashboardPegawaiPage() {
     const router = useRouter();
     const [userNIP, setUserNIP] = useState("");
     const [userName, setUserName] = useState("");
+    const [userRole, setUserRole] = useState("Pegawai Unit Teknis");
     const [unitTeknisId, setUnitTeknisId] = useState<number | null>(null);
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [activeTab, setActiveTab] = useState("ringkasan");
     const [mounted, setMounted] = useState(false);
 
     const [tikets, setTikets] = useState<any[]>([]);
+    const [filteredTikets, setFilteredTikets] = useState<any[]>([]);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [selectedStatus, setSelectedStatus] = useState<string>("semua");
+    const [sortOrder, setSortOrder] = useState<"terbaru" | "terlama">("terbaru");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 4;
+    const itemsPerPage = 5;
 
-    const totalItems = tikets.length;
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    useEffect(() => {
+        let result = [...tikets];
+
+        if (selectedStatus !== "semua") {
+            if (selectedStatus === "selesai") {
+                result = result.filter(
+                    (t) => t.status === "menunggu_konfirmasi" || t.status === "selesai"
+                );
+            } else if (selectedStatus === "diproses") {
+                result = result.filter((t) => t.status === "diproses" || t.status === "dipinjam");
+            } else if (selectedStatus === "menunggu_pembayaran") {
+                result = result.filter((t) => t.status === "menunggu_pembayaran");
+            } else {
+                result = result.filter((t) => t.status === selectedStatus);
+            }
+        }
+
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase();
+            result = result.filter(
+                (t) =>
+                    (t.no_tiket || "").toLowerCase().includes(query) ||
+                    (t.layanan?.nama_layanan || "").toLowerCase().includes(query) ||
+                    (t.jawaban_form?.nama_lengkap || t.user?.nama || "").toLowerCase().includes(query)
+            );
+        }
+
+        result.sort((a, b) => {
+            const timeA = new Date(a.tanggal_submit || a.createdAt).getTime();
+            const timeB = new Date(b.tanggal_submit || b.createdAt).getTime();
+            return sortOrder === "terbaru" ? timeB - timeA : timeA - timeB;
+        });
+
+        setFilteredTikets(result);
+        setCurrentPage(1);
+    }, [tikets, selectedStatus, searchQuery, sortOrder]);
+
+    const countSemua = tikets.length;
+    const countDiproses = tikets.filter((t) => t.status === "diproses" || t.status === "dipinjam").length;
+    const countMenungguBayar = tikets.filter((t) => t.status === "menunggu_pembayaran").length;
+    const countSelesai = tikets.filter((t) => ["menunggu_konfirmasi", "selesai"].includes(t.status)).length;
+
+    const totalItems = filteredTikets.length;
+    const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
-    const currentTikets = tikets.slice(startIndex, startIndex + itemsPerPage);
+    const currentTikets = filteredTikets.slice(startIndex, endIndex);
 
     // Authenticate mockup on client side
     useEffect(() => {
@@ -91,8 +140,15 @@ export default function DashboardPegawaiPage() {
                 }
                 if (user.nama) {
                     setUserName(user.nama);
-                } else if (storedEmail) {
-                    setUserName(storedEmail.split("@")[0]);
+                }
+                if (user.role) {
+                    const roleMapping: Record<string, string> = {
+                        super_admin: "Super Admin",
+                        admin: "Admin",
+                        kepala_balai: "Kepala Balai",
+                        pegawai: "Pegawai Unit Teknis",
+                    };
+                    setUserRole(roleMapping[user.role] || user.role);
                 }
                 if (user.unit_teknis_id !== undefined) {
                     setUnitTeknisId(user.unit_teknis_id);
@@ -311,28 +367,28 @@ export default function DashboardPegawaiPage() {
         switch (id) {
             case 1:
                 return [
-                    { id: 14, name: "Rekomendasi & Penilaian Kesesuaian SNI", type: "gratis" },
-                    { id: 15, name: "Konsultasi Rekomendasi & Penilaian Kesesuaian SNI", type: "gratis" },
-                    { id: 18, name: "Permohonan Data", type: "gratis" }
+                    { id: 14, slug: "rekomendasi-sni", name: "Rekomendasi & Penilaian Kesesuaian SNI", type: "gratis" },
+                    { id: 15, slug: "konsultasi-rekomendasi", name: "Konsultasi Rekomendasi & Penilaian Kesesuaian SNI", type: "gratis" },
+                    { id: 18, slug: "permohonan-data", name: "Permohonan Data", type: "gratis" }
                 ];
             case 2:
                 return [
-                    { id: 19, name: "Peminjaman Alat", type: "berbayar" }
+                    { id: 19, slug: "peminjaman-alat", name: "Peminjaman Alat", type: "berbayar" }
                 ];
             case 3:
                 return [
-                    { id: 17, name: "Bimbingan Teknis & Narasumber", type: "gratis" },
-                    { id: 20, name: "Magang Teknis / PKL", type: "gratis" },
-                    { id: 21, name: "Agroedukasi / Kunjungan Edukasi", type: "gratis" },
-                    { id: 22, name: "Layanan Perpustakaan", type: "gratis" }
+                    { id: 17, slug: "bimbingan-teknis", name: "Bimbingan Teknis & Narasumber", type: "gratis" },
+                    { id: 20, slug: "magang-pkl", name: "Magang Teknis / PKL", type: "gratis" },
+                    { id: 21, slug: "agroedukasi", name: "Agroedukasi / Kunjungan Edukasi", type: "gratis" },
+                    { id: 22, slug: "layanan-perpustakaan", name: "Layanan Perpustakaan", type: "gratis" }
                 ];
             case 4:
                 return [
-                    { id: 16, name: "Rekomendasi Siap Tanam", type: "gratis" }
+                    { id: 16, slug: "rekomendasi-siap-tanam", name: "Rekomendasi Siap Tanam", type: "gratis" }
                 ];
             case 5:
                 return [
-                    { id: 23, name: "Layanan Mess", type: "berbayar" }
+                    { id: 23, slug: "layanan-mess", name: "Layanan Mess", type: "berbayar" }
                 ];
             default:
                 return [];
@@ -342,7 +398,7 @@ export default function DashboardPegawaiPage() {
     if (!mounted) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"></div>
+                <div className="h-10 w-10 animate-spin rounded-full border-4 border-secondary-green-color border-t-transparent"></div>
             </div>
         );
     }
@@ -358,19 +414,29 @@ export default function DashboardPegawaiPage() {
                 <AppBar onMenuClick={() => setSidebarOpen(true)} />
 
                 {/* Content Container */}
-                <main className="flex-1 p-6 space-y-6">
+                <main className="flex-1 p-8 space-y-6">
                     {/* Welcome Banner */}
-                    <div className="relative overflow-hidden space-y-2">
-                        <h1 className="text-2xl font-semibold md:text-3xl text-[var(--foreground)]">
-                            Dashboard Pegawai, <span className="capitalize">{userName}</span>!
-                        </h1>
-                        <p className="text-[var(--foreground)]">Selamat datang kembali <span className="font-bold">{getUnitTeknisName(unitTeknisId)}</span>. Pantau performa layanan BRMP secara real-time.</p>
+                    <div className="relative overflow-hidden rounded-2xl p-4 md:p-8 text-white shadow-lg bg-cover bg-center min-h-[160px] flex flex-col justify-center"
+                        style={{ backgroundImage: "url('/images/kantor.webp')" }}>
+                        {/* Overlay with green-color gradient */}
+                        <div
+                            className="absolute inset-0 z-0"
+                            style={{
+                                background: "linear-gradient(to right, var(--green-color) 5%, rgba(36, 78, 43, 0.8) 30%, rgba(36, 78, 43, 0.4) 90%)"
+                            }}
+                        />
+
+                        <div className="relative z-10 space-y-3 max-w-5xl">
+                            <h2 className="text-xl md:text-4xl font-bold tracking-tight leading-tight">
+                                Selamat Datang Kembali <span className="capitalize text-[var(--yellow-color)]">{userName || userRole} !</span>
+                            </h2>
+                            <p className="text-xs md:text-base text-zinc-100/90 leading-relaxed">
+                                Dashboard Pegawai <span className="font-bold text-[var(--yellow-color)]">{getUnitTeknisName(unitTeknisId)}</span>
+                            </p>
+                        </div>
                     </div>
                     {/* Statistik Permohonan Layanan */}
                     <div className="space-y-3">
-                        {/* <h2 className="text-lg font-bold text-zinc-700 dark:text-zinc-300">
-                                                Statistik Permohonan Layanan
-                                            </h2> */}
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             <CardDashboard
                                 title="Total Permohonan"
@@ -402,7 +468,7 @@ export default function DashboardPegawaiPage() {
                             <CardDashboard
                                 title="Selesai"
                                 icon={CheckCircle2}
-                                iconBgClass="bg-emerald-400 dark:bg-emerald-750"
+                                iconBgClass="bg-violet-600 dark:bg-violet-700"
                                 iconColorClass="text-white"
                                 apiEndpoint="/tiket/unit-teknis/me"
                                 processData={(data) => Array.isArray(data) ? data.filter((t: any) => t.status === "menunggu_konfirmasi" || t.status === "selesai").length : 0}
@@ -410,146 +476,37 @@ export default function DashboardPegawaiPage() {
                             />
                         </div>
                     </div>
-                    {/* Daftar Permohonan Masuk Card */}
-                    <div className="bg-white shadow-md rounded-lg dark:bg-zinc-800 dark:shadow-zinc-800">
-                        <div className="flex justify-between items-center px-6 py-4">
-                            <p className="text-[var(--foreground)] dark:text-white font-semibold text-lg">Daftar Permohonan Masuk</p>
-                        </div>
-                        <div className="overflow-hidden border border-zinc-200/80 bg-white shadow-md dark:border-zinc-800 dark:bg-zinc-900">
-                            <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-zinc-200/80 dark:divide-zinc-800">
-                                    <thead className="bg-[#E5E7EB]/50 dark:bg-zinc-950">
-                                        <tr>
-                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">
-                                                Nama Pemohon
-                                            </th>
-                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">
-                                                Jenis Layanan
-                                            </th>
-                                            <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">
-                                                Tanggal
-                                            </th>
-                                            <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider">
-                                                Status
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800 bg-white dark:bg-zinc-900">
-                                        {loading ? (
-                                            <tr>
-                                                <td colSpan={4} className="px-6 py-10 text-center text-sm text-zinc-450 dark:text-zinc-550">
-                                                    Memuat riwayat permohonan...
-                                                </td>
-                                            </tr>
-                                        ) : error ? (
-                                            <tr>
-                                                <td colSpan={4} className="px-6 py-10 text-center text-sm text-red-500 font-medium">
-                                                    {error}
-                                                </td>
-                                            </tr>
-                                        ) : tikets.length === 0 ? (
-                                            <tr>
-                                                <td colSpan={4} className="px-6 py-10 text-center text-sm text-zinc-450 dark:text-zinc-550">
-                                                    Belum ada riwayat permohonan layanan.
-                                                </td>
-                                            </tr>
-                                        ) : (
-                                            currentTikets.map((tiket) => (
-                                                <tr key={tiket.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50 transition-colors">
-                                                    <td className="px-6 py-5.5 whitespace-nowrap text-sm text-[var(--foreground)] dark:text-zinc-100 font-base">
-                                                        {tiket.jawaban_form?.nama_lengkap || tiket.user?.nama || "-"}
-                                                    </td>
-                                                    <td className="px-6 py-5.5 whitespace-nowrap text-sm text-[var(--foreground)] dark:text-zinc-100 font-base">
-                                                        {tiket.layanan?.nama_layanan || "-"}
-                                                    </td>
-                                                    <td className="px-6 py-5.5 whitespace-nowrap text-center text-sm text-[var(--foreground)] dark:text-zinc-400 font-base">
-                                                        {formatDate(tiket.tanggal_submit || tiket.createdAt)}
-                                                    </td>
-                                                    <td className="px-6 py-5.5 whitespace-nowrap text-sm">
-                                                        <div className="flex justify-center">
-                                                            <StatusLayananBadge status={tiket.status} />
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        {/* Pagination Footer */}
-                        {tikets.length > 0 && (
-                            <div className="flex items-center justify-between border-t border-zinc-200/80 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 px-6 py-4">
-                                <div className="text-sm text-zinc-500 dark:text-zinc-400 font-medium">
-                                    Menampilkan {totalItems === 0 ? 0 : startIndex + 1}-{endIndex} dari {totalItems} permohonan
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                                        disabled={currentPage === 1}
-                                        className="flex h-8 w-8 items-center justify-center rounded-md font-medium text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200/50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:hover:bg-transparent transition cursor-pointer"
-                                    >
-                                        <ChevronLeft className="h-4 w-4" />
-                                    </button>
-                                    {Array.from({ length: totalPages }, (_, index) => {
-                                        const pageNumber = index + 1;
-                                        return (
-                                            <button
-                                                key={pageNumber}
-                                                onClick={() => setCurrentPage(pageNumber)}
-                                                className={`flex h-8 w-8 items-center justify-center rounded-md text-sm font-semibold transition cursor-pointer ${currentPage === pageNumber
-                                                    ? "bg-[#2C5E3B] text-white dark:bg-emerald-600"
-                                                    : "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200/50 dark:hover:bg-zinc-800"
-                                                    }`}
-                                            >
-                                                {pageNumber}
-                                            </button>
-                                        );
-                                    })}
-                                    <button
-                                        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                                        disabled={currentPage === totalPages}
-                                        className="flex h-8 w-8 items-center justify-center rounded-md font-medium text-zinc-500 dark:text-zinc-400 hover:bg-zinc-200/50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:hover:bg-transparent transition cursor-pointer"
-                                    >
-                                        <ChevronRight className="h-4 w-4" />
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                    </div>
                     {/* Services List Card */}
-                    <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:bg-zinc-900 dark:border-zinc-800 text-left">
-                        <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-4">
-                            Layanan yang Dikelola
-                        </h3>
-                        <div className="space-y-4">
+                    <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-secondary-green-color rounded-2xl border border-foreground/20 p-6 shadow-sm dark:bg-zinc-900 dark:border-zinc-800 text-left">
+                        <div className="flex gap-4">
+                            <div className="hidden md:flex h-10 w-10 items-center justify-center rounded-full bg-green-color text-white dark:bg-secondary-green-color dark:text-secondary-green-color">
+                                <Sprout className="h-5 w-5" />
+                            </div>
+                            <div className="items-center gap-2">
+                                <h3 className="text-md font-semibold text-zinc-900 dark:text-white">
+                                    Layanan yang Dikelola
+                                </h3>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                                    Berikut adalah layanan yang menjadi tanggung jawab unit anda.
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex flex-wrap max-w-md items-center gap-3 justify-start md:justify-end">
                             {getUnitTeknisServices(unitTeknisId).length > 0 ? (
                                 getUnitTeknisServices(unitTeknisId).map((svc) => (
                                     <div
                                         key={svc.id}
-                                        onClick={() => router.push(`/layanan/${svc.id}`)}
-                                        className="flex items-center justify-between p-4 rounded-xl border border-zinc-100 hover:border-emerald-500/30 hover:bg-emerald-50/10 transition dark:border-zinc-800 dark:hover:bg-emerald-950/10 cursor-pointer"
+                                        onClick={() => router.push(`/penugasan-layanan/${svc.slug}`)}
+                                        className="flex items-center justify-between px-3 py-2 rounded-full bg-white border border-zinc-100 hover:border-secondary-green-color/30 hover:bg-secondary-green-color/10 transition dark:border-zinc-800 dark:hover:bg-secondary-green-color/10 cursor-pointer"
                                     >
-                                        <div className="flex items-center gap-3">
-                                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400">
-                                                <Sprout className="h-5 w-5" />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-semibold text-zinc-900 dark:text-white text-sm sm:text-base">
+                                        <div className="flex flex-row items-center gap-3">
+
+                                            <div className="flex flex-col ">
+                                                <h4 className="font-semibold text-green-color dark:text-white text-[10px] md:text-xs">
                                                     {svc.name}
                                                 </h4>
-                                                <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                                                    ID Layanan: {svc.id}
-                                                </p>
                                             </div>
                                         </div>
-                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${svc.type === "gratis"
-                                            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400"
-                                            : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-400"
-                                            }`}>
-                                            {svc.type.toUpperCase()}
-                                        </span>
                                     </div>
                                 ))
                             ) : (
@@ -559,8 +516,208 @@ export default function DashboardPegawaiPage() {
                             )}
                         </div>
                     </div>
+                    {/* Daftar Permohonan Masuk Card */}
+                    <div className="rounded-2xl p-4 sm:p-6 md:p-8 border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 overflow-hidden">
+                        {/* Filter Section seperti kelola-pegawai */}
+                        <div className="mb-6 flex flex-col gap-4">
+                            <div className="flex justify-between items-center">
+                                <h2 className="text-lg sm:text-xl font-semibold text-[var(--foreground)] dark:text-zinc-50">
+                                    Daftar Permohonan Masuk
+                                </h2>
+                            </div>
+                            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                                {/* Status Filter Tabs */}
+                                <div className="w-full lg:w-auto overflow-x-auto pb-1 -mb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                                    <div className="inline-flex min-w-full sm:min-w-0 items-center rounded-xl bg-secondary-green-color p-1.5 dark:border-zinc-700 dark:bg-zinc-800 gap-1">
+                                        {[
+                                            { label: "Semua", value: "semua", count: countSemua },
+                                            { label: "Perlu Diproses", value: "diproses", count: countDiproses },
+                                            { label: "Menunggu Pembayaran", value: "menunggu_pembayaran", count: countMenungguBayar },
+                                            { label: "Selesai", value: "selesai", count: countSelesai },
+                                        ].map((item) => (
+                                            <button
+                                                key={item.value}
+                                                onClick={() => {
+                                                    setSelectedStatus(item.value);
+                                                    setCurrentPage(1);
+                                                }}
+                                                className={`whitespace-nowrap shrink-0 rounded-lg px-3 py-2 text-xs font-medium transition cursor-pointer ${selectedStatus === item.value
+                                                    ? "bg-white text-[var(--green-color)] shadow-sm dark:bg-zinc-900 font-semibold"
+                                                    : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400"
+                                                    }`}
+                                            >
+                                                {item.label}
+                                                <span className="ml-1.5 text-[10px]">({item.count})</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
 
+                                {/* Search dan Sort */}
+                                <div className="flex items-center gap-2 w-full lg:w-auto">
+                                    <div className="relative flex-1 sm:w-64">
+                                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                                        <input
+                                            type="text"
+                                            placeholder="Cari nomor tiket, layanan, pemohon..."
+                                            value={searchQuery}
+                                            onChange={(e) => {
+                                                setSearchQuery(e.target.value);
+                                                setCurrentPage(1);
+                                            }}
+                                            className="w-full rounded-xl border border-zinc-200 bg-white py-2.5 pl-10 pr-4 text-xs outline-none transition focus:border-[var(--green-color)] focus:ring-2 focus:ring-[var(--green-color)]/10 dark:border-zinc-700 dark:bg-zinc-900"
+                                        />
+                                    </div>
 
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setSortOrder((prev) => (prev === "terbaru" ? "terlama" : "terbaru"));
+                                            setCurrentPage(1);
+                                        }}
+                                        className="inline-flex shrink-0 items-center justify-center rounded-xl border border-zinc-200 bg-white p-2.5 text-zinc-600 transition hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 cursor-pointer"
+                                        title={sortOrder === "terbaru" ? "Urutkan dari terlama" : "Urutkan dari terbaru"}
+                                    >
+                                        <ArrowUpDown className="h-4 w-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Table */}
+                        <div className="overflow-x-auto">
+                            {loading ? (
+                                <div className="flex flex-col items-center justify-center py-20 space-y-4">
+                                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-secondary-green-color border-t-transparent"></div>
+                                    <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Memuat riwayat permohonan...</p>
+                                </div>
+                            ) : error ? (
+                                <div className="flex flex-col items-center justify-center py-20 text-red-500">
+                                    <p className="text-sm font-semibold">{error}</p>
+                                </div>
+                            ) : currentTikets.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-20 text-zinc-400 dark:text-zinc-500">
+                                    <Inbox className="h-12 w-12 stroke-1 mb-2" />
+                                    <p className="text-sm font-semibold">Tidak Ada Data</p>
+                                    <p className="text-xs">Belum ada riwayat permohonan untuk filter ini.</p>
+                                </div>
+                            ) : (
+                                <table className="min-w-full divide-y divide-zinc-200/80 dark:divide-zinc-800">
+                                    <thead className="bg-[var(--secondary-green-color)]">
+                                        <tr>
+                                            <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-[var(--foreground)] tracking-wider w-16">
+                                                No
+                                            </th>
+                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] tracking-wider">
+                                                No. Tiket
+                                            </th>
+                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] tracking-wider">
+                                                Nama Pemohon
+                                            </th>
+                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] tracking-wider">
+                                                Jenis Layanan
+                                            </th>
+                                            <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-[var(--foreground)] tracking-wider">
+                                                Tanggal
+                                            </th>
+                                            <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-[var(--foreground)] tracking-wider">
+                                                Status
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800 bg-white dark:bg-zinc-900">
+                                        {currentTikets.map((tiket, index) => {
+                                            const detailUrl = `/penugasan-layanan/${tiket.layanan?.slug || "layanan"}/${tiket.no_tiket}`;
+                                            return (
+                                                <tr
+                                                    key={tiket.id}
+                                                    onClick={() => router.push(detailUrl)}
+                                                    className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50 cursor-pointer transition-colors"
+                                                >
+                                                    <td className="px-6 py-5.5 whitespace-nowrap text-xs text-center text-zinc-500 dark:text-zinc-400 font-medium">
+                                                        {startIndex + index + 1}
+                                                    </td>
+                                                    <td className="px-6 py-5.5 whitespace-nowrap text-xs font-bold text-[#2C5E3B] dark:text-secondary-green-color text-left">
+                                                        {tiket.no_tiket}
+                                                    </td>
+                                                    <td className="px-6 py-5.5 whitespace-nowrap text-xs text-[var(--foreground)] dark:text-zinc-100 font-base text-left">
+                                                        {tiket.jawaban_form?.nama_lengkap || tiket.user?.nama || "-"}
+                                                    </td>
+                                                    <td className="px-6 py-5.5 whitespace-nowrap text-xs text-[var(--foreground)] dark:text-zinc-100 font-base text-left">
+                                                        {tiket.layanan?.nama_layanan || "-"}
+                                                    </td>
+                                                    <td className="px-6 py-5.5 whitespace-nowrap text-center text-xs text-[var(--foreground)] dark:text-zinc-400 font-base">
+                                                        {formatDate(tiket.tanggal_submit || tiket.createdAt)}
+                                                    </td>
+                                                    <td className="px-6 py-5.5 whitespace-nowrap text-xs text-center">
+                                                        <div className="flex justify-center">
+                                                            <StatusLayananBadge
+                                                                status={tiket.status}
+                                                                layananSlug={tiket.layanan?.slug}
+                                                                namaLayanan={tiket.layanan?.nama_layanan}
+                                                            />
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            )}
+
+                            {/* Pagination seperti kelola-pegawai */}
+                            {!loading && filteredTikets.length > 0 && (
+                                <div className="flex items-center justify-between border-t border-zinc-200 px-2 pt-5 dark:border-zinc-800">
+                                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                                        Menampilkan{" "}
+                                        <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                                            {filteredTikets.length === 0 ? 0 : startIndex + 1}
+                                        </span>
+                                        –
+                                        <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                                            {endIndex}
+                                        </span>{" "}
+                                        dari{" "}
+                                        <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                                            {totalItems}
+                                        </span>{" "}
+                                        tiket
+                                    </p>
+
+                                    <div className="flex items-center gap-1">
+                                        <button
+                                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                                            disabled={currentPage === 1}
+                                            className="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-zinc-800 cursor-pointer"
+                                        >
+                                            ‹
+                                        </button>
+
+                                        {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                                            <button
+                                                key={page}
+                                                onClick={() => setCurrentPage(page)}
+                                                className={`flex h-9 min-w-9 items-center justify-center rounded-lg px-2 text-sm font-medium transition cursor-pointer ${currentPage === page
+                                                    ? "bg-[var(--green-color)] text-white"
+                                                    : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                                                    }`}
+                                            >
+                                                {page}
+                                            </button>
+                                        ))}
+
+                                        <button
+                                            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                                            disabled={currentPage === totalPages}
+                                            className="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-zinc-800 cursor-pointer"
+                                        >
+                                            ›
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </main>
             </div >
         </div >

@@ -6,7 +6,15 @@ interface BillingModalProps {
     isOpen: boolean;
     onClose: () => void;
     onConfirm: (jumlahSatuan: number) => void;
-    ticket: {
+    tiket?: {
+        layanan: {
+            nama: string;
+            biaya?: {
+                nominal: number;
+            } | null;
+        };
+    } | null;
+    ticket?: {
         layanan: {
             nama: string;
             biaya?: {
@@ -21,9 +29,11 @@ export default function BillingModal({
     isOpen,
     onClose,
     onConfirm,
+    tiket,
     ticket,
     actionLoading
 }: BillingModalProps) {
+    const activeTiket = tiket || ticket;
     const [jumlahSatuan, setJumlahSatuan] = useState<number>(1);
 
     // Reset local state when modal is opened
@@ -33,9 +43,9 @@ export default function BillingModal({
         }
     }, [isOpen]);
 
-    if (!isOpen || !ticket) return null;
+    if (!isOpen || !activeTiket) return null;
 
-    const nominalBiaya = ticket.layanan.biaya?.nominal || 0;
+    const nominalBiaya = activeTiket.layanan.biaya?.nominal || 0;
     const totalEstimasi = nominalBiaya * jumlahSatuan;
 
     return (
@@ -45,7 +55,7 @@ export default function BillingModal({
                     Buat Tagihan Layanan
                 </h3>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-4">
-                    Layanan <strong>{ticket.layanan.nama}</strong> bertipe satuan. Input jumlah satuan untuk menghitung nominal tagihan.
+                    Layanan <strong>{activeTiket.layanan.nama}</strong> bertipe satuan. Input jumlah satuan untuk menghitung nominal tagihan.
                 </p>
 
                 <div className="space-y-4">
@@ -58,7 +68,7 @@ export default function BillingModal({
                             min="1"
                             value={jumlahSatuan}
                             onChange={(e) => setJumlahSatuan(Math.max(1, parseInt(e.target.value) || 1))}
-                            className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm bg-zinc-50 dark:bg-zinc-950 dark:border-zinc-800 focus:outline-hidden focus:border-emerald-500"
+                            className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm bg-zinc-50 dark:bg-zinc-950 dark:border-zinc-800 focus:outline-hidden focus:border-secondary-green-color"
                         />
                     </div>
 
@@ -71,7 +81,7 @@ export default function BillingModal({
                         </div>
                         <div className="flex justify-between text-xs mt-2 pt-2 border-t border-zinc-200 dark:border-zinc-800">
                             <span className="font-bold text-zinc-900 dark:text-white">Estimasi Total Tagihan:</span>
-                            <span className="font-extrabold text-emerald-600">
+                            <span className="font-extrabold text-secondary-green-color">
                                 Rp{totalEstimasi.toLocaleString("id-ID")}
                             </span>
                         </div>
@@ -89,7 +99,7 @@ export default function BillingModal({
                             type="button"
                             onClick={() => onConfirm(jumlahSatuan)}
                             disabled={actionLoading}
-                            className="px-4 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-xs disabled:opacity-50"
+                            className="px-4 py-2 text-xs font-semibold rounded-lg bg-secondary-green-color hover:bg-secondary-green-color text-white cursor-pointer shadow-xs disabled:opacity-50"
                         >
                             {actionLoading ? "Memproses..." : "Buat Tagihan"}
                         </button>

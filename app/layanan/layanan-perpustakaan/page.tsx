@@ -7,9 +7,10 @@ import Kontak from "@/components/landing-page/Kontak";
 import LayananPerpustakaanForm, { LayananPerpustakaanData } from "@/components/form/layanan/layanan-perpustakaan/page";
 import { Loader2 } from "lucide-react";
 import FormLayout from "@/components/form/layanan/FormLayout";
+import { getLayananBySlug } from "@/lib/layanan";
+import { getApiUrl } from "@/lib/api";
 
-const API_URL = "http://localhost:3000";
-const LAYANAN_ID = 22; // Layanan Perpustakaan
+const SLUG = "layanan-perpustakaan";
 
 export default function LayananPerpustakaanPage() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function LayananPerpustakaanPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [createdTiketNo, setCreatedTiketNo] = useState("");
+  const [layananId, setLayananId] = useState<number | null>(null);
 
   // Authenticate on mount
   useEffect(() => {
@@ -29,7 +31,11 @@ export default function LayananPerpustakaanPage() {
     const token = localStorage.getItem("agro_token");
     if (!token) {
       router.push("/login");
+      return;
     }
+    getLayananBySlug(SLUG)
+      .then((l) => setLayananId(l.id))
+      .catch(() => setError("Gagal memuat data layanan. Silahkan muat ulang halaman."));
   }, [router]);
 
   const handleSubmit = async (formData: LayananPerpustakaanData) => {
@@ -44,15 +50,28 @@ export default function LayananPerpustakaanPage() {
       return;
     }
 
+    let currentLayananId = layananId;
+    if (!currentLayananId) {
+      try {
+        const l = await getLayananBySlug(SLUG);
+        currentLayananId = l.id;
+        setLayananId(l.id);
+      } catch {
+        setError("Data layanan belum siap atau tidak ditemukan. Silahkan muat ulang halaman.");
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
-      const response = await fetch(`${API_URL}/tiket`, {
+      const response = await fetch(`${getApiUrl()}/tiket`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          layanan_id: LAYANAN_ID,
+          layanan_id: currentLayananId,
           jawaban_form: {
             nama: formData.nama.trim(),
             asal_instansi: formData.asalInstansi.trim(),
@@ -86,7 +105,7 @@ export default function LayananPerpustakaanPage() {
   if (!mounted) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent"></div>
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-secondary-green-color border-t-transparent"></div>
       </div>
     );
   }
@@ -102,9 +121,9 @@ export default function LayananPerpustakaanPage() {
       successTitle="Pengajuan Kunjungan Berhasil!"
       successDescription={
         <>
-          <p className="text-emerald-700 dark:text-emerald-400">
+          <p className="text-secondary-green-color dark:text-secondary-green-color">
             Formulir kunjungan perpustakaan telah diajukan dengan nomor tiket{" "}
-            <span className="font-extrabold text-emerald-900 dark:text-white">{createdTiketNo}</span>.
+            <span className="font-extrabold text-secondary-green-color dark:text-white">{createdTiketNo}</span>.
           </p>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 pt-2">
             Silakan datang sesuai tanggal yang telah diajukan dengan membawa kartu identitas Anda.
