@@ -1,5 +1,3 @@
-﻿"use client";
-
 import { ClipboardList, FileText, Search, Settings, CheckCircle } from "lucide-react";
 
 export default function CaraMengajukan() {
@@ -43,7 +41,7 @@ export default function CaraMengajukan() {
                     <h2 className="text-xl md:text-3xl font-extrabold text-[var(--green-color)] dark:text-white text-center">
                         Cara Mengajukan Layanan
                     </h2>
-                    <p className="text-zinc-500 dark:text-zinc-400 text-center mt-2 max-w-xl text-xs md:text-sm sm:text-base">
+                    <p className="text-zinc-600 dark:text-zinc-300 text-center mt-2 max-w-xl text-xs md:text-sm sm:text-base font-medium">
                         Informasi lengkap mengenai cara mengajukan layanan di Agroklimat
                     </p>
                 </div>

@@ -14,7 +14,8 @@ import {
   ExternalLink,
   ShieldCheck,
   Check,
-  CloudUpload
+  CloudUpload,
+  X
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -41,6 +42,8 @@ interface Dokumen {
 interface Tagihan {
   id: number;
   jumlah: number;
+  kode_ebilling?: string | null;
+  ntpn?: string | null;
   status_bayar: "menunggu" | "lunas" | "batal";
   bukti_bayar?: string;
   tanggal_lunas?: string;
@@ -83,7 +86,6 @@ export default function BayarTagihanPage({ params }: PageProps) {
   const [tiket, setTiket] = useState<TiketDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [mounted, setMounted] = useState(false);
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadLoading, setUploadLoading] = useState(false);
@@ -91,17 +93,11 @@ export default function BayarTagihanPage({ params }: PageProps) {
   const [bankPengirim, setBankPengirim] = useState("");
   const [tanggalTransfer, setTanggalTransfer] = useState(new Date().toISOString().split('T')[0]);
   const [namaPengirim, setNamaPengirim] = useState("");
+  const [ntpn, setNtpn] = useState("");
 
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [errorModalOpen, setErrorModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
-
-  const [rekeningInfo, setRekeningInfo] = useState({
-    namaBank: "Bank Mandiri",
-    noRekening: "137-00-1234567-8",
-    namaPemilik: "Balai Agroklimatologi & Hidrologi",
-  });
 
   const handleCopy = async (text: string, type: string) => {
     // Bersihkan tanda hubung dan spasi untuk nomor rekening agar bisa langsung dipaste ke m-banking
@@ -162,6 +158,7 @@ export default function BayarTagihanPage({ params }: PageProps) {
       uploadFormData.append("bank_pengirim", bankPengirim);
       uploadFormData.append("nama_pengirim", namaPengirim);
       uploadFormData.append("tanggal_transfer", tanggalTransfer);
+      if (ntpn) uploadFormData.append("ntpn", ntpn);
 
       const token = localStorage.getItem("agro_token");
       const res = await fetch(`${getApiUrl()}/tiket/${tiket.id}/dokumen`, {
@@ -186,6 +183,7 @@ export default function BayarTagihanPage({ params }: PageProps) {
       if (updatedTiket.tagihan) {
         if (updatedTiket.tagihan.bank_pengirim) setBankPengirim(updatedTiket.tagihan.bank_pengirim);
         if (updatedTiket.tagihan.nama_pengirim) setNamaPengirim(updatedTiket.tagihan.nama_pengirim);
+        if (updatedTiket.tagihan.ntpn) setNtpn(updatedTiket.tagihan.ntpn);
         if (updatedTiket.tagihan.tanggal_transfer) {
           setTanggalTransfer(new Date(updatedTiket.tagihan.tanggal_transfer).toISOString().split('T')[0]);
         }
@@ -198,22 +196,10 @@ export default function BayarTagihanPage({ params }: PageProps) {
   };
 
   useEffect(() => {
-    setMounted(true);
     const token = localStorage.getItem("agro_token");
     if (!token) {
       router.push("/login");
       return;
-    }
-
-    const savedBank = localStorage.getItem("agro_rekening_bank");
-    const savedNo = localStorage.getItem("agro_rekening_nomor");
-    const savedPemilik = localStorage.getItem("agro_rekening_pemilik");
-    if (savedBank || savedNo || savedPemilik) {
-      setRekeningInfo({
-        namaBank: savedBank || "Bank Mandiri",
-        noRekening: savedNo || "137-00-1234567-8",
-        namaPemilik: savedPemilik || "Balai Agroklimatologi & Hidrologi",
-      });
     }
 
     if (!idStr) {
@@ -230,6 +216,7 @@ export default function BayarTagihanPage({ params }: PageProps) {
         } else {
           if (data.tagihan.bank_pengirim) setBankPengirim(data.tagihan.bank_pengirim);
           if (data.tagihan.nama_pengirim) setNamaPengirim(data.tagihan.nama_pengirim);
+          if (data.tagihan.ntpn) setNtpn(data.tagihan.ntpn);
           if (data.tagihan.tanggal_transfer) {
             setTanggalTransfer(new Date(data.tagihan.tanggal_transfer).toISOString().split('T')[0]);
           }
@@ -239,106 +226,83 @@ export default function BayarTagihanPage({ params }: PageProps) {
       .finally(() => setLoading(false));
   }, [idStr, router]);
 
-  if (!mounted) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-secondary-green-color border-t-transparent"></div>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#F8FAFC] dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200">
-        <Navbar />
-        <main className="max-w-4xl mx-auto px-4 py-8 text-center text-zinc-500">
-          Memuat detail pembayaran...
-        </main>
-      </div>
-    );
-  }
-
-  if (error || !tiket || !tiket.tagihan) {
-    return (
-      <div className="min-h-screen bg-[#F8FAFC] dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200">
-        <Navbar />
-        <main className="max-w-7xl mx-auto px-4 py-8 text-center">
-          <div className="rounded-2xl border border-red-200/80 bg-red-50/50 dark:bg-red-950/20 dark:border-red-900/30 p-8 max-w-md mx-auto">
-            <AlertCircle className="h-12 w-12 text-red-550 mx-auto mb-4" />
-            <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">Kesalahan</h2>
-            <p className="text-sm text-red-650 dark:text-red-400 mb-6">
-              {error || "Permohonan tidak ditemukan"}
-            </p>
-            <Link
-              href={`/layanan-saya/${idStr}`}
-              className="inline-flex items-center gap-2 rounded-xl bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 px-5 py-2.5 text-sm font-semibold transition"
-            >
-              Kembali ke Detail Pengajuan
-            </Link>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
-  const tagihan = tiket.tagihan;
-  const isLunas = tagihan.status_bayar === "lunas";
-  const isBatal = tagihan.status_bayar === "batal";
-  const isMenunggu = tagihan.status_bayar === "menunggu";
+  const tagihan = tiket?.tagihan;
+  const isLunas = tagihan?.status_bayar === "lunas";
+  const isBatal = tagihan?.status_bayar === "batal";
+  const isMenunggu = tagihan?.status_bayar === "menunggu";
   const isFormValid = !!selectedFile && bankPengirim.trim() !== "" && namaPengirim.trim() !== "" && tanggalTransfer !== "";
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-1 mb-6">
+        <div className="flex items-center gap-1 mb-5 sm:mb-6">
           <Link
             href={`/layanan-saya/${idStr}`}
-            className="flex items-center text-xs font-semibold text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 transition"
+            className="flex items-center text-xs sm:text-sm font-semibold text-zinc-600 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition"
           >
             <ChevronLeft className="h-4 w-4 mr-0.5" />
             Kembali ke Detail Pengajuan
           </Link>
         </div>
 
-        <div className="rounded-2xl border border-zinc-200/80 bg-white p-6 md:p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-          {/* Header */}
-          <div className="pb-6 border-b border-zinc-200 dark:border-zinc-800 mb-8">
-            <div className="flex flex-col space-y-2">
-              <h1 className="text-xl md:text-2xl font-semibold text-zinc-900 dark:text-white tracking-tight">
+        <div className="rounded-2xl border border-zinc-200/80 bg-white p-4 sm:p-6 md:p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+          {/* Header — Rendered immediately to eliminate CLS and accelerate LCP */}
+          <div className="pb-5 sm:pb-6 border-b border-zinc-200 dark:border-zinc-800 mb-6 sm:mb-8">
+            <div className="flex flex-col space-y-1.5 sm:space-y-2">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">
                 Pembayaran Tagihan
               </h1>
-              <p className="text-xs md:text-sm text-zinc-500 dark:text-zinc-450 font-medium text-justify md:text-left">
+              <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 font-normal leading-relaxed">
                 Selesaikan proses pembayaran layanan Anda melalui transfer bank dan unggah bukti transfer setelah melakukan pembayaran.
               </p>
             </div>
-            <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
-              <div>No. Tiket: <span className="text-zinc-800 dark:text-zinc-300">{tiket.no_tiket}</span></div>
-              {/* <div>Status Permohonan: <span className="text-zinc-800 dark:text-zinc-300 capitalize">{tiket.status.replace(/_/g, " ")}</span></div> */}
+            <div className="mt-3 sm:mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs sm:text-sm font-medium text-zinc-600 dark:text-zinc-300">
+              <div>No. Tiket: <span className="font-semibold text-zinc-800 dark:text-zinc-200">{tiket?.no_tiket || idStr}</span></div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 animate-pulse py-2">
+              <div className="h-80 rounded-2xl bg-zinc-100 dark:bg-zinc-800/40" />
+              <div className="h-80 rounded-2xl bg-zinc-100 dark:bg-zinc-800/40" />
+            </div>
+          ) : error || !tiket || !tagihan ? (
+            <div className="rounded-2xl border border-red-200/80 bg-red-50/50 dark:bg-red-950/20 dark:border-red-900/30 p-6 sm:p-8 max-w-md mx-auto text-center my-6">
+              <AlertCircle className="h-10 w-10 text-red-550 mx-auto mb-4" />
+              <h2 className="text-base sm:text-lg font-semibold text-zinc-900 dark:text-white mb-2">Kesalahan</h2>
+              <p className="text-xs sm:text-sm text-red-650 dark:text-red-400 mb-6">
+                {error || "Permohonan tidak ditemukan"}
+              </p>
+              <Link
+                href={`/layanan-saya/${idStr}`}
+                className="inline-flex items-center gap-2 rounded-xl bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 px-4 py-2 sm:px-5 sm:py-2.5 text-xs sm:text-sm font-semibold transition"
+              >
+                Kembali ke Detail Pengajuan
+              </Link>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
             {/* Left Column: Rekening & Petunjuk */}
-            <div className="space-y-6">
-              <div className="rounded-2xl border border-zinc-200/60 bg-white p-6 dark:border-zinc-800/80 dark:bg-zinc-950/20 space-y-4">
+            <div className="space-y-5 sm:space-y-6">
+              <div className="rounded-2xl border border-zinc-200/60 bg-white p-4 sm:p-6 dark:border-zinc-800/80 dark:bg-zinc-950/20 space-y-4 sm:space-y-5">
                 <div className="flex items-start">
-                  <p className="text-[var(--green-color)] text-md font-bold">Rincian Pembayaran</p>
+                  <p className="text-[var(--green-color)] text-sm sm:text-base font-bold">Rincian Pembayaran</p>
                 </div>
-                <div className="">
-                  <span className="block text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                <div>
+                  <span className="block text-xs sm:text-sm font-medium text-zinc-600 dark:text-zinc-300">
                     Total Tagihan
                   </span>
                   <div className="flex items-center justify-between mt-1">
-                    <span className="text-lg font-bold text-foreground dark:text-zinc-200">
+                    <span className="text-base sm:text-lg md:text-xl font-bold text-foreground dark:text-zinc-200">
                       Rp {tagihan.jumlah.toLocaleString("id-ID")}
                     </span>
                     <button
                       type="button"
                       onClick={() => handleCopy(tagihan.jumlah.toString(), "nominal")}
-                      className="text-xs text-[var(--green-color)] dark:text-secondary-green-color hover:underline flex items-center gap-1 font-semibold cursor-pointer"
+                      className="text-xs sm:text-sm text-[var(--green-color)] dark:text-secondary-green-color hover:underline flex items-center gap-1 font-semibold cursor-pointer"
                       title="Salin nominal total tagihan"
                     >
                       {copySuccess === "nominal" ? (
@@ -354,126 +318,155 @@ export default function BayarTagihanPage({ params }: PageProps) {
                   </div>
                 </div>
 
-                <div className="flex flex-col md:flex-row justify-between space-y-2">
+                <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-4">
                   <div>
-                    <span className="block text-sm font-medium text-zinc-500 dark:text-zinc-400">
-                      Nama Bank
+                    <span className="block text-xs sm:text-sm font-medium text-zinc-600 dark:text-zinc-300">
+                      Metode Pembayaran
                     </span>
-                    <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-                      {rekeningInfo.namaBank}
+                    <span className="text-xs sm:text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+                      E-Billing (Penerimaan Negara / SIMPONI)
                     </span>
                   </div>
                   <div>
-                    <span className="block text-sm font-medium text-zinc-500 dark:text-zinc-500">
-                      Atas Nama / Penerima
+                    <span className="block text-xs sm:text-sm font-medium text-zinc-600 dark:text-zinc-300">
+                      Instansi Penerima
                     </span>
-                    <span className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-                      {rekeningInfo.namaPemilik}
+                    <span className="text-xs sm:text-sm font-semibold text-zinc-800 dark:text-zinc-200">
+                      Balai Agroklimatologi & Hidrologi
                     </span>
                   </div>
                 </div>
+
                 <div>
-                  <span className="block text-sm font-medium text-zinc-500 dark:text-zinc-400">
-                    Nomor Rekening
+                  <span className="block text-xs sm:text-sm font-medium text-zinc-600 dark:text-zinc-300">
+                    Kode E-Billing
                   </span>
-                  <div className="flex items-center justify-between mt-1">
-                    <span className="text-base font-bold text-zinc-900 dark:text-white tracking-wide select-all font-mono">
-                      {rekeningInfo.noRekening}
+                  <div className="flex items-center justify-between mt-1 p-3 sm:p-3.5 rounded-xl bg-secondary-green-color/20 dark:bg-zinc-900 border border-green-color/30 dark:border-zinc-700">
+                    <span className="text-base sm:text-lg md:text-xl font-bold font-mono text-zinc-900 dark:text-white tracking-wider select-all">
+                      {tagihan.kode_ebilling || "Belum Diterbitkan"}
                     </span>
-                    <button
-                      type="button"
-                      onClick={() => handleCopy(rekeningInfo.noRekening, "rekening")}
-                      className="text-xs text-[var(--green-color)] dark:text-secondary-green-color hover:underline flex items-center gap-1 font-semibold cursor-pointer"
-                      title="Salin nomor rekening"
-                    >
-                      {copySuccess === "rekening" ? (
-                        <>
-                          <Check className="h-3.5 w-3.5 text-[var(--green-color)]" /> <span className="text-[var(--green-color)] font-bold">Disalin</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="h-3.5 w-3.5" /> Salin
-                        </>
-                      )}
-                    </button>
+                    {tagihan.kode_ebilling && (
+                      <button
+                        type="button"
+                        onClick={() => handleCopy(tagihan.kode_ebilling!, "ebilling")}
+                        className="text-xs sm:text-sm text-[var(--green-color)] dark:text-secondary-green-color hover:underline flex items-center gap-1 font-semibold cursor-pointer shrink-0 ml-2"
+                        title="Salin kode e-billing"
+                      >
+                        {copySuccess === "ebilling" ? (
+                          <>
+                            <Check className="h-3.5 w-3.5 text-[var(--green-color)]" />{" "}
+                            <span className="text-[var(--green-color)] font-bold">Disalin</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-3.5 w-3.5" /> Salin
+                          </>
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {/* Petunjuk Pembayaran */}
+              {/* Petunjuk Pembayaran E-Billing */}
               <div className="space-y-3">
-                <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
-                  <ShieldCheck className="h-4.5 w-4.5 text-[#2C5E3B]" />
-                  Petunjuk Transfer
-                </h3>
-                <ol className="list-decimal list-inside text-xs text-zinc-500 dark:text-zinc-400 space-y-2 leading-relaxed">
-                  <li>Lakukan transfer sesuai nominal di atas melalui ATM, M-Banking, atau Internet Banking.</li>
-                  <li>Pastikan nama penerima transfer adalah **Balai Agroklimatologi & Hidrologi**.</li>
-                  <li>Simpan struk atau tangkapan layar bukti transfer Anda.</li>
-                  <li>Unggah bukti transfer pada kolom yang tersedia di sebelah kanan untuk mempercepat proses verifikasi.</li>
+                <h2 className="text-xs sm:text-sm font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
+                  <ShieldCheck className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-[#2C5E3B]" />
+                  Petunjuk Pembayaran E-Billing
+                </h2>
+                <ol className="list-decimal list-inside text-xs sm:text-sm text-zinc-600 dark:text-zinc-300 space-y-1.5 sm:space-y-2 leading-relaxed">
+                  <li>Salin <strong>Kode E-Billing</strong> dan nominal tagihan di atas.</li>
+                  <li>Buka ATM, M-Banking, Internet Banking, atau Teller Bank / Kantor Pos.</li>
+                  <li>Pilih menu <strong>Pembayaran &gt; Penerimaan Negara / Pajak &amp; PNBP / MPN / E-Billing</strong>.</li>
+                  <li>Masukkan <strong>Kode E-Billing</strong> dan pastikan rincian tagihan sudah sesuai.</li>
+                  <li>Selesaikan pembayaran dan simpan struk bukti pembayaran Anda.</li>
+                  <li>Unggah struk bukti transfer/pembayaran pada formulir di samping untuk diverifikasi oleh admin.</li>
                 </ol>
               </div>
             </div>
 
             {/* Right Column: Upload Proof */}
-            <div className="space-y-6">
+            <div className="space-y-5 sm:space-y-6">
               {/* Status Box */}
-              <div className="rounded-2xl border border-zinc-200/80 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 space-y-5">
-                <div className="flex justify-between items-center gap-2">
+              <div className="rounded-2xl border border-zinc-200/80 bg-white p-4 sm:p-6 dark:border-zinc-800 dark:bg-zinc-900 space-y-4 sm:space-y-5">
+                <div className="flex flex-wrap justify-between items-center gap-2">
                   <div className="flex items-center gap-2">
-                    <p className="text-[var(--green-color)] text-md font-bold">Konfirmasi Pembayaran</p>
+                    <p className="text-[var(--green-color)] text-sm sm:text-base font-bold">Konfirmasi Pembayaran</p>
                   </div>
                   <div className="flex items-center gap-1">
                     <StatusPembayaranBadge status={tagihan.status_bayar} />
                   </div>
                 </div>
 
-                <div className="flex flex-col md:flex-row gap-2 space-y-2 md:space-y-0 md:space-x-2">
-                  <div className="space-y-2 w-full">
-                    <p className="block text-xs md:text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="space-y-1.5">
+                    <label htmlFor="bank_pengirim" className="block text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300">
                       Bank Pengirim
-                    </p>
+                    </label>
                     <input
+                      id="bank_pengirim"
+                      name="bank_pengirim"
                       type="text"
                       value={bankPengirim}
                       onChange={(e) => setBankPengirim(e.target.value)}
                       placeholder="Contoh : BCA, BNI, Mandiri"
-                      className="w-full rounded-lg bg-[#F8FAFC] border border-zinc-200/60 dark:border-zinc-800 px-3 py-2 text-xs md:text-sm text-[var(--foreground)] dark:bg-zinc-950/50 dark:text-zinc-50 focus:border-[var(--green-color)] focus:ring-1 focus:ring-[var(--green-color)] focus:outline-none disabled:opacity-70"
+                      className="w-full rounded-lg bg-[#F8FAFC] border border-zinc-200/60 dark:border-zinc-800 px-3 py-2 sm:px-3.5 sm:py-2.5 text-xs sm:text-sm text-[var(--foreground)] dark:bg-zinc-950/50 dark:text-zinc-50 focus:border-[var(--green-color)] focus:ring-1 focus:ring-[var(--green-color)] focus:outline-none disabled:opacity-70"
                       disabled={!!tagihan?.bukti_bayar || uploadLoading}
                     />
                   </div>
-                  <div className="space-y-2 w-full">
-                    <p className="block text-xs md:text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
+                  <div className="space-y-1.5">
+                    <label htmlFor="tanggal_transfer" className="block text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300">
                       Tanggal Transfer
-                    </p>
+                    </label>
                     <input
+                      id="tanggal_transfer"
+                      name="tanggal_transfer"
                       type="date"
                       value={tanggalTransfer}
                       onChange={(e) => setTanggalTransfer(e.target.value)}
-                      className="w-full rounded-lg bg-[#F8FAFC] border border-zinc-200/60 dark:border-zinc-800 px-4 py-2 text-xs md:text-sm text-[var(--foreground)] dark:bg-zinc-950/50 dark:text-zinc-50 focus:border-[var(--green-color)] focus:ring-1 focus:ring-[var(--green-color)] focus:outline-none disabled:opacity-70"
+                      className="w-full rounded-lg bg-[#F8FAFC] border border-zinc-200/60 dark:border-zinc-800 px-3 py-2 sm:px-3.5 sm:py-2.5 text-xs sm:text-sm text-[var(--foreground)] dark:bg-zinc-950/50 dark:text-zinc-50 focus:border-[var(--green-color)] focus:ring-1 focus:ring-[var(--green-color)] focus:outline-none disabled:opacity-70"
                       disabled={!!tagihan?.bukti_bayar || uploadLoading}
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <p className="block text-xs md:text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-2">
-                    Nama Pengirim
-                  </p>
-                  <input
-                    type="text"
-                    value={namaPengirim}
-                    onChange={(e) => setNamaPengirim(e.target.value)}
-                    placeholder="Nama sesuai buku tabungan atau nomor rekening pengirim"
-                    className="w-full rounded-lg bg-[#F8FAFC] border border-zinc-200/60 dark:border-zinc-800 px-4 py-2 text-xs md:text-sm text-[var(--foreground)] dark:bg-zinc-950/50 dark:text-zinc-50 focus:border-[var(--green-color)] focus:ring-1 focus:ring-[var(--green-color)] focus:outline-none disabled:opacity-70"
-                    disabled={!!tagihan?.bukti_bayar || uploadLoading}
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="space-y-1.5">
+                    <label htmlFor="nama_pengirim" className="block text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                      Nama Pengirim / Penyetor
+                    </label>
+                    <input
+                      id="nama_pengirim"
+                      name="nama_pengirim"
+                      type="text"
+                      value={namaPengirim}
+                      onChange={(e) => setNamaPengirim(e.target.value)}
+                      placeholder="Nama sesuai rekening / penyetor"
+                      className="w-full rounded-lg bg-[#F8FAFC] border border-zinc-200/60 dark:border-zinc-800 px-3 py-2 sm:px-3.5 sm:py-2.5 text-xs sm:text-sm text-[var(--foreground)] dark:bg-zinc-950/50 dark:text-zinc-50 focus:border-[var(--green-color)] focus:ring-1 focus:ring-[var(--green-color)] focus:outline-none disabled:opacity-70"
+                      disabled={!!tagihan?.bukti_bayar || uploadLoading}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label htmlFor="ntpn" className="block text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                      Nomor NTPN (Opsional)
+                    </label>
+                    <input
+                      id="ntpn"
+                      name="ntpn"
+                      type="text"
+                      value={ntpn}
+                      onChange={(e) => setNtpn(e.target.value)}
+                      placeholder="Contoh: 1234567890ABC"
+                      className="w-full rounded-lg bg-[#F8FAFC] border border-zinc-200/60 dark:border-zinc-800 px-3 py-2 sm:px-3.5 sm:py-2.5 text-xs sm:text-sm text-[var(--foreground)] dark:bg-zinc-950/50 dark:text-zinc-50 focus:border-[var(--green-color)] focus:ring-1 focus:ring-[var(--green-color)] focus:outline-none disabled:opacity-70 font-mono"
+                      disabled={!!tagihan?.bukti_bayar || uploadLoading}
+                    />
+                  </div>
                 </div>
 
                 {isLunas && (
                   <div className="rounded-xl bg-white dark:bg-secondary-green-color/10 border border-green-color dark:border-secondary-green-color/20 p-4 text-center">
-                    <CheckCircle2 className="h-10 w-10 text-green-color mx-auto mb-2" />
-                    <p className="text-xs font-semibold text-green-color dark:text-green-color">
+                    <CheckCircle2 className="h-8 w-8 sm:h-10 sm:w-10 text-green-color mx-auto mb-2" />
+                    <p className="text-xs sm:text-sm font-semibold text-green-color dark:text-green-color">
                       Terima kasih! Pembayaran Anda telah dikonfirmasi dan divalidasi oleh Admin.
                     </p>
                   </div>
@@ -481,18 +474,18 @@ export default function BayarTagihanPage({ params }: PageProps) {
 
                 {/* Upload / Proof Display Area */}
                 {isMenunggu && (
-                  <div className="space-y-4">
+                  <div className="space-y-3.5 sm:space-y-4">
                     {tagihan.bukti_bayar ? (
-                      <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 p-4 bg-slate-50/30 dark:bg-zinc-950/10">
-                        <span className="block text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-2">
+                      <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 p-3.5 sm:p-4 bg-slate-50/30 dark:bg-zinc-950/10">
+                        <span className="block text-[10px] sm:text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-2">
                           Bukti yang Diunggah
                         </span>
-                        <div className="flex items-center justify-between p-3.5 rounded-xl bg-secondary-green-color/30 border border-green-color/50">
-                          <div className="flex items-center gap-2">
-                            <div className="p-2 bg-secondary-green-color dark:bg-secondary-green-color rounded-lg text-green-color dark:text-secondary-green-color">
-                              <FileText className="h-4.5 w-4.5" />
+                        <div className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-secondary-green-color/30 border border-green-color/50 gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <div className="p-1.5 sm:p-2 bg-secondary-green-color dark:bg-secondary-green-color rounded-lg text-green-color dark:text-secondary-green-color shrink-0">
+                              <FileText className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
                             </div>
-                            <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-350 truncate max-w-[150px]">
+                            <span className="text-xs sm:text-sm font-semibold text-zinc-700 dark:text-zinc-300 truncate">
                               Bukti Transfer
                             </span>
                           </div>
@@ -500,30 +493,32 @@ export default function BayarTagihanPage({ params }: PageProps) {
                             href={tagihan.bukti_bayar}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-[#2C5E3B] hover:text-secondary-green-color text-xs font-bold flex items-center gap-1 cursor-pointer"
+                            className="text-[#2C5E3B] hover:text-secondary-green-color text-xs sm:text-sm font-bold flex items-center gap-1 cursor-pointer shrink-0"
                           >
                             Lihat <ExternalLink className="h-3.5 w-3.5" />
                           </a>
                         </div>
-                        <div className="mt-4 rounded-xl bg-amber-50/50 dark:bg-amber-950/10 border border-amber-100 dark:border-amber-900/20 p-3 text-center">
-                          <p className="text-[11px] font-semibold text-amber-800 dark:text-amber-400">
+                        <div className="mt-3 sm:mt-4 rounded-xl bg-amber-50/50 dark:bg-amber-950/10 border border-amber-100 dark:border-amber-900/20 p-3 text-center">
+                          <p className="text-xs sm:text-sm font-medium text-amber-800 dark:text-amber-400">
                             Bukti pembayaran telah berhasil dikirim. Silakan menunggu konfirmasi verifikasi dari pihak admin.
                           </p>
                         </div>
                       </div>
                     ) : (
-                      <div className="space-y-4">
-                        <span className="block text-xs font-bold text-zinc-700 dark:text-zinc-300">
+                      <div className="space-y-3.5 sm:space-y-4">
+                        <span className="block text-xs sm:text-sm font-bold text-zinc-700 dark:text-zinc-300">
                           Unggah Bukti Pembayaran
                         </span>
 
                         {!selectedFile && (
-                          <div className="flex flex-col items-center justify-center border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-2xl p-6 bg-slate-50/50 dark:bg-zinc-950/10 text-center hover:bg-secondary-green-color/10 hover:border-green-color dark:hover:bg-zinc-950/20 transition-all duration-200">
+                          <div className="flex flex-col items-center justify-center border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-xl px-4 sm:px-6 pt-5 pb-6 bg-slate-50/50 dark:bg-zinc-950/10 text-center hover:bg-secondary-green-color/10 hover:border-green-color dark:hover:border-secondary-green-color/50 transition cursor-pointer">
                             <input
                               type="file"
                               id="bukti_bayar_upload"
+                              name="bukti_bayar_upload"
+                              aria-label="Pilih berkas bukti pembayaran"
                               accept="image/jpeg,image/png,application/pdf"
-                              className="hidden"
+                              className="sr-only"
                               onChange={(e) => {
                                 if (e.target.files && e.target.files.length > 0) {
                                   setSelectedFile(e.target.files[0]);
@@ -534,39 +529,42 @@ export default function BayarTagihanPage({ params }: PageProps) {
                               htmlFor="bukti_bayar_upload"
                               className="cursor-pointer flex flex-col items-center justify-center space-y-2 w-full h-full"
                             >
-                              <CloudUpload className="h-8 w-8 text-green-color" />
-                              <div>
-                                <span className="text-xs font-bold text-[#2C5E3B] dark:text-secondary-green-color hover:underline">
+                              <CloudUpload className="mx-auto h-10 w-10 text-[var(--green-color)] dark:text-[var(--green-color)]" aria-hidden="true" />
+                              <div className="flex text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 justify-center">
+                                <span className="relative cursor-pointer rounded-md font-semibold text-[var(--green-color)] dark:text-secondary-green-color hover:underline">
                                   Klik untuk upload
                                 </span>
-                                <span className="text-xs text-zinc-400 block mt-0.5">
-                                  format JPG, PNG, atau PDF (maks. 5MB)
-                                </span>
                               </div>
+                              <span className="text-[11px] sm:text-xs text-zinc-600 dark:text-zinc-400 block font-medium">
+                                Format JPG, PNG, atau PDF (Maks. 5MB)
+                              </span>
                             </label>
                           </div>
                         )}
 
                         {selectedFile && (
-                          <div className="flex items-center justify-between p-3.5 rounded-xl bg-secondary-green-color/30 border border-green-color/30">
-                            <div className="flex items-center gap-2 ">
-                              <div className="p-2 bg-secondary-green-color dark:bg-secondary-green-color rounded-lg text-green-color dark:text-secondary-green-color">
-                                <FileText className="h-4.5 w-4.5" />
+                          <div className="flex items-center justify-between p-3.5 bg-secondary-green-color/30 dark:bg-secondary-green-color/10 border border-green-color/30 dark:border-secondary-green-color/30 rounded-xl gap-3">
+                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                              <div className="p-2 bg-secondary-green-color dark:bg-secondary-green-color rounded-lg text-green-color dark:text-secondary-green-color shrink-0">
+                                <FileText className="w-5 h-5" aria-hidden="true" />
                               </div>
-                              <div className="flex flex-col text-left">
-                                <span className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate max-w-[180px]">
+                              <div className="min-w-0 flex-1 text-left">
+                                <p className="text-xs sm:text-sm font-bold text-zinc-800 dark:text-zinc-200 truncate">
                                   {selectedFile.name}
-                                </span>
-                                <span className="text-[10px] text-zinc-400">
+                                </p>
+                                <p className="text-[11px] sm:text-xs text-zinc-400">
                                   {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                                </span>
+                                </p>
                               </div>
                             </div>
                             <button
+                              type="button"
                               onClick={() => setSelectedFile(null)}
-                              className="text-red-500 hover:text-red-750 text-xs font-semibold p-1 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg cursor-pointer"
+                              className="p-1.5 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition shrink-0 cursor-pointer"
+                              title="Hapus berkas"
+                              aria-label="Hapus berkas"
                             >
-                              Batal
+                              <X className="w-5 h-5" aria-hidden="true" />
                             </button>
                           </div>
                         )}
@@ -574,7 +572,7 @@ export default function BayarTagihanPage({ params }: PageProps) {
                         <button
                           disabled={!isFormValid || uploadLoading}
                           onClick={handleUploadBukti}
-                          className={`w-full py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 shadow-sm flex items-center justify-center gap-2 ${isFormValid && !uploadLoading
+                          className={`w-full py-2.5 sm:py-3 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-200 shadow-sm flex items-center justify-center gap-2 ${isFormValid && !uploadLoading
                             ? "bg-green-color text-white hover:bg-[var(--hover-green-color)]  cursor-pointer"
                             : "bg-zinc-200 text-zinc-450 dark:bg-zinc-800 dark:text-zinc-600 cursor-not-allowed"
                             }`}
@@ -598,8 +596,9 @@ export default function BayarTagihanPage({ params }: PageProps) {
               </div>
             </div>
           </div>
-        </div>
-      </main>
+        )}
+      </div>
+    </main>
       {/* Success Modal */}
       <SuccessModal
         isOpen={successModalOpen}

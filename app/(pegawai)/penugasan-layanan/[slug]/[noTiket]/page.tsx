@@ -673,6 +673,16 @@ export default function PegawaiDetailPenugasanPage({ params }: PageProps) {
                                 value.endsWith(".jpeg")
                             );
 
+                            const isDate = typeof value === "string" && (/^\d{4}-\d{2}-\d{2}$/.test(value) || (key.includes("tanggal") && !isNaN(Date.parse(value))));
+                            const formatValDate = (valStr: string) => {
+                                try {
+                                    const d = new Date(valStr);
+                                    return d.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+                                } catch {
+                                    return valStr;
+                                }
+                            };
+
                             return (
                                 <div key={key} className="space-y-1">
                                     <span className="text-zinc-500 block text-xs">{label}</span>
@@ -690,7 +700,7 @@ export default function PegawaiDetailPenugasanPage({ params }: PageProps) {
                                         <div className="font-semibold text-zinc-900 dark:text-zinc-100 whitespace-pre-line leading-relaxed">
                                             {typeof value === "object" && value !== null
                                                 ? JSON.stringify(value, null, 2)
-                                                : (value ? String(value) : "-")}
+                                                : (isDate ? formatValDate(value as string) : (value ? String(value) : "-"))}
                                         </div>
                                     )}
                                 </div>
@@ -1164,21 +1174,17 @@ export default function PegawaiDetailPenugasanPage({ params }: PageProps) {
 
                 <main className="flex-1 p-6 md:p-8 space-y-6 max-w-7xl mx-auto w-full">
                     {/* Breadcrumbs & Back */}
-                    <div className="flex justify-between items-center gap-4">
-                        <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
                             <Link
                                 href={`/penugasan-layanan/${resolvedParams.slug}`}
-                                className="flex items-center text-sm font-medium text-[var(--foreground)] hover:cursor-pointer transition"
+                                className="flex items-center font-medium text-[var(--foreground)] hover:text-zinc-600 dark:hover:text-zinc-300 transition shrink-0"
                             >
-                                <ChevronLeft className="h-4 w-4 mr-0.5" />
-                                Penugasan Layanan
+                                <ChevronLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-0.5" />
+                                <span>{tiket.layanan.nama_layanan}</span>
                             </Link>
-                            <span className="text-sm text-[var(--foreground)] dark:text-zinc-600">/</span>
-                            <span className="text-sm font-medium text-[var(--foreground)] dark:text-zinc-450">
-                                {tiket.layanan.nama_layanan}
-                            </span>
-                            <span className="text-sm text-[var(--foreground)] dark:text-zinc-600">/</span>
-                            <span className="text-sm font-semibold text-[var(--green-color)]">
+                            <span className="text-zinc-400 dark:text-zinc-600 select-none">/</span>
+                            <span className="font-semibold text-[var(--green-color)] dark:text-secondary-green-color">
                                 {tiket.no_tiket}
                             </span>
                         </div>

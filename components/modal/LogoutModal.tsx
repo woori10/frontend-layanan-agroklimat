@@ -25,6 +25,7 @@ export default function LogoutModal({ isOpen, onClose, onConfirm }: LogoutModalP
                 <button
                     onClick={onClose}
                     className="absolute right-4 top-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition cursor-pointer"
+                    aria-label="Tutup modal konfirmasi logout"
                 >
                     <X className="h-5 w-5" />
                 </button>

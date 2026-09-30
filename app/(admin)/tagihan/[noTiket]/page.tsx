@@ -17,10 +17,11 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { getTiketDetail, konfirmasiPembayaranTiket } from "@/lib/tiket";
+import { getTiketDetail, konfirmasiPembayaranTiket, terbitkanEbillingTiket } from "@/lib/tiket";
 import Sidebar from "@/components/sidebar/Sidebar";
 import AppBar from "@/components/appbar/AppBar";
 import StatusPembayaranBadge from "@/components/badge/status-pembayaran/StatusPembayaranBadge";
+import StatusLayananBadge from "@/components/badge/status-layanan/StatusLayananBadge";
 import SuccessModal from "@/components/modal/SuccessModal";
 import ErrorModal from "@/components/modal/ErrorModal";
 import { getApiUrl } from "@/lib/api";
@@ -42,6 +43,8 @@ interface Dokumen {
 interface Tagihan {
     id: number;
     jumlah: number;
+    kode_ebilling?: string | null;
+    ntpn?: string | null;
     status_bayar: "menunggu" | "lunas" | "batal";
     bukti_bayar?: string;
     tanggal_lunas?: string;
@@ -93,11 +96,50 @@ export default function TagihanDetailPage({ params }: PageProps) {
     const [confirmModalOpen, setConfirmModalOpen] = useState(false);
     const [actionLoading, setActionLoading] = useState(false);
 
+    const [kodeEbilling, setKodeEbilling] = useState("");
+    const [isEditingEbilling, setIsEditingEbilling] = useState(false);
+    const [ebillingLoading, setEbillingLoading] = useState(false);
+
     const [successModalOpen, setSuccessModalOpen] = useState(false);
+    const [successTitle, setSuccessTitle] = useState("Pembayaran Berhasil Dikonfirmasi!");
+    const [successMessage, setSuccessMessage] = useState("Pembayaran telah berhasil dikonfirmasi lunas.");
     const [errorModalOpen, setErrorModalOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
+    const handleTerbitkanEbilling = async () => {
+        if (!tiket) return;
+        if (!kodeEbilling.trim()) {
+            setErrorMessage("Kode e-billing wajib diisi");
+            setErrorModalOpen(true);
+            return;
+        }
 
+        setEbillingLoading(true);
+        try {
+            const res = await terbitkanEbillingTiket(tiket.id, kodeEbilling.trim());
+            setTiket((prev: any) =>
+                prev
+                    ? {
+                        ...prev,
+                        status: "menunggu_pembayaran",
+                        tagihan: res.tagihan || {
+                            ...prev.tagihan,
+                            kode_ebilling: kodeEbilling.trim(),
+                        },
+                    }
+                    : null
+            );
+            setIsEditingEbilling(false);
+            setSuccessTitle("Tagihan E-Billing Berhasil Diterbitkan!");
+            setSuccessMessage(`Tagihan dengan kode e-billing ${kodeEbilling.trim()} telah diterbitkan ke pemohon.`);
+            setSuccessModalOpen(true);
+        } catch (err: any) {
+            setErrorMessage(err.message || "Gagal menerbitkan tagihan e-billing");
+            setErrorModalOpen(true);
+        } finally {
+            setEbillingLoading(false);
+        }
+    };
 
     const handleConfirmPayment = async () => {
         if (!tiket || !tiket.tagihan?.bukti_bayar) return;
@@ -108,6 +150,8 @@ export default function TagihanDetailPage({ params }: PageProps) {
             await konfirmasiPembayaranTiket(tiket.id);
 
             setConfirmModalOpen(false);
+            setSuccessTitle("Pembayaran Berhasil Dikonfirmasi!");
+            setSuccessMessage("Pembayaran telah berhasil dikonfirmasi lunas.");
             setSuccessModalOpen(true);
         } catch (err: any) {
             setConfirmModalOpen(false);
@@ -133,7 +177,12 @@ export default function TagihanDetailPage({ params }: PageProps) {
         }
 
         getTiketDetail(noTiketStr)
-            .then(setTiket)
+            .then((data) => {
+                setTiket(data);
+                if (data?.tagihan?.kode_ebilling) {
+                    setKodeEbilling(data.tagihan.kode_ebilling);
+                }
+            })
             .catch((err: any) => setError(err.message))
             .finally(() => setLoading(false));
 
@@ -211,23 +260,23 @@ export default function TagihanDetailPage({ params }: PageProps) {
 
             <div className="flex flex-col flex-1 overflow-y-auto">
                 <AppBar onMenuClick={() => setSidebarOpen(true)} />
-                <main className="flex-1 p-8 space-y-8">
+                <main className="flex-1 p-6 md:p-8 space-y-6 md:space-y-8">
                     {/* Header Breadcrumb */}
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                        <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 sm:mb-6">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
                             <Link
                                 href="/tagihan"
-                                className="flex items-center text-sm font-medium text-[var(--foreground)] hover:cursor-pointer transition"
+                                className="flex items-center font-medium text-[var(--foreground)] hover:cursor-pointer transition shrink-0"
                             >
-                                <ChevronLeft className="h-4 w-4 mr-0.5" />
+                                <ChevronLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-0.5" />
                                 Daftar Tagihan
                             </Link>
-                            <span className="text-sm text-[var(--foreground)] dark:text-zinc-600">/</span>
-                            <span className="text-sm font-medium text-[var(--foreground)] dark:text-zinc-450">
+                            <span className="text-[var(--foreground)] dark:text-zinc-600 select-none">/</span>
+                            <span className="font-medium text-[var(--foreground)] dark:text-zinc-450">
                                 Detail Tagihan
                             </span>
-                            <span className="text-sm text-[var(--foreground)] dark:text-zinc-600">/</span>
-                            <span className="text-sm font-semibold text-[var(--green-color)]">
+                            <span className="text-[var(--foreground)] dark:text-zinc-600 select-none">/</span>
+                            <span className="font-semibold text-[var(--green-color)]">
                                 {tiket.no_tiket}
                             </span>
                         </div>
@@ -397,9 +446,88 @@ export default function TagihanDetailPage({ params }: PageProps) {
                                     </div>
 
                                     <div className="flex items-center justify-between text-xs">
-                                        <span className="text-zinc-500 font-medium">Status Pembayaran</span>
-                                        <StatusPembayaranBadge status={tiket.tagihan?.status_bayar} />
+                                        <span className="text-zinc-500 font-medium">Status</span>
+                                        {tiket.status === "menunggu_ebilling" || !tiket.tagihan?.kode_ebilling ? (
+                                            <StatusLayananBadge status="menunggu_ebilling" />
+                                        ) : (
+                                            <StatusPembayaranBadge status={tiket.tagihan?.status_bayar} />
+                                        )}
                                     </div>
+
+                                    {/* Form / Display Kode E-Billing */}
+                                    <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800/80 space-y-3">
+                                        {tiket.status === "menunggu_ebilling" || !tiket.tagihan?.kode_ebilling || isEditingEbilling ? (
+                                            <div className="p-3.5 rounded-xl border border-amber-200 bg-amber-50/60 dark:border-amber-900/50 dark:bg-amber-950/20 space-y-2.5">
+                                                <label className="block text-xs font-bold text-amber-900 dark:text-amber-200">
+                                                    {tiket.tagihan?.kode_ebilling ? "Ubah Kode E-Billing" : "Input Kode E-Billing"}
+                                                </label>
+                                                <p className="text-[11px] text-amber-700 dark:text-amber-300 leading-relaxed">
+                                                    Masukkan kode billing dari sistem SIMPONI / MPN Penerimaan Negara untuk diterbitkan ke pemohon.
+                                                </p>
+                                                <div className="space-y-2">
+                                                    <input
+                                                        type="text"
+                                                        value={kodeEbilling}
+                                                        onChange={(e) => setKodeEbilling(e.target.value)}
+                                                        placeholder="Contoh: 8202409000123"
+                                                        className="w-full rounded-lg border border-amber-300 bg-white px-3 py-2 text-xs font-mono font-bold tracking-wider text-zinc-900 focus:outline-none focus:ring-2 focus:ring-amber-500 dark:border-amber-700 dark:bg-zinc-900 dark:text-white"
+                                                        disabled={ebillingLoading}
+                                                    />
+                                                    <div className="flex items-center gap-2">
+                                                        <button
+                                                            type="button"
+                                                            onClick={handleTerbitkanEbilling}
+                                                            disabled={ebillingLoading || !kodeEbilling.trim()}
+                                                            className="flex-1 px-3 py-2 bg-[#2C5E3B] hover:bg-[#1E4329] text-white rounded-lg text-xs font-semibold disabled:opacity-50 cursor-pointer shadow-xs transition"
+                                                        >
+                                                            {ebillingLoading ? "Menerbitkan..." : (tiket.tagihan?.kode_ebilling ? "Simpan Perubahan Kode" : "Terbitkan Tagihan ke User")}
+                                                        </button>
+                                                        {isEditingEbilling && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setIsEditingEbilling(false);
+                                                                    setKodeEbilling(tiket.tagihan?.kode_ebilling || "");
+                                                                }}
+                                                                className="px-3 py-2 bg-zinc-200 hover:bg-zinc-300 text-zinc-700 rounded-lg text-xs font-medium cursor-pointer"
+                                                            >
+                                                                Batal
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700">
+                                                <div>
+                                                    <span className="block text-[10px] uppercase font-bold text-zinc-400 tracking-wider">
+                                                        Kode E-Billing
+                                                    </span>
+                                                    <span className="font-mono font-bold text-sm text-zinc-900 dark:text-zinc-100 tracking-wide">
+                                                        {tiket.tagihan.kode_ebilling}
+                                                    </span>
+                                                </div>
+                                                {tiket.tagihan.status_bayar === "menunggu" && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setIsEditingEbilling(true)}
+                                                        className="text-xs text-[#0076FF] hover:underline font-semibold cursor-pointer"
+                                                    >
+                                                        Ubah Kode
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {tiket.tagihan?.ntpn && (
+                                        <div className="flex items-center justify-between text-xs">
+                                            <span className="text-zinc-500 font-medium">Nomor NTPN</span>
+                                            <span className="font-mono font-bold text-zinc-800 dark:text-zinc-200">
+                                                {tiket.tagihan.ntpn}
+                                            </span>
+                                        </div>
+                                    )}
 
                                     {tiket.tagihan?.bank_pengirim && (
                                         <div className="flex items-center justify-between text-xs">
@@ -443,14 +571,20 @@ export default function TagihanDetailPage({ params }: PageProps) {
                                     <span className="block text-xs font-bold text-zinc-500 uppercase tracking-wider">
                                         Bukti Pembayaran
                                     </span>
-                                    {tiket.tagihan?.bukti_bayar ? (
+                                    {tiket.status === "menunggu_ebilling" || !tiket.tagihan?.kode_ebilling ? (
+                                        <div className="flex flex-col items-center justify-center p-6 border border-dashed border-amber-200 dark:border-amber-900/40 rounded-xl bg-amber-50/20 dark:bg-amber-950/10">
+                                            <p className="text-xs text-amber-700 dark:text-amber-400 text-center font-medium">
+                                                Tagihan belum diterbitkan ke pemohon. Masukkan kode e-billing di atas untuk menerbitkan tagihan.
+                                            </p>
+                                        </div>
+                                    ) : tiket.tagihan?.bukti_bayar ? (
                                         <div className="flex items-center justify-between p-2.5 bg-secondary-green-color/30 dark:bg-secondary-green-color/10 border border-green-color/30 dark:border-secondary-green-color/20 rounded-xl">
                                             <div className="flex items-center gap-2 min-w-0">
                                                 <div className="p-1.5 bg-secondary-green-color dark:bg-secondary-green-color text-[var(--green-color)] dark:text-[var(--green-color)] rounded-lg shrink-0">
                                                     <FileText className="w-4 h-4" />
                                                 </div>
                                                 <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-300 truncate">
-                                                    Bukti Transfer
+                                                    Bukti Pembayaran
                                                 </span>
                                             </div>
                                             <a
@@ -474,7 +608,7 @@ export default function TagihanDetailPage({ params }: PageProps) {
                                 </div>
 
                                 {/* Verify Button */}
-                                {tiket.tagihan?.status_bayar === "menunggu" && (
+                                {tiket.status !== "menunggu_ebilling" && tiket.tagihan?.status_bayar === "menunggu" && (
                                     <button
                                         onClick={() => setConfirmModalOpen(true)}
                                         disabled={actionLoading || !tiket.tagihan?.bukti_bayar}
@@ -509,14 +643,18 @@ export default function TagihanDetailPage({ params }: PageProps) {
                 isOpen={successModalOpen}
                 onClose={() => {
                     setSuccessModalOpen(false);
-                    router.push("/tagihan");
+                    if (successTitle.includes("Pembayaran")) {
+                        router.push("/tagihan");
+                    }
                 }}
-                title="Pembayaran Berhasil Dikonfirmasi!"
-                message="Pembayaran telah berhasil dikonfirmasi lunas."
-                confirmText="Kembali ke Daftar Tagihan"
+                title={successTitle}
+                message={successMessage}
+                confirmText={successTitle.includes("Pembayaran") ? "Kembali ke Daftar Tagihan" : "Tutup"}
                 onConfirm={() => {
                     setSuccessModalOpen(false);
-                    router.push("/tagihan");
+                    if (successTitle.includes("Pembayaran")) {
+                        router.push("/tagihan");
+                    }
                 }}
             />
 

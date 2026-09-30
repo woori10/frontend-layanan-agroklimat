@@ -182,14 +182,6 @@ export default function DashboardAdminPage() {
         logout(router);
     };
 
-    if (!mounted) {
-        return (
-            <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-secondary-green-color border-t-transparent"></div>
-            </div>
-        );
-    }
-
     return (
         <div className="flex h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 overflow-hidden font-sans">
             {/* Sidebar for Desktop */}
@@ -203,22 +195,28 @@ export default function DashboardAdminPage() {
                 {/* Content Container */}
                 <main className="flex-1 p-8 space-y-6">
                     {/* Welcome Banner */}
-                    <div className="relative overflow-hidden rounded-2xl p-4 md:p-8 text-white shadow-lg bg-cover bg-center min-h-[160px] flex flex-col justify-center"
-                        style={{ backgroundImage: "url('/images/kantor.webp')" }}>
-                        {/* Overlay with green-color gradient */}
+                    <div className="relative overflow-hidden rounded-2xl p-4 md:p-8 text-white shadow-lg min-h-[160px] flex flex-col justify-center bg-[#244E2B]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                            src="/images/kantor-optimized.webp"
+                            alt="Gedung BRMP Agroklimat"
+                            fetchPriority="high"
+                            decoding="sync"
+                            className="absolute inset-0 w-full h-full object-cover object-center"
+                        />
+                        {/* Overlay with high-contrast gradient */}
                         <div
-                            className="absolute inset-0 z-0"
+                            className="absolute inset-0 pointer-events-none"
                             style={{
-                                background: "linear-gradient(to right, var(--green-color) 5%, rgba(36, 78, 43, 0.8) 30%, rgba(36, 78, 43, 0.4) 90%)"
+                                background: "linear-gradient(to right, rgba(20, 50, 25, 0.96) 5%, rgba(30, 70, 38, 0.90) 35%, rgba(36, 78, 43, 0.65) 90%)"
                             }}
                         />
 
                         <div className="relative z-10 space-y-3 max-w-5xl">
                             <h2 className="text-2xl md:text-4xl font-bold tracking-tight leading-tight">
                                 Selamat Datang Kembali <span className="capitalize text-[var(--yellow-color)]">{userRole} !</span>
-
                             </h2>
-                            <p className="text-sm md:text-base text-zinc-100/90 leading-relaxed">
+                            <p className="text-sm md:text-base text-zinc-100 leading-relaxed font-normal">
                                 Pantau performa layanan dan kelola aktivitas pengguna hari ini.
                             </p>
                         </div>
@@ -226,9 +224,6 @@ export default function DashboardAdminPage() {
 
                     {/* Statistik Permohonan Layanan */}
                     <div className="space-y-3">
-                        {/* <h2 className="text-lg font-bold text-zinc-700 dark:text-zinc-300">
-                            Statistik Permohonan Layanan
-                        </h2> */}
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             <CardDashboard
                                 title="Total Permohonan"
@@ -242,7 +237,7 @@ export default function DashboardAdminPage() {
                             <CardDashboard
                                 title="Menunggu Verifikasi"
                                 icon={Clock}
-                                iconBgClass="bg-amber-400 dark:bg-amber-700"
+                                iconBgClass="bg-amber-600 dark:bg-amber-600"
                                 iconColorClass="text-white"
                                 apiEndpoint="/tiket/admin?status=menunggu_verifikasi"
                                 processData={(data) => Array.isArray(data) ? data.length : 0}
@@ -251,7 +246,7 @@ export default function DashboardAdminPage() {
                             <CardDashboard
                                 title="Sedang Diproses"
                                 icon={Activity}
-                                iconBgClass="bg-blue-400 dark:bg-blue-700"
+                                iconBgClass="bg-blue-600 dark:bg-blue-600"
                                 iconColorClass="text-white"
                                 apiEndpoint="/tiket/admin?status=diproses"
                                 processData={(data) => Array.isArray(data) ? data.length : 0}
@@ -271,15 +266,18 @@ export default function DashboardAdminPage() {
 
                     <div className="rounded-2xl p-4 sm:p-6 md:p-8 border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 overflow-hidden">
                         <div className="mb-6 flex flex-col gap-4">
-
                             <p className="font-semibold text-lg text-[var(--foreground)]">
                                 Permohonan Layanan Terbaru
                             </p>
                             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                                 {/* Search */}
                                 <div className="relative flex-1">
-                                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                                    <label htmlFor="search-tiket" className="sr-only">
+                                        Cari nomor tiket atau pemohon
+                                    </label>
+                                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" aria-hidden="true" />
                                     <input
+                                        id="search-tiket"
                                         type="text"
                                         placeholder="Cari nomor tiket, pemohon..."
                                         value={searchQuery}
@@ -287,6 +285,7 @@ export default function DashboardAdminPage() {
                                             setSearchQuery(e.target.value);
                                             setCurrentPage(1);
                                         }}
+                                        aria-label="Cari nomor tiket atau pemohon"
                                         className="w-full rounded-xl border border-zinc-200 bg-white py-2.5 pl-10 pr-4 text-xs outline-none transition focus:border-[var(--green-color)] focus:ring-2 focus:ring-[var(--green-color)]/10 dark:border-zinc-700 dark:bg-zinc-900"
                                     />
                                 </div>
@@ -294,18 +293,21 @@ export default function DashboardAdminPage() {
                                 {/* Filter Layanan, Search & Sorting */}
                                 <div className="flex flex-wrap items-center justify-between sm:justify-end gap-3">
                                     <div className="flex items-center gap-2 w-full sm:w-auto">
-
-
                                         {/* Filter Layanan Dropdown */}
                                         <div className="relative">
-                                            <ListFilter className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 pointer-events-none" />
+                                            <label htmlFor="filter-layanan" className="sr-only">
+                                                Filter Berdasarkan Layanan
+                                            </label>
+                                            <ListFilter className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 pointer-events-none" aria-hidden="true" />
                                             <select
+                                                id="filter-layanan"
+                                                aria-label="Filter Berdasarkan Layanan"
                                                 value={selectedLayanan}
                                                 onChange={(e) => {
                                                     setSelectedLayanan(e.target.value);
                                                     setCurrentPage(1);
                                                 }}
-                                                className="appearance-none rounded-xl border border-zinc-200 bg-white py-2.5 pl-10 pr-9 text-xs outline-none transition focus:border-[var(--green-color)] focus:ring-2 focus:ring-[var(--green-color)]/10 dark:border-zinc-700 dark:bg-zinc-900 cursor-pointer"
+                                                className="appearance-none rounded-xl border border-zinc-200 bg-white py-2.5 pl-10 pr-9 text-xs outline-none transition focus:border-[var(--green-color)] focus:ring-2 focus:ring-[var(--green-color)]/10 dark:border-zinc-700 dark:bg-zinc-900 cursor-pointer text-zinc-800 dark:text-zinc-200"
                                             >
                                                 <option value="semua">Semua Layanan</option>
                                                 {listLayanan.map((l) => (
@@ -314,7 +316,7 @@ export default function DashboardAdminPage() {
                                                     </option>
                                                 ))}
                                             </select>
-                                            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                                            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" aria-hidden="true" />
                                         </div>
 
                                         {/* Sorting */}
@@ -324,10 +326,11 @@ export default function DashboardAdminPage() {
                                                 setSortOrder((prev) => (prev === "terbaru" ? "terlama" : "terbaru"));
                                                 setCurrentPage(1);
                                             }}
+                                            aria-label={sortOrder === "terbaru" ? "Urutkan dari terlama" : "Urutkan dari terbaru"}
                                             className="inline-flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-600 transition hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 cursor-pointer"
                                             title={sortOrder === "terbaru" ? "Urutkan dari terlama" : "Urutkan dari terbaru"}
                                         >
-                                            <ArrowUpDown className="h-4 w-4" />
+                                            <ArrowUpDown className="h-4 w-4" aria-hidden="true" />
                                         </button>
                                     </div>
                                 </div>
@@ -353,24 +356,24 @@ export default function DashboardAdminPage() {
                                 </div>
                             ) : (
                                 <table className="min-w-full divide-y divide-zinc-200/80 dark:divide-zinc-800">
-                                    <thead className="bg-[var(--secondary-green-color)]">
+                                    <thead className="bg-[var(--secondary-green-color)] dark:bg-zinc-800/90 border-b border-zinc-200 dark:border-zinc-700">
                                         <tr>
-                                            <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-[var(--foreground)] tracking-wider w-16">
+                                            <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-zinc-700 dark:text-zinc-200 tracking-wider w-16">
                                                 No
                                             </th>
-                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] tracking-wider">
+                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-zinc-700 dark:text-zinc-200 tracking-wider">
                                                 No Tiket
                                             </th>
-                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] tracking-wider">
+                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-zinc-700 dark:text-zinc-200 tracking-wider">
                                                 Nama Pemohon
                                             </th>
-                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] tracking-wider">
+                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-zinc-700 dark:text-zinc-200 tracking-wider">
                                                 Jenis Layanan
                                             </th>
-                                            <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-[var(--foreground)] tracking-wider">
+                                            <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-zinc-700 dark:text-zinc-200 tracking-wider">
                                                 Tanggal
                                             </th>
-                                            <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-[var(--foreground)] tracking-wider">
+                                            <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-zinc-700 dark:text-zinc-200 tracking-wider">
                                                 Status
                                             </th>
                                         </tr>
@@ -379,19 +382,19 @@ export default function DashboardAdminPage() {
                                         {currentTikets.map((tiket, index) => {
                                             return (
                                                 <tr key={tiket.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50 transition-colors">
-                                                    <td className="px-6 py-5.5 whitespace-nowrap text-xs text-center text-zinc-500 dark:text-zinc-400 font-medium">
+                                                    <td className="px-6 py-5.5 whitespace-nowrap text-xs text-center text-zinc-600 dark:text-zinc-400 font-medium">
                                                         {startIndex + index + 1}
                                                     </td>
-                                                    <td className="px-6 py-5.5 whitespace-nowrap text-xs font-bold text-[#2C5E3B] dark:text-secondary-green-color text-left">
+                                                    <td className="px-6 py-5.5 whitespace-nowrap text-xs font-bold text-[#2C5E3B] dark:text-emerald-400 text-left">
                                                         {tiket.no_tiket || "-"}
                                                     </td>
-                                                    <td className="px-6 py-5.5 whitespace-nowrap text-xs text-[var(--foreground)] dark:text-zinc-100 font-base">
+                                                    <td className="px-6 py-5.5 whitespace-nowrap text-xs text-zinc-800 dark:text-zinc-100 font-medium">
                                                         {tiket.jawaban_form?.nama_lengkap || tiket.user?.nama || "-"}
                                                     </td>
-                                                    <td className="px-6 py-5.5 text-xs text-[var(--foreground)] dark:text-zinc-100 font-base">
+                                                    <td className="px-6 py-5.5 text-xs text-zinc-700 dark:text-zinc-200 font-normal">
                                                         {tiket.layanan?.nama_layanan || "-"}
                                                     </td>
-                                                    <td className="px-6 py-5.5 whitespace-nowrap text-center text-xs text-[var(--foreground)] dark:text-zinc-400 font-base">
+                                                    <td className="px-6 py-5.5 whitespace-nowrap text-center text-xs text-zinc-600 dark:text-zinc-400 font-medium">
                                                         {formatDate(tiket.createdAt || tiket.tanggal_submit)}
                                                     </td>
                                                     <td className="px-6 py-5.5 whitespace-nowrap text-xs text-center">
@@ -415,33 +418,38 @@ export default function DashboardAdminPage() {
                                 <div className="flex items-center justify-between border-t border-zinc-200 px-2 pt-5 dark:border-zinc-800">
                                     <p className="text-sm text-zinc-600 dark:text-zinc-400">
                                         Menampilkan{" "}
-                                        <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                                        <span className="font-semibold text-zinc-900 dark:text-zinc-100">
                                             {filteredTikets.length === 0 ? 0 : startIndex + 1}
                                         </span>
-                                        –
-                                        <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                                        {" "}–{" "}
+                                        <span className="font-semibold text-zinc-900 dark:text-zinc-100">
                                             {endIndex}
                                         </span>{" "}
                                         dari{" "}
-                                        <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                                        <span className="font-semibold text-zinc-900 dark:text-zinc-100">
                                             {totalItems}
                                         </span>{" "}
                                         permohonan
                                     </p>
 
-                                    <div className="flex items-center gap-1">
+                                    <div className="flex items-center gap-1" role="navigation" aria-label="Navigasi Halaman">
                                         <button
+                                            type="button"
                                             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                                             disabled={currentPage === 1}
-                                            className="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-zinc-800 cursor-pointer"
+                                            aria-label="Halaman sebelumnya"
+                                            className="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40 dark:text-zinc-400 dark:hover:bg-zinc-800 cursor-pointer"
                                         >
-                                            ‹
+                                            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                                         </button>
 
                                         {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
                                             <button
                                                 key={page}
+                                                type="button"
                                                 onClick={() => setCurrentPage(page)}
+                                                aria-label={`Halaman ${page}`}
+                                                aria-current={currentPage === page ? "page" : undefined}
                                                 className={`flex h-9 min-w-9 items-center justify-center rounded-lg px-2 text-sm font-medium transition cursor-pointer ${currentPage === page
                                                     ? "bg-[var(--green-color)] text-white"
                                                     : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
@@ -452,11 +460,13 @@ export default function DashboardAdminPage() {
                                         ))}
 
                                         <button
+                                            type="button"
                                             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                                             disabled={currentPage === totalPages}
-                                            className="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-zinc-800 cursor-pointer"
+                                            aria-label="Halaman selanjutnya"
+                                            className="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-600 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40 dark:text-zinc-400 dark:hover:bg-zinc-800 cursor-pointer"
                                         >
-                                            ›
+                                            <ChevronRight className="h-4 w-4" aria-hidden="true" />
                                         </button>
                                     </div>
                                 </div>

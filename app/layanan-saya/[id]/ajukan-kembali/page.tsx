@@ -10,7 +10,9 @@ import {
     User,
     RefreshCw,
     Send,
-    Upload
+    Upload,
+    CloudUpload,
+    X
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -287,6 +289,8 @@ export default function AjukanKembaliPage({ params }: PageProps) {
                                                             ) : (
                                                                 <span className="text-zinc-500 dark:text-zinc-400 text-xs mt-1 block font-normal">Tidak ada data alat yang dipinjam</span>
                                                             )
+                                                        ) : (typeof value === "string" && (/^\d{4}-\d{2}-\d{2}$/.test(value) || (key.includes("tanggal") && !isNaN(Date.parse(value))))) ? (
+                                                            formatDate(value as string)
                                                         ) : (
                                                             value ? String(value) : "-"
                                                         )}
@@ -325,29 +329,64 @@ export default function AjukanKembaliPage({ params }: PageProps) {
 
                                 {/* Upload Dokumen Pendukung */}
                                 <div className="space-y-2">
-                                    <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-                                        Dokumen Pendukung Tambahan (Opsional)
+                                    <label className="block text-xs md:text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+                                        Dokumen Pendukung Tambahan <span className="text-xs text-zinc-450 font-normal">(opsional)</span>
                                     </label>
-                                    <div className="flex items-center justify-center w-full">
-                                        <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-zinc-300 dark:border-zinc-750 rounded-xl cursor-pointer bg-zinc-55/30 dark:bg-zinc-950/20 hover:bg-zinc-100/50 transition">
-                                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                                <Upload className="w-8 h-8 text-zinc-400 mb-2" />
-                                                <p className="text-xs text-zinc-500 font-semibold">
-                                                    {selectedFile ? selectedFile.name : "Klik untuk memilih file pendukung baru"}
+
+                                    {!selectedFile ? (
+                                        <div className="mt-1 flex justify-center px-4 sm:px-6 pt-5 pb-6 border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-xl hover:border-green-color dark:hover:border-secondary-green-color/50 hover:bg-secondary-green-color/10 dark:hover:bg-secondary-green-color/5 transition cursor-pointer">
+                                            <div className="space-y-2 text-center flex flex-col items-center">
+                                                <CloudUpload className="mx-auto h-10 w-10 text-[var(--green-color)] dark:text-[var(--green-color)]" aria-hidden="true" />
+                                                <div className="flex text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 justify-center">
+                                                    <label
+                                                        htmlFor="file-upload-ajukan-kembali"
+                                                        className="relative cursor-pointer rounded-md font-semibold text-[var(--green-color)] dark:text-[var(--foreground)] hover:text-[var(--green-color)] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[var(--green-color)]"
+                                                    >
+                                                        <span>Klik untuk upload</span>
+                                                        <input
+                                                            id="file-upload-ajukan-kembali"
+                                                            type="file"
+                                                            className="sr-only"
+                                                            accept=".pdf,.docx,image/jpeg,image/png"
+                                                            onChange={(e) => {
+                                                                if (e.target.files && e.target.files[0]) {
+                                                                    setSelectedFile(e.target.files[0]);
+                                                                }
+                                                            }}
+                                                        />
+                                                    </label>
+                                                </div>
+                                                <p className="text-[11px] sm:text-xs text-zinc-400 dark:text-zinc-550">
+                                                    Format PDF, DOCX, JPG, atau PNG (Maks. 5MB)
                                                 </p>
-                                                <p className="text-[10px] text-zinc-400 mt-1">PDF, DOCX, JPG, PNG (Maks. 5MB)</p>
                                             </div>
-                                            <input
-                                                type="file"
-                                                className="hidden"
-                                                onChange={(e) => {
-                                                    if (e.target.files && e.target.files[0]) {
-                                                        setSelectedFile(e.target.files[0]);
-                                                    }
-                                                }}
-                                            />
-                                        </label>
-                                    </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center justify-between p-3.5 bg-secondary-green-color/30 dark:bg-secondary-green-color/10 border border-green-color/30 dark:border-secondary-green-color/30 rounded-xl gap-3">
+                                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                                                <div className="p-2 bg-secondary-green-color dark:bg-secondary-green-color rounded-lg text-green-color dark:text-secondary-green-color shrink-0">
+                                                    <FileText className="w-5 h-5" aria-hidden="true" />
+                                                </div>
+                                                <div className="min-w-0 flex-1 text-left">
+                                                    <p className="text-xs sm:text-sm font-bold text-zinc-800 dark:text-zinc-200 truncate">
+                                                        {selectedFile.name}
+                                                    </p>
+                                                    <p className="text-[11px] sm:text-xs text-zinc-400">
+                                                        {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => setSelectedFile(null)}
+                                                className="p-1.5 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition shrink-0 cursor-pointer"
+                                                title="Hapus berkas"
+                                                aria-label="Hapus berkas"
+                                            >
+                                                <X className="w-5 h-5" aria-hidden="true" />
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

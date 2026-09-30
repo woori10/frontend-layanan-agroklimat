@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 export default function RiwayatLayananBanner() {
     return (
@@ -16,7 +16,7 @@ export default function RiwayatLayananBanner() {
                     Riwayat Layanan Saya
                 </h1>
                 <p className="text-xs sm:text-sm md:text-base text-zinc-100/90 max-w-3xl leading-relaxed">
-                    Lorem ipsum dolor sit amet consectetur, adipisicing elit. Culpa ut laborum mollitia vel consectetur
+                    Pantau status permohonan layanan Anda dan riwayat pengajuan yang sedang diproses maupun telah selesai.
                 </p>
             </div>
         </div>

@@ -5,7 +5,9 @@ import { AlertCircle, FileText, Info, Clock, CloudUpload, ArrowLeft, X } from "l
 
 export interface MagangPKLStep2 {
   topik: string;
-  durasi: string;
+  tanggalMulai: string;
+  tanggalSelesai: string;
+  durasi?: string;
   proposal: File | null;
 }
 
@@ -26,14 +28,33 @@ export default function MagangPKLStep2Form({
 
   // Local states for custom fields
   const [topik, setTopik] = useState(initialData?.topik || "");
-  const [durasi, setDurasi] = useState(initialData?.durasi || "");
+  const [tanggalMulai, setTanggalMulai] = useState(initialData?.tanggalMulai || "");
+  const [tanggalSelesai, setTanggalSelesai] = useState(initialData?.tanggalSelesai || "");
   const [proposal, setProposal] = useState<File | null>(initialData?.proposal || null);
   const [error, setError] = useState("");
+
+  const calculateDurasi = (start: string, end: string) => {
+    if (!start || !end) return "";
+    const s = new Date(start);
+    const e = new Date(end);
+    const diffTime = e.getTime() - s.getTime();
+    if (diffTime < 0) return "";
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    const months = Math.floor(diffDays / 30);
+    const remainingDays = diffDays % 30;
+    if (months > 0 && remainingDays === 0) {
+      return `${months} Bulan (${diffDays} Hari)`;
+    } else if (months > 0) {
+      return `${months} Bulan ${remainingDays} Hari (${diffDays} Hari)`;
+    }
+    return `${diffDays} Hari`;
+  };
 
   useEffect(() => {
     if (initialData) {
       setTopik(initialData.topik || "");
-      setDurasi(initialData.durasi || "");
+      setTanggalMulai(initialData.tanggalMulai || "");
+      setTanggalSelesai(initialData.tanggalSelesai || "");
       setProposal(initialData.proposal || null);
     }
   }, [initialData]);
@@ -72,8 +93,16 @@ export default function MagangPKLStep2Form({
       setError("Topik Magang/PKL wajib diisi!");
       return;
     }
-    if (!durasi.trim()) {
-      setError("Durasi Magang/PKL wajib diisi!");
+    if (!tanggalMulai) {
+      setError("Tanggal Mulai Magang/PKL wajib diisi!");
+      return;
+    }
+    if (!tanggalSelesai) {
+      setError("Tanggal Selesai Magang/PKL wajib diisi!");
+      return;
+    }
+    if (new Date(tanggalSelesai) < new Date(tanggalMulai)) {
+      setError("Tanggal Selesai tidak boleh mendahului Tanggal Mulai!");
       return;
     }
     if (!proposal) {
@@ -81,9 +110,13 @@ export default function MagangPKLStep2Form({
       return;
     }
 
+    const durasiText = calculateDurasi(tanggalMulai, tanggalSelesai);
+
     onSubmit({
       topik: topik.trim(),
-      durasi: durasi.trim(),
+      tanggalMulai,
+      tanggalSelesai,
+      durasi: durasiText,
       proposal,
     });
   };
@@ -111,7 +144,7 @@ export default function MagangPKLStep2Form({
       )}
 
       {/* Topik & Durasi Magang/PKL */}
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid gap-6">
         {/* Topik Magang/PKL */}
         <div className="space-y-2">
           <label htmlFor="topik" className="block text-xs md:text-sm font-semibold text-zinc-700 dark:text-zinc-300">
@@ -131,42 +164,75 @@ export default function MagangPKLStep2Form({
           </div>
         </div>
 
-        {/* Durasi Magang/PKL */}
-        <div className="space-y-2">
-          <label htmlFor="topik" className="block text-xs md:text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-            Durasi Magang/PKL <span className="text-red-500">*</span>
-          </label>
-          <div className="relative">
-            <input
-              id="durasi"
-              type="text"
-              required
-              disabled={loading}
-              value={durasi}
-              onChange={(e) => setDurasi(e.target.value)}
-              className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-xs md:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
-              placeholder="Contoh: 1 Bulan, 3 Bulan, atau 6 Bulan"
-            />
+        {/* Tanggal Mulai & Selesai Magang/PKL */}
+        <div className="grid gap-6 sm:grid-cols-2">
+          <div className="space-y-2">
+            <label htmlFor="tanggal_mulai" className="block text-xs md:text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+              Tanggal Mulai <span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <input
+                id="tanggal_mulai"
+                type="date"
+                required
+                disabled={loading}
+                value={tanggalMulai}
+                onChange={(e) => {
+                  setTanggalMulai(e.target.value);
+                  if (tanggalSelesai && new Date(tanggalSelesai) < new Date(e.target.value)) {
+                    setTanggalSelesai("");
+                  }
+                }}
+                className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-xs md:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="tanggal_selesai" className="block text-xs md:text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+              Tanggal Selesai <span className="text-red-500">*</span>
+            </label>
+            <div className="relative">
+              <input
+                id="tanggal_selesai"
+                type="date"
+                required
+                disabled={loading}
+                min={tanggalMulai || undefined}
+                value={tanggalSelesai}
+                onChange={(e) => setTanggalSelesai(e.target.value)}
+                className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-xs md:text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
+              />
+            </div>
           </div>
         </div>
+
+        {/* Durasi Estimasi Preview */}
+        {tanggalMulai && tanggalSelesai && new Date(tanggalSelesai) >= new Date(tanggalMulai) && (
+          <div className="rounded-xl bg-secondary-green-color/40 dark:bg-secondary-green-color/10 border border-[var(--green-color)]/30 p-3.5 flex items-center gap-2.5 text-xs text-[var(--green-color)] dark:text-secondary-green-color font-medium">
+            <Clock className="w-4 h-4 shrink-0" />
+            <span>
+              Estimasi Durasi Magang: <strong className="font-bold">{calculateDurasi(tanggalMulai, tanggalSelesai)}</strong>
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Proposal File Upload */}
       <div className="space-y-2">
-        <label htmlFor="topik" className="block text-xs md:text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+        <label htmlFor="proposal-file-upload" className="block text-xs md:text-sm font-semibold text-zinc-700 dark:text-zinc-300">
           Proposal Magang / PKL <span className="text-red-500">*</span>
         </label>
 
         {!proposal ? (
-          <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-xl hover:border-green-color dark:hover:border-secondary-green-color/50 hover:bg-secondary-green-color/10 dark:hover:bg-secondary-green-color/5 transition cursor-pointer">
+          <div className="mt-1 flex justify-center px-4 sm:px-6 pt-5 pb-6 border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-xl hover:border-green-color dark:hover:border-secondary-green-color/50 hover:bg-secondary-green-color/10 dark:hover:bg-secondary-green-color/5 transition cursor-pointer">
             <div className="space-y-2 text-center flex flex-col items-center">
-              <CloudUpload className="mx-auto h-10 w-10 text-zinc-450 dark:text-zinc-600" />
-              <div className="flex text-sm text-zinc-600 dark:text-zinc-400 justify-center">
+              <CloudUpload className="mx-auto h-10 w-10 text-[var(--green-color)] dark:text-[var(--green-color)]" aria-hidden="true" />
+              <div className="flex text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 justify-center">
                 <label
                   htmlFor="proposal-file-upload"
-                  className="relative cursor-pointer rounded-md font-bold text-[var(--green-color)] dark:text-secondary-green-color hover:text-green-color focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-secondary-green-color"
+                  className="relative cursor-pointer rounded-md font-semibold text-[var(--green-color)] dark:text-[var(--foreground)] hover:text-[var(--green-color)] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[var(--green-color)]"
                 >
-                  <span>Pilih berkas</span>
+                  <span>Klik untuk upload</span>
                   <input
                     id="proposal-file-upload"
                     name="proposal-file-upload"
@@ -178,32 +244,32 @@ export default function MagangPKLStep2Form({
                     onChange={handleFileChange}
                   />
                 </label>
-                <p className="pl-1">atau seret ke sini</p>
               </div>
-              <p className="text-xs text-zinc-400 dark:text-zinc-550">
+              <p className="text-[11px] sm:text-xs text-zinc-400 dark:text-zinc-550">
                 Format PDF, JPG, atau PNG (Maks. 5MB)
               </p>
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-between p-3.5 bg-secondary-green-color/30 dark:bg-secondary-green-color/10 border border-green-color/50 dark:border-secondary-green-color/30 rounded-xl">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-secondary-green-color dark:bg-secondary-green-color rounded-lg text-green-color dark:text-secondary-green-color">
-                <FileText className="w-5 h-5" />
+          <div className="flex items-center justify-between p-3.5 bg-secondary-green-color/30 dark:bg-secondary-green-color/10 border border-green-color/30 dark:border-secondary-green-color/30 rounded-xl gap-3">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="p-2 bg-secondary-green-color dark:bg-secondary-green-color rounded-lg text-green-color dark:text-secondary-green-color shrink-0">
+                <FileText className="w-5 h-5" aria-hidden="true" />
               </div>
-              <div className="max-w-[200px] sm:max-w-[400px] truncate">
-                <p className="text-sm font-bold text-zinc-800 dark:text-zinc-200 truncate">{proposal.name}</p>
-                <p className="text-xs text-zinc-400">{(proposal.size / 1024 / 1024).toFixed(2)} MB</p>
+              <div className="min-w-0 flex-1 text-left">
+                <p className="text-xs sm:text-sm font-bold text-zinc-800 dark:text-zinc-200 truncate">{proposal.name}</p>
+                <p className="text-[11px] sm:text-xs text-zinc-400">{(proposal.size / 1024 / 1024).toFixed(2)} MB</p>
               </div>
             </div>
             <button
               type="button"
               disabled={loading}
               onClick={handleRemoveFile}
-              className="p-1 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition"
+              className="p-1.5 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition shrink-0 cursor-pointer"
               title="Hapus berkas"
+              aria-label="Hapus berkas"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5" aria-hidden="true" />
             </button>
           </div>
         )}

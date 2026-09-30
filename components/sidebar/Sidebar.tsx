@@ -99,7 +99,6 @@ export default function Sidebar() {
                     alt="Logo BRMP"
                     width={48}
                     height={48}
-                    priority
                 />
                 <span className="text-lg font-semibold text-white dark:text-zinc-50 text-center leading-tight">
                     Layanan Agroklimat Terintegrasi
@@ -118,19 +117,20 @@ export default function Sidebar() {
                             <div key={item.label} className="space-y-1">
                                 <button
                                     onClick={() => toggleMenu(item.label)}
+                                    aria-expanded={isExpanded}
                                     className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-xs font-medium transition-colors cursor-pointer ${hasActiveSub
                                         ? "text-white dark:bg-secondary-green-color/30 dark:text-secondary-green-color"
                                         : "text-white dark:text-zinc-400"
                                         }`}
                                 >
                                     <div className="flex items-center gap-3">
-                                        <Icon className="h-5 w-5" />
+                                        <Icon className="h-5 w-5" aria-hidden="true" />
                                         <span>{item.label}</span>
                                     </div>
                                     {isExpanded ? (
-                                        <ChevronDown className="h-4 w-4" />
+                                        <ChevronDown className="h-4 w-4" aria-hidden="true" />
                                     ) : (
-                                        <ChevronRight className="h-4 w-4" />
+                                        <ChevronRight className="h-4 w-4" aria-hidden="true" />
                                     )}
                                 </button>
 

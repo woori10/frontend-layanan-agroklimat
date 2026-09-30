@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { AlertCircle, CheckCircle2, FileText, Info, Phone, User, Calendar, Clock, HelpCircle, FileUp, X } from "lucide-react";
+import { AlertCircle, CheckCircle2, FileText, Info, Phone, User, Calendar, Clock, HelpCircle, CloudUpload, X } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 
 interface LayananItem {
@@ -434,21 +434,21 @@ export default function PengaduanForm({ onClose }: PengaduanFormProps) {
             </div>
 
             {/* Bukti Pendukung (Opsional) */}
-            <div className="space-y-1.5">
+            <div className="space-y-2">
                 <label className="block text-xs sm:text-sm font-bold text-zinc-700 dark:text-zinc-300">
                     Bukti Pendukung <span className="text-xs text-zinc-450 font-normal">(opsional)</span>
                 </label>
 
                 {!buktiFile ? (
-                    <div className="mt-1 flex justify-center px-4 py-4 border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-xl hover:border-secondary-green-color dark:hover:border-secondary-green-color/50 hover:bg-secondary-green-color/10 dark:hover:bg-secondary-green-color/5 transition cursor-pointer">
-                        <div className="space-y-1 text-center flex flex-col items-center">
-                            <FileUp className="mx-auto h-8 w-8 text-zinc-450 dark:text-zinc-650" />
-                            <div className="flex text-xs text-zinc-600 dark:text-zinc-450 justify-center">
+                    <div className="mt-1 flex justify-center px-4 sm:px-6 pt-5 pb-6 border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-xl hover:border-green-color dark:hover:border-secondary-green-color/50 hover:bg-secondary-green-color/10 dark:hover:bg-secondary-green-color/5 transition cursor-pointer">
+                        <div className="space-y-2 text-center flex flex-col items-center">
+                            <CloudUpload className="mx-auto h-10 w-10 text-[var(--green-color)] dark:text-[var(--green-color)]" aria-hidden="true" />
+                            <div className="flex text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 justify-center">
                                 <label
                                     htmlFor="bukti-file-upload"
-                                    className="relative cursor-pointer rounded-md font-bold text-[var(--green-color)] dark:text-secondary-green-color hover:text-secondary-green-color focus-within:outline-none"
+                                    className="relative cursor-pointer rounded-md font-semibold text-[var(--green-color)] dark:text-[var(--foreground)] hover:text-[var(--green-color)] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[var(--green-color)]"
                                 >
-                                    <span>Pilih berkas</span>
+                                    <span>Klik untuk upload</span>
                                     <input
                                         id="bukti-file-upload"
                                         name="bukti-file-upload"
@@ -460,32 +460,32 @@ export default function PengaduanForm({ onClose }: PengaduanFormProps) {
                                         onChange={handleFileChange}
                                     />
                                 </label>
-                                <p className="pl-1">atau seret ke sini</p>
                             </div>
-                            <p className="text-[10px] text-zinc-400 dark:text-zinc-550">
+                            <p className="text-[11px] sm:text-xs text-zinc-400 dark:text-zinc-550">
                                 PDF, JPG, atau PNG (Maks. 5MB)
                             </p>
                         </div>
                     </div>
                 ) : (
-                    <div className="flex items-center justify-between p-2.5 bg-secondary-green-color/30 dark:bg-secondary-green-color/10 border border-secondary-green-color/50 dark:border-secondary-green-color/30 rounded-xl">
-                        <div className="flex items-center gap-2">
-                            <div className="p-1.5 bg-secondary-green-color dark:bg-secondary-green-color rounded-lg text-secondary-green-color dark:text-secondary-green-color">
-                                <FileText className="w-4 h-4" />
+                    <div className="flex items-center justify-between p-3.5 bg-secondary-green-color/30 dark:bg-secondary-green-color/10 border border-green-color/30 dark:border-secondary-green-color/30 rounded-xl gap-3">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div className="p-2 bg-secondary-green-color dark:bg-secondary-green-color rounded-lg text-green-color dark:text-secondary-green-color shrink-0">
+                                <FileText className="w-5 h-5" aria-hidden="true" />
                             </div>
-                            <div className="max-w-[180px] sm:max-w-[350px] truncate">
-                                <p className="text-xs font-bold text-zinc-800 dark:text-zinc-200 truncate">{buktiFile.name}</p>
-                                <p className="text-[10px] text-zinc-400">{(buktiFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                            <div className="min-w-0 flex-1 text-left">
+                                <p className="text-xs sm:text-sm font-bold text-zinc-800 dark:text-zinc-200 truncate">{buktiFile.name}</p>
+                                <p className="text-[11px] sm:text-xs text-zinc-400">{(buktiFile.size / 1024 / 1024).toFixed(2)} MB</p>
                             </div>
                         </div>
                         <button
                             type="button"
                             disabled={loading}
                             onClick={handleRemoveFile}
-                            className="p-1 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition"
+                            className="p-1.5 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition shrink-0 cursor-pointer"
                             title="Hapus berkas"
+                            aria-label="Hapus berkas"
                         >
-                            <X className="w-4 h-4" />
+                            <X className="w-5 h-5" aria-hidden="true" />
                         </button>
                     </div>
                 )}

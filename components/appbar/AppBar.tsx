@@ -161,19 +161,20 @@ export default function AppBar({ onMenuClick, title }: AppBarProps) {
 
     return (
         <>
-            <header className="flex items-center justify-between border-b border-zinc-200/80 bg-white px-6 py-4 dark:bg-zinc-900 dark:border-zinc-800">
+            <header className="flex items-center justify-between border-b border-zinc-200/80 bg-white px-4 py-4 dark:bg-zinc-900 dark:border-zinc-800">
                 <div className="flex items-center gap-3 sm:gap-4">
                     <button
                         onClick={() => {
                             window.dispatchEvent(new Event("toggle-sidebar"));
                             if (onMenuClick) onMenuClick();
                         }}
+                        aria-label="Buka menu navigasi"
                         className="rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-100 lg:hidden dark:hover:bg-zinc-800 cursor-pointer"
                     >
-                        <Menu className="h-6 w-6" />
+                        <Menu className="h-6 w-6" aria-hidden="true" />
                     </button>
                     {dashboardTitle && (
-                        <h1 className="text-base sm:text-lg font-semibold text-[var(--foreground)] dark:text-zinc-100 tracking-tight">
+                        <h1 className="text-xs sm:text-lg font-semibold text-[var(--foreground)] dark:text-zinc-100 tracking-tight">
                             {dashboardTitle}
                         </h1>
                     )}
@@ -183,9 +184,10 @@ export default function AppBar({ onMenuClick, title }: AppBarProps) {
                     <div className="relative">
                         <button
                             onClick={handleToggleNotifikasi}
+                            aria-label={`Notifikasi${unreadCount > 0 ? `, ${unreadCount} belum dibaca` : ""}`}
                             className="relative rounded-xl border border-zinc-200 p-2 text-zinc-500 hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800 cursor-pointer transition"
                         >
-                            <Bell className="h-4 w-4" />
+                            <Bell className="h-4 w-4" aria-hidden="true" />
                             {unreadCount > 0 && (
                                 <span className="absolute top-1 right-1 flex h-2 w-2">
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -211,9 +213,10 @@ export default function AppBar({ onMenuClick, title }: AppBarProps) {
                                     <button
                                         onClick={handleMarkAllRead}
                                         title="Tandai semua sudah dibaca"
+                                        aria-label="Tandai semua notifikasi sudah dibaca"
                                         className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 dark:hover:text-zinc-200 dark:hover:bg-zinc-800 transition cursor-pointer"
                                     >
-                                        <CheckCheck className="w-4 h-4" />
+                                        <CheckCheck className="w-4 h-4" aria-hidden="true" />
                                     </button>
                                 </div>
 

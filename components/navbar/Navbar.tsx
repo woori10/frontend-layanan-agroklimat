@@ -59,8 +59,8 @@ export default function Navbar() {
         const unread = data.filter((n) => !n.dibaca).length;
         setUnreadCount(unread);
       })
-      .catch((err) => {
-        console.error("Gagal mengambil notifikasi:", err);
+      .catch(() => {
+        // Silent catch to prevent user timing overhead
       });
   };
 
@@ -83,8 +83,8 @@ export default function Navbar() {
       await markAllNotifikasiRead();
       setNotifications((prev) => prev.map((n) => ({ ...n, dibaca: true })));
       setUnreadCount(0);
-    } catch (err) {
-      console.error("Gagal menandai semua notifikasi dibaca:", err);
+    } catch {
+      // Silent catch
     }
   };
 
@@ -96,8 +96,8 @@ export default function Navbar() {
           prev.map((n) => (n.id === notif.id ? { ...n, dibaca: true } : n))
         );
         setUnreadCount((prev) => Math.max(0, prev - 1));
-      } catch (err) {
-        console.error("Gagal menandai notifikasi dibaca:", err);
+      } catch {
+        // Silent catch
       }
     }
     setNotifikasiDropdownOpen(false);
@@ -164,7 +164,6 @@ export default function Navbar() {
               alt="Logo BRMP"
               width={40}
               height={40}
-              priority
             />
             <div className="flex flex-col">
               <span className="font-bold text-sm leading-tight tracking-tight text-[var(--green-color)] dark:text-white">
@@ -214,80 +213,88 @@ export default function Navbar() {
                   </button>
 
                   {notifikasiDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-80 sm:w-96 max-w-[calc(100vw-2rem)] rounded-2xl border border-zinc-200/90 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-950 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                      {/* Header */}
-                      <div className="px-4 py-3.5 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-white dark:bg-zinc-950">
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-bold text-sm sm:text-base text-zinc-900 dark:text-zinc-100">
-                            Notifikasi
-                          </h3>
-                          {unreadCount > 0 && (
-                            <span className="text-[10px] bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 font-bold px-2 py-0.5 rounded-full">
-                              {unreadCount} baru
-                            </span>
+                    <>
+                      {/* Backdrop to close dropdown on click outside */}
+                      <div
+                        className="fixed inset-0 z-40 bg-transparent"
+                        onClick={() => setNotifikasiDropdownOpen(false)}
+                      />
+                      <div className="fixed sm:absolute left-3 right-3 sm:left-auto sm:right-0 top-[76px] sm:top-full sm:mt-2 w-auto sm:w-96 rounded-2xl border border-zinc-200/90 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-950 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                        {/* Header */}
+                        <div className="px-4 py-3.5 border-b border-zinc-100 dark:border-zinc-800 flex justify-between items-center bg-white dark:bg-zinc-950">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-bold text-sm sm:text-base text-zinc-900 dark:text-zinc-100">
+                              Notifikasi
+                            </h3>
+                            {unreadCount > 0 && (
+                              <span className="text-[10px] bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 font-bold px-2 py-0.5 rounded-full">
+                                {unreadCount} baru
+                              </span>
+                            )}
+                          </div>
+                          <button
+                            onClick={handleMarkAllRead}
+                            title="Tandai semua sudah dibaca"
+                            aria-label="Tandai semua notifikasi sudah dibaca"
+                            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 dark:hover:text-zinc-200 dark:hover:bg-zinc-800 transition cursor-pointer"
+                          >
+                            <CheckCheck className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        {/* List Notifikasi */}
+                        <div className="max-h-[calc(100vh-180px)] sm:max-h-96 overflow-y-auto divide-y divide-zinc-100 dark:divide-zinc-900">
+                          {notifications.length === 0 ? (
+                            <div className="px-4 py-10 text-center text-xs text-zinc-400 dark:text-zinc-500">
+                              <Bell className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                              Belum ada notifikasi.
+                            </div>
+                          ) : (
+                            notifications.map((notif) => (
+                              <div
+                                key={notif.id}
+                                onClick={() => handleNotificationItemClick(notif)}
+                                className="flex items-start gap-3.5 p-3.5 sm:p-4 hover:bg-zinc-50/90 dark:hover:bg-zinc-900/60 transition cursor-pointer text-left"
+                              >
+                                {/* Avatar Bell Bulat Abu-abu */}
+                                <div className="flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-zinc-100 dark:bg-zinc-800/90 flex items-center justify-center text-zinc-500 dark:text-zinc-400 mt-0.5">
+                                  <Bell className="w-4 h-4" />
+                                </div>
+
+                                {/* Teks Judul, Titik Hijau, Pesan & Waktu */}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <h4 className="font-semibold text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 leading-snug">
+                                      {notif.judul || "Pemberitahuan Layanan"}
+                                    </h4>
+                                    {!notif.dibaca && (
+                                      <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0 mt-1.5" />
+                                    )}
+                                  </div>
+                                  <p className="text-[11px] sm:text-xs text-zinc-600 dark:text-zinc-300 mt-1 leading-relaxed break-words whitespace-normal">
+                                    {notif.pesan}
+                                  </p>
+                                  <span className="text-[10px] sm:text-[11px] text-zinc-400 dark:text-zinc-500 mt-1.5 block font-normal">
+                                    {formatTimeAgo(notif.timestamp)}
+                                  </span>
+                                </div>
+                              </div>
+                            ))
                           )}
                         </div>
-                        <button
-                          onClick={handleMarkAllRead}
-                          title="Tandai semua sudah dibaca"
-                          className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 dark:hover:text-zinc-200 dark:hover:bg-zinc-800 transition cursor-pointer"
-                        >
-                          <CheckCheck className="w-4 h-4" />
-                        </button>
-                      </div>
 
-                      {/* List Notifikasi */}
-                      <div className="max-h-80 sm:max-h-96 overflow-y-auto divide-y divide-zinc-100 dark:divide-zinc-900">
-                        {notifications.length === 0 ? (
-                          <div className="px-4 py-10 text-center text-xs text-zinc-400 dark:text-zinc-500">
-                            <Bell className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                            Belum ada notifikasi.
-                          </div>
-                        ) : (
-                          notifications.map((notif) => (
-                            <div
-                              key={notif.id}
-                              onClick={() => handleNotificationItemClick(notif)}
-                              className="flex items-start gap-3.5 p-3.5 sm:p-4 hover:bg-zinc-50/90 dark:hover:bg-zinc-900/60 transition cursor-pointer text-left"
-                            >
-                              {/* Avatar Bell Bulat Abu-abu */}
-                              <div className="flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-zinc-100 dark:bg-zinc-800/90 flex items-center justify-center text-zinc-500 dark:text-zinc-400 mt-0.5">
-                                <Bell className="w-4 h-4" />
-                              </div>
-
-                              {/* Teks Judul, Titik Hijau, Pesan & Waktu */}
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-start justify-between gap-2">
-                                  <h4 className="font-semibold text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 leading-snug">
-                                    {notif.judul || "Pemberitahuan Layanan"}
-                                  </h4>
-                                  {!notif.dibaca && (
-                                    <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0 mt-1.5" />
-                                  )}
-                                </div>
-                                <p className="text-[11px] sm:text-xs text-zinc-600 dark:text-zinc-300 mt-1 leading-relaxed break-words whitespace-normal">
-                                  {notif.pesan}
-                                </p>
-                                <span className="text-[10px] sm:text-[11px] text-zinc-400 dark:text-zinc-500 mt-1.5 block font-normal">
-                                  {formatTimeAgo(notif.timestamp)}
-                                </span>
-                              </div>
-                            </div>
-                          ))
-                        )}
+                        {/* Footer */}
+                        <div className="px-4 py-2.5 border-t border-zinc-100 dark:border-zinc-800 text-center bg-zinc-50/50 dark:bg-zinc-900/20">
+                          <Link
+                            href="/layanan-saya"
+                            onClick={() => setNotifikasiDropdownOpen(false)}
+                            className="text-[11px] font-bold text-[var(--green-color)] dark:text-secondary-green-color hover:underline"
+                          >
+                            Lihat Semua Permohonan
+                          </Link>
+                        </div>
                       </div>
-
-                      {/* Footer */}
-                      <div className="px-4 py-2.5 border-t border-zinc-100 dark:border-zinc-800 text-center bg-zinc-50/50 dark:bg-zinc-900/20">
-                        <Link
-                          href="/layanan-saya"
-                          onClick={() => setNotifikasiDropdownOpen(false)}
-                          className="text-[11px] font-bold text-[var(--green-color)] dark:text-secondary-green-color hover:underline"
-                        >
-                          Lihat Semua Permohonan
-                        </Link>
-                      </div>
-                    </div>
+                    </>
                   )}
                 </div>
 
@@ -296,6 +303,9 @@ export default function Navbar() {
                 <div className="relative hidden md:block">
                   <button
                     onClick={handleToggleProfile}
+                    aria-label={`Menu akun ${user.nama || 'pengguna'}`}
+                    aria-expanded={profileDropdownOpen}
+                    aria-haspopup="true"
                     className="flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-700 hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800 transition cursor-pointer"
                   >
                     <div className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary-green-color text-green-color dark:bg-secondary-green-color dark:text-secondary-green-color">
@@ -306,32 +316,38 @@ export default function Navbar() {
                   </button>
 
                   {profileDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 rounded-xl border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-800 dark:bg-zinc-950">
-                      <Link
-                        href={"/profile-publik"}
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-900"
-                      >
-                        <User className="h-4 w-4" />
-                        <span>Profil Saya</span>
-                      </Link>
-                      <Link
-                        href="/layanan-saya"
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-900"
-                      >
-                        <Briefcase className="h-4 w-4" />
-                        <span>Layanan Saya</span>
-                      </Link>
-                      <button
-                        onClick={() => {
-                          setProfileDropdownOpen(false);
-                          setLogoutModalOpen(true);
-                        }}
-                        className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-red-650 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/20 cursor-pointer"
-                      >
-                        <LogOut className="h-4 w-4" />
-                        <span>Logout</span>
-                      </button>
-                    </div>
+                    <>
+                      <div
+                        className="fixed inset-0 z-40 bg-transparent"
+                        onClick={() => setProfileDropdownOpen(false)}
+                      />
+                      <div className="absolute right-0 mt-2 w-48 rounded-xl border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-800 dark:bg-zinc-950 z-50">
+                        <Link
+                          href={"/profile-publik"}
+                          className="flex items-center gap-2 px-4 py-2.5 text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                        >
+                          <User className="h-4 w-4" />
+                          <span>Profil Saya</span>
+                        </Link>
+                        <Link
+                          href="/layanan-saya"
+                          className="flex items-center gap-2 px-4 py-2.5 text-sm text-zinc-700 hover:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                        >
+                          <Briefcase className="h-4 w-4" />
+                          <span>Layanan Saya</span>
+                        </Link>
+                        <button
+                          onClick={() => {
+                            setProfileDropdownOpen(false);
+                            setLogoutModalOpen(true);
+                          }}
+                          className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-red-650 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/20 cursor-pointer"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          <span>Logout</span>
+                        </button>
+                      </div>
+                    </>
                   )}
                 </div>
               </div>
@@ -352,11 +368,11 @@ export default function Navbar() {
               </div>
             )}
 
-            {/* Mobile Hamburger Button */}
+            {/* Mobile Hamburger Button — min 48x48px tap target */}
             <button
               type="button"
               onClick={handleToggleMobileMenu}
-              className="flex md:hidden items-center justify-center p-2 rounded-xl bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200 cursor-pointer transition shadow-xs"
+              className="flex md:hidden items-center justify-center w-12 h-12 rounded-xl bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-200 cursor-pointer transition shadow-xs"
               aria-label={mobileMenuOpen ? "Tutup menu" : "Buka menu"}
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -397,7 +413,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-1.5 rounded-lg text-zinc-500 hover:bg-zinc-200/60 dark:hover:bg-zinc-800 transition cursor-pointer"
+                className="w-12 h-12 flex items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-200/60 dark:hover:bg-zinc-800 transition cursor-pointer"
                 aria-label="Tutup menu"
               >
                 <X className="h-5 w-5" />

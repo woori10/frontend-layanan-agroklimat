@@ -10,6 +10,7 @@ import { getAuditLogs } from "@/lib/tiket";
 import {
     History,
     Search,
+    ChevronLeft,
     ChevronRight,
     ChevronDown,
     ChevronUp,
@@ -21,6 +22,8 @@ import {
     FileSpreadsheet,
     FileText,
     Loader2,
+    Calendar,
+    X,
 } from "lucide-react";
 import StatusLayananBadge from "@/components/badge/status-layanan/StatusLayananBadge";
 
@@ -62,6 +65,8 @@ export default function AuditLogPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedRole, setSelectedRole] = useState("semua");
     const [selectedAction, setSelectedAction] = useState("semua");
+    const [startMonth, setStartMonth] = useState("");
+    const [endMonth, setEndMonth] = useState("");
     const [sortOrder, setSortOrder] = useState<"terbaru" | "terlama">("terbaru");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
@@ -137,6 +142,34 @@ export default function AuditLogPage() {
             result = result.filter(log => log.aksi === selectedAction);
         }
 
+        // Apply month range filter
+        if (startMonth || endMonth) {
+            result = result.filter(log => {
+                try {
+                    const d = new Date(log.timestamp);
+                    if (isNaN(d.getTime())) return true;
+                    const y = d.getFullYear();
+                    const m = String(d.getMonth() + 1).padStart(2, "0");
+                    const ym = `${y}-${m}`;
+
+                    if (startMonth && endMonth) {
+                        const minM = startMonth <= endMonth ? startMonth : endMonth;
+                        const maxM = startMonth <= endMonth ? endMonth : startMonth;
+                        return ym >= minM && ym <= maxM;
+                    }
+                    if (startMonth) {
+                        return ym >= startMonth;
+                    }
+                    if (endMonth) {
+                        return ym <= endMonth;
+                    }
+                    return true;
+                } catch {
+                    return true;
+                }
+            });
+        }
+
         // Apply sort
         result.sort((a, b) => {
             const timeA = new Date(a.timestamp).getTime();
@@ -146,7 +179,7 @@ export default function AuditLogPage() {
 
         setFilteredLogs(result);
         setCurrentPage(1);
-    }, [logs, searchQuery, selectedRole, selectedAction, sortOrder]);
+    }, [logs, searchQuery, selectedRole, selectedAction, sortOrder, startMonth, endMonth]);
 
     // Pagination calculations
     const totalItems = filteredLogs.length;
@@ -168,6 +201,18 @@ export default function AuditLogPage() {
             });
         } catch {
             return dateStr;
+        }
+    };
+
+    // Helper to format YYYY-MM into Indonesian Month Year string
+    const formatMonthLabel = (ym: string) => {
+        if (!ym) return "";
+        try {
+            const [y, m] = ym.split("-");
+            const d = new Date(Number(y), Number(m) - 1, 1);
+            return d.toLocaleDateString("id-ID", { month: "long", year: "numeric" });
+        } catch {
+            return ym;
         }
     };
 
@@ -194,8 +239,10 @@ export default function AuditLogPage() {
                 return { label: "Tiket Ditolak", bg: "bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-400" };
             case "menunggu_persetujuan_kepala_balai":
                 return { label: "Diverifikasi Admin", bg: "bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-400" };
+            case "menunggu_ebilling":
+                return { label: "Menunggu Kode E-Billing", bg: "bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400" };
             case "menunggu_pembayaran":
-                return { label: "Disetujui Kepala Balai", bg: "bg-cyan-50 text-cyan-700 dark:bg-cyan-950/30 dark:text-cyan-400" };
+                return { label: "Tagihan Diterbitkan", bg: "bg-cyan-50 text-cyan-700 dark:bg-cyan-950/30 dark:text-cyan-400" };
             case "diproses":
                 return { label: "Mulai Diproses", bg: "bg-purple-50 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400" };
             case "selesai":
@@ -257,7 +304,10 @@ export default function AuditLogPage() {
             XLSX.utils.book_append_sheet(workbook, worksheet, "Audit Log");
 
             const dateStr = new Date().toISOString().slice(0, 10);
-            XLSX.writeFile(workbook, `audit-log-agroklimat-${dateStr}.xlsx`);
+            const fileSuffix = startMonth && endMonth
+                ? `${startMonth}_sd_${endMonth}`
+                : (startMonth ? `mulai_${startMonth}` : (endMonth ? `sampai_${endMonth}` : dateStr));
+            XLSX.writeFile(workbook, `audit-log-agroklimat-${fileSuffix}.xlsx`);
         } catch (err: any) {
             console.error("Export Excel error:", err);
             alert("Gagal mengunduh file Excel: " + err.message);
@@ -297,7 +347,21 @@ export default function AuditLogPage() {
             doc.setFontSize(8);
             doc.setTextColor(120, 120, 120);
             const exportDate = new Date().toLocaleString("id-ID", { dateStyle: "long", timeStyle: "short" });
-            doc.text(`Waktu Cetak: ${exportDate} | Jumlah Rekaman: ${filteredLogs.length} data`, doc.internal.pageSize.getWidth() / 2, 66, { align: "center" });
+            const periodText = startMonth && endMonth
+                ? `Periode: ${formatMonthLabel(startMonth)} s.d. ${formatMonthLabel(endMonth)}`
+                : startMonth
+                    ? `Periode: Mulai ${formatMonthLabel(startMonth)}`
+                    : endMonth
+                        ? `Periode: Sampai ${formatMonthLabel(endMonth)}`
+                        : "";
+
+            const headerInfo = [
+                `Waktu Cetak: ${exportDate}`,
+                periodText,
+                `Jumlah Rekaman: ${filteredLogs.length} data`
+            ].filter(Boolean).join(" | ");
+
+            doc.text(headerInfo, doc.internal.pageSize.getWidth() / 2, 66, { align: "center" });
 
             // Garis pembatas
             doc.setDrawColor(210, 210, 210);
@@ -365,7 +429,10 @@ export default function AuditLogPage() {
             });
 
             const dateStr = new Date().toISOString().slice(0, 10);
-            doc.save(`audit-log-agroklimat-${dateStr}.pdf`);
+            const fileSuffix = startMonth && endMonth
+                ? `${startMonth}_sd_${endMonth}`
+                : (startMonth ? `mulai_${startMonth}` : (endMonth ? `sampai_${endMonth}` : dateStr));
+            doc.save(`audit-log-agroklimat-${fileSuffix}.pdf`);
         } catch (err: any) {
             console.error("Export PDF error:", err);
             alert("Gagal mengunduh file PDF: " + err.message);
@@ -419,7 +486,7 @@ export default function AuditLogPage() {
                 <AppBar onMenuClick={() => setSidebarOpen(true)} />
 
                 {/* Content Container */}
-                <main className="flex-1 p-8 space-y-6">
+                <main className="flex-1 p-4 sm:p-6 md:p-8 space-y-6">
                     {/* Header Section */}
                     <div className="flex justify-between items-center w-full relative overflow-hidden space-y-3">
                         <div className="space-y-3">
@@ -461,7 +528,7 @@ export default function AuditLogPage() {
                     </div>
 
                     {/* Table Container */}
-                    <div className="rounded-2xl p-4 sm:p-6 border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 overflow-hidden">
+                    <div className="rounded-2xl p-4 sm:p-6 md:p-8 border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 overflow-hidden">
 
                         {/* Error Banner */}
                         {error && (
@@ -474,35 +541,9 @@ export default function AuditLogPage() {
                         {/* Control Panel */}
                         <div className="mb-6 flex flex-col gap-4">
                             <div className="flex justify-between items-center flex-wrap gap-3">
-
-                                {/* Tab Filter Aksi (kiri) — style seperti kelola-pegawai */}
-                                {/* <div className="flex rounded-xl bg-secondary-green-color p-2 dark:border-zinc-700 dark:bg-zinc-800">
-                                    {[
-                                        { label: "Semua", value: "semua", count: logs.length },
-                                        { label: "Tiket Diajukan", value: "tiket_dibuat", count: logs.filter(l => l.aksi === "tiket_dibuat").length },
-                                        { label: "Diproses", value: "diproses", count: logs.filter(l => l.aksi === "diproses").length },
-                                        { label: "Selesai", value: "selesai", count: logs.filter(l => l.aksi === "selesai").length },
-                                        { label: "Ditolak", value: "ditolak", count: logs.filter(l => l.aksi === "ditolak").length },
-                                    ].map((item) => (
-                                        <button
-                                            key={item.value}
-                                            onClick={() => {
-                                                setSelectedAction(item.value);
-                                                setCurrentPage(1);
-                                            }}
-                                            className={`rounded-lg px-4 py-2 text-xs font-medium transition ${selectedAction === item.value
-                                                ? "bg-white text-[var(--green-color)] shadow-sm dark:bg-zinc-900"
-                                                : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400"
-                                                }`}
-                                        >
-                                            {item.label}
-                                            <span className="ml-1.5 text-[10px]">({item.count})</span>
-                                        </button>
-                                    ))}
+                                {/* <div>
+                                    <h2 className="text-base sm:text-lg font-bold text-zinc-800 dark:text-zinc-100">Log Aktivitas</h2>
                                 </div> */}
-                                <div>
-                                    <p className="text-[var-(--foreground)] text-lg font-semibold">Log Aktivitas</p>
-                                </div>
 
                                 {/* Filter kanan */}
                                 <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
@@ -542,8 +583,66 @@ export default function AuditLogPage() {
                                         <ChevronRight className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 rotate-90 text-zinc-400" />
                                     </div>
 
+                                    {/* Filter Rentang 2 Bulan (Export & View) */}
+                                    <div className="flex items-center gap-1.5 bg-zinc-50 dark:bg-zinc-800/60 p-1 rounded-xl border border-zinc-200 dark:border-zinc-700">
+                                        <div className="flex items-center gap-1 pl-2 pr-1 text-zinc-500 dark:text-zinc-400">
+                                            <Calendar className="h-3.5 w-3.5 text-[var(--green-color)]" />
+                                            <span className="text-[11px] font-semibold hidden md:inline">Bulan:</span>
+                                        </div>
+
+                                        <div className="relative">
+                                            <input
+                                                type="month"
+                                                value={startMonth}
+                                                onChange={(e) => {
+                                                    setStartMonth(e.target.value);
+                                                    if (endMonth && e.target.value && e.target.value > endMonth) {
+                                                        setEndMonth(e.target.value);
+                                                    }
+                                                    setCurrentPage(1);
+                                                }}
+                                                title="Pilih Bulan Mulai"
+                                                aria-label="Bulan Mulai"
+                                                className="rounded-lg border border-zinc-200 bg-white py-1.5 px-2.5 text-xs text-zinc-700 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-200 outline-none transition focus:border-[var(--green-color)] cursor-pointer"
+                                            />
+                                        </div>
+
+                                        <span className="text-xs text-zinc-400 font-medium">s/d</span>
+
+                                        <div className="relative">
+                                            <input
+                                                type="month"
+                                                value={endMonth}
+                                                min={startMonth || undefined}
+                                                onChange={(e) => {
+                                                    setEndMonth(e.target.value);
+                                                    setCurrentPage(1);
+                                                }}
+                                                title="Pilih Bulan Selesai"
+                                                aria-label="Bulan Selesai"
+                                                className="rounded-lg border border-zinc-200 bg-white py-1.5 px-2.5 text-xs text-zinc-700 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-200 outline-none transition focus:border-[var(--green-color)] cursor-pointer"
+                                            />
+                                        </div>
+
+                                        {(startMonth || endMonth) && (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setStartMonth("");
+                                                    setEndMonth("");
+                                                    setCurrentPage(1);
+                                                }}
+                                                className="p-1 text-zinc-400 hover:text-red-500 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition"
+                                                title="Hapus filter bulan"
+                                                aria-label="Hapus filter bulan"
+                                            >
+                                                <X className="h-3.5 w-3.5" aria-hidden="true" />
+                                            </button>
+                                        )}
+                                    </div>
+
                                     {/* Sort Button */}
-                                    <button
+                                    {/* <button
                                         type="button"
                                         onClick={() => {
                                             setSortOrder(prev => prev === "terbaru" ? "terlama" : "terbaru");
@@ -553,7 +652,7 @@ export default function AuditLogPage() {
                                         title={sortOrder === "terbaru" ? "Urutkan dari terlama" : "Urutkan dari terbaru"}
                                     >
                                         <ArrowUpDown className="h-4 w-4" />
-                                    </button>
+                                    </button> */}
 
                                     {/* Refresh Button */}
                                     <button
@@ -600,7 +699,7 @@ export default function AuditLogPage() {
                         </div>
 
                         {/* Table */}
-                        <div className="w-full overflow-hidden">
+                        <div className="overflow-x-auto rounded-lg border border-zinc-200/80 dark:border-zinc-800">
                             {loading ? (
                                 <div className="flex flex-col items-center justify-center py-20 space-y-4">
                                     <div className="h-8 w-8 animate-spin rounded-full border-4 border-secondary-green-color border-t-transparent"></div>
@@ -613,29 +712,29 @@ export default function AuditLogPage() {
                                     <p className="text-xs">Coba sesuaikan kata kunci pencarian atau filter Anda.</p>
                                 </div>
                             ) : (
-                                <table className="w-full table-fixed divide-y divide-zinc-200/80 dark:divide-zinc-800">
+                                <table className="min-w-full divide-y divide-zinc-200/80 dark:divide-zinc-800">
                                     {/* Header — green seperti kelola-pegawai */}
                                     <thead className="bg-[var(--secondary-green-color)]">
                                         <tr>
-                                            <th scope="col" className="w-[4%] px-1 py-3 text-center text-xs font-semibold text-[var(--foreground)] tracking-wider">
+                                            <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-[var(--foreground)] tracking-wider w-16 whitespace-nowrap">
                                                 No.
                                             </th>
-                                            <th scope="col" className="w-[21%] px-2.5 py-3 text-left text-xs font-semibold text-[var(--foreground)] tracking-wider">
+                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] tracking-wider whitespace-nowrap">
                                                 No. Tiket
                                             </th>
-                                            <th scope="col" className="w-[13%] px-2 py-3 text-left text-xs font-semibold text-[var(--foreground)] tracking-wider">
+                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] tracking-wider whitespace-nowrap">
                                                 Waktu
                                             </th>
-                                            <th scope="col" className="w-[13%] px-2 py-3 text-left text-xs font-semibold text-[var(--foreground)] tracking-wider">
+                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] tracking-wider whitespace-nowrap">
                                                 Nama Pengguna
                                             </th>
-                                            <th scope="col" className="w-[10%] px-2 py-3 text-left text-xs font-semibold text-[var(--foreground)] tracking-wider">
+                                            <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-[var(--foreground)] tracking-wider whitespace-nowrap">
                                                 Peran
                                             </th>
-                                            <th scope="col" className="w-[14%] px-2 py-3 text-center text-xs font-semibold text-[var(--foreground)] tracking-wider">
+                                            <th scope="col" className="px-6 py-4.5 text-center text-xs font-semibold text-[var(--foreground)] tracking-wider whitespace-nowrap">
                                                 Aktivitas
                                             </th>
-                                            <th scope="col" className="w-[25%] px-3 py-3 text-left text-xs font-semibold text-[var(--foreground)] tracking-wider">
+                                            <th scope="col" className="px-6 py-4.5 text-left text-xs font-semibold text-[var(--foreground)] tracking-wider min-w-[260px] whitespace-nowrap">
                                                 Detail Perubahan
                                             </th>
                                         </tr>
@@ -656,64 +755,46 @@ export default function AuditLogPage() {
                                                 <tr
                                                     key={log.id}
                                                     onClick={() => toggleRowExpand(log.id)}
-                                                    className={`cursor-pointer transition-colors ${
-                                                        isExpanded
-                                                            ? "bg-emerald-50/40 dark:bg-emerald-950/20"
-                                                            : "hover:bg-zinc-50/80 dark:hover:bg-zinc-800/50"
-                                                    }`}
+                                                    className={`cursor-pointer transition-colors ${isExpanded
+                                                        ? "bg-emerald-50/40 dark:bg-emerald-950/20"
+                                                        : "hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50"
+                                                        }`}
                                                     title={isExpanded ? "Klik untuk merapatkan kembali" : "Klik untuk melihat seluruh pesan yang terpotong"}
                                                 >
                                                     {/* No */}
-                                                    <td className="px-1 py-3 whitespace-nowrap text-xs text-zinc-500 text-center align-top">
+                                                    <td className="whitespace-nowrap px-6 py-5.5 text-center text-xs text-zinc-500 dark:text-zinc-400 font-medium">
                                                         {startIndex + index + 1}
                                                     </td>
 
-                                                    {/* No Tiket — sejajar kiri, tidak ketimpa */}
-                                                    <td className="px-2.5 py-3 whitespace-nowrap text-left align-top">
+                                                    {/* No Tiket */}
+                                                    <td className="whitespace-nowrap px-6 py-5.5 text-left text-xs font-bold text-[#2C5E3B] dark:text-secondary-green-color">
                                                         {log.tiket ? (
-                                                            <span
-                                                                className="text-xs font-bold text-[#2C5E3B] dark:text-secondary-green-color block whitespace-nowrap"
-                                                                title={log.tiket.no_tiket}
-                                                            >
-                                                                {log.tiket.no_tiket}
-                                                            </span>
+                                                            <span>{log.tiket.no_tiket}</span>
                                                         ) : (
-                                                            <span className="text-xs text-zinc-300 dark:text-zinc-700">-</span>
+                                                            <span className="text-zinc-300 dark:text-zinc-700 font-normal">-</span>
                                                         )}
                                                     </td>
 
-                                                    {/* Waktu — sejajar kiri, format bersih */}
-                                                    <td className="px-2 py-3 whitespace-nowrap text-left align-top">
+                                                    {/* Waktu */}
+                                                    <td className="whitespace-nowrap px-6 py-5.5 text-left text-xs text-zinc-600 dark:text-zinc-400">
                                                         <div className="flex flex-col text-left">
-                                                            <span className="text-xs text-zinc-500 dark:text-zinc-400 whitespace-nowrap" title={formatDateTime(log.timestamp)}>
+                                                            <span className="font-medium whitespace-nowrap" title={formatDateTime(log.timestamp)}>
                                                                 {timeAgo(log.timestamp)}
                                                             </span>
-                                                            {isExpanded && (
-                                                                <span className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-1 leading-tight whitespace-nowrap">
-                                                                    {formatDateTime(log.timestamp)}
-                                                                </span>
-                                                            )}
+                                                            <span className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-0.5 whitespace-nowrap">
+                                                                {formatDateTime(log.timestamp)}
+                                                            </span>
                                                         </div>
                                                     </td>
 
-                                                    {/* Nama Pengguna — ukuran dikecilkan */}
-                                                    <td className="px-2 py-3 text-left align-top min-w-0">
-                                                        <div className="flex flex-col min-w-0">
-                                                            <span
-                                                                className={`text-xs font-medium text-zinc-700 dark:text-zinc-300 ${
-                                                                    isExpanded ? "break-words leading-tight" : "truncate"
-                                                                }`}
-                                                                title={nama}
-                                                            >
+                                                    {/* Nama Pengguna */}
+                                                    <td className="px-6 py-5.5 text-left text-xs text-zinc-800 dark:text-zinc-100 font-medium whitespace-nowrap">
+                                                        <div className="flex flex-col">
+                                                            <span className="font-semibold text-zinc-900 dark:text-zinc-100">
                                                                 {nama}
                                                             </span>
                                                             {subLabel && (
-                                                                <span
-                                                                    className={`text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5 ${
-                                                                        isExpanded ? "break-words leading-tight" : "truncate"
-                                                                    }`}
-                                                                    title={subLabel}
-                                                                >
+                                                                <span className="text-[11px] text-zinc-400 font-normal mt-0.5">
                                                                     {subLabel}
                                                                 </span>
                                                             )}
@@ -721,19 +802,19 @@ export default function AuditLogPage() {
                                                     </td>
 
                                                     {/* Peran */}
-                                                    <td className="px-2 py-3 whitespace-nowrap text-left text-xs text-zinc-500 align-top">
+                                                    <td className="whitespace-nowrap px-6 py-5.5 text-center text-xs text-zinc-600 dark:text-zinc-400">
                                                         {log.user ? getRoleLabel(log.user.role) : "-"}
                                                     </td>
 
                                                     {/* Aktivitas */}
-                                                    <td className="px-2 py-3 whitespace-nowrap text-center align-top">
+                                                    <td className="whitespace-nowrap px-6 py-5.5 text-center text-xs">
                                                         <div className="flex justify-center">
                                                             <StatusLayananBadge status={log.aksi} className="whitespace-nowrap" />
                                                         </div>
                                                     </td>
 
                                                     {/* Detail Perubahan — tampil penuh jika dibuka */}
-                                                    <td className="px-3 py-3 text-left text-xs text-zinc-500 dark:text-zinc-400 align-top" title={log.detail_perubahan || ""}>
+                                                    <td className="px-6 py-5.5 text-left text-xs text-zinc-600 dark:text-zinc-400 min-w-[260px]">
                                                         <div className="flex items-start justify-between gap-2">
                                                             <p className={`break-words leading-relaxed ${isExpanded ? "whitespace-pre-wrap" : "line-clamp-2"}`}>
                                                                 {log.detail_perubahan || <span className="text-zinc-300 dark:text-zinc-700 italic">-</span>}
@@ -757,11 +838,11 @@ export default function AuditLogPage() {
                             )}
                         </div>
 
-                        {/* Pagination — numbered seperti kelola-pegawai */}
+                        {/* Pagination Footer */}
                         {!loading && filteredLogs.length > 0 && (
-                            <div className="flex items-center justify-between border-t border-zinc-200 px-2 pt-5 dark:border-zinc-800">
+                            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-zinc-200 px-2 pt-5 dark:border-zinc-800">
                                 {/* Info jumlah data */}
-                                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                                <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 text-center sm:text-left">
                                     Menampilkan{" "}
                                     <span className="font-medium text-zinc-900 dark:text-zinc-100">
                                         {filteredLogs.length === 0 ? 0 : startIndex + 1}
@@ -778,23 +859,22 @@ export default function AuditLogPage() {
                                 </p>
 
                                 {/* Pagination dengan nomor */}
-                                <div className="flex items-center gap-1">
-                                    {/* Previous */}
+                                <div className="flex items-center gap-1 flex-wrap justify-center">
                                     <button
-                                        onClick={() => setCurrentPage(prev => prev - 1)}
+                                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                         disabled={currentPage === 1}
-                                        className="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-zinc-800"
+                                        className="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-zinc-800 cursor-pointer"
+                                        title="Sebelumnya"
                                     >
-                                        ‹
+                                        <ChevronLeft className="h-4 w-4" />
                                     </button>
 
-                                    {/* Page numbers */}
                                     {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                                         <button
                                             key={page}
                                             onClick={() => setCurrentPage(page)}
-                                            className={`flex h-9 min-w-9 items-center justify-center rounded-lg px-2 text-sm font-medium transition ${currentPage === page
-                                                ? "bg-[var(--green-color)] text-white"
+                                            className={`flex h-9 min-w-9 items-center justify-center rounded-lg px-2 text-sm font-medium transition cursor-pointer ${currentPage === page
+                                                ? "bg-[var(--green-color)] text-white shadow-sm"
                                                 : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
                                                 }`}
                                         >
@@ -802,13 +882,13 @@ export default function AuditLogPage() {
                                         </button>
                                     ))}
 
-                                    {/* Next */}
                                     <button
-                                        onClick={() => setCurrentPage(prev => prev + 1)}
+                                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                         disabled={currentPage === totalPages}
-                                        className="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-zinc-800"
+                                        className="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40 dark:hover:bg-zinc-800 cursor-pointer"
+                                        title="Selanjutnya"
                                     >
-                                        ›
+                                        <ChevronRight className="h-4 w-4" />
                                     </button>
                                 </div>
                             </div>

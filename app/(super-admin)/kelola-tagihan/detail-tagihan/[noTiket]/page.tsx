@@ -24,6 +24,8 @@ interface Tagihan {
     bank_pengirim?: string | null;
     nama_pengirim?: string | null;
     tanggal_transfer?: string | null;
+    kode_ebilling?: string | null;
+    ntpn?: string | null;
 }
 
 interface TiketDetail {
@@ -136,7 +138,8 @@ export default function DetailTagihanSuperAdminPage({ params }: PageProps) {
         tiket?.user?.nama ||
         "-";
 
-    const namaBank = tiket?.tagihan?.bank_pengirim || formAnswers.nama_bank || "Bank Mandiri";
+    const isPeminjamanAlat = tiket?.layanan?.slug === "peminjaman-alat";
+    const namaBank = tiket?.tagihan?.bank_pengirim || formAnswers.nama_bank || (isPeminjamanAlat ? "E-Billing" : "Bank Mandiri");
     const tanggalTagihan = formatDateIndo(tiket?.tagihan?.tanggal_transfer || tiket?.tanggal_submit);
     const totalTagihan = tiket?.tagihan?.jumlah || 0;
     const displayNoTiket = tiket?.no_tiket || (noTiket ? decodeURIComponent(noTiket) : "");
@@ -150,19 +153,19 @@ export default function DetailTagihanSuperAdminPage({ params }: PageProps) {
 
                 <main className="flex-1 p-6 sm:p-8 space-y-6">
                     {/* Breadcrumb */}
-                    <div className="flex items-center gap-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300">
                         <Link
                             href="/kelola-tagihan"
-                            className="flex items-center text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white transition"
+                            className="flex items-center text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white transition shrink-0"
                         >
-                            <ChevronLeft className="h-4 w-4 mr-1 text-zinc-700 dark:text-zinc-300" />
+                            <ChevronLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-0.5 text-zinc-700 dark:text-zinc-300" />
                             Kelola Tagihan
                         </Link>
-                        <span className="text-zinc-400">/</span>
+                        <span className="text-zinc-400 select-none">/</span>
                         <span className="font-semibold text-zinc-900 dark:text-zinc-100">
                             Detail Tagihan
                         </span>
-                        <span className="text-zinc-700 dark:text-zinc-300">/</span>
+                        <span className="text-zinc-400 dark:text-zinc-600 select-none">/</span>
                         <span className="font-semibold text-zinc-900 dark:text-zinc-100">
                             {displayNoTiket}
                         </span>
@@ -193,6 +196,12 @@ export default function DetailTagihanSuperAdminPage({ params }: PageProps) {
                                     <div>
                                         <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Detail Tagihan</h1>
                                         <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">Nama: {namaPemohon}</p>
+                                        {isPeminjamanAlat && tiket?.tagihan?.kode_ebilling && (
+                                            <div className="mt-2 inline-flex items-center gap-2 px-2.5 py-1 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 rounded-lg text-xs font-mono font-bold text-amber-800 dark:text-amber-300">
+                                                <span>Kode E-Billing:</span>
+                                                <span className="tracking-wider">{tiket.tagihan.kode_ebilling}</span>
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="sm:text-right space-y-1">
                                         <div className="flex sm:justify-end items-center gap-4 text-xs sm:text-sm">
@@ -200,9 +209,17 @@ export default function DetailTagihanSuperAdminPage({ params }: PageProps) {
                                             <span className="font-bold text-zinc-900 dark:text-white">{tanggalTagihan}</span>
                                         </div>
                                         <div className="flex sm:justify-end items-center gap-4 text-xs sm:text-sm">
-                                            <span className="text-zinc-500">Rekening Tujuan:</span>
-                                            <span className="font-bold text-zinc-900 dark:text-white">Bank Mandiri</span>
+                                            <span className="text-zinc-500">{isPeminjamanAlat ? "Metode Pembayaran:" : "Rekening Tujuan:"}</span>
+                                            <span className="font-bold text-zinc-900 dark:text-white">
+                                                {isPeminjamanAlat ? "E-Billing (SIMPONI / MPN)" : "Bank Mandiri"}
+                                            </span>
                                         </div>
+                                        {isPeminjamanAlat && tiket?.tagihan?.ntpn && (
+                                            <div className="flex sm:justify-end items-center gap-4 text-xs sm:text-sm">
+                                                <span className="text-zinc-500">Nomor NTPN:</span>
+                                                <span className="font-bold font-mono text-zinc-900 dark:text-white">{tiket.tagihan.ntpn}</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -212,13 +229,21 @@ export default function DetailTagihanSuperAdminPage({ params }: PageProps) {
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2 text-xs sm:text-sm">
                                     <div className="space-y-1.5">
                                         <div className="flex items-center gap-2">
-                                            <span className="font-bold text-zinc-900 dark:text-white">Nama Bank Pengirim :</span>
+                                            <span className="font-bold text-zinc-900 dark:text-white">
+                                                {isPeminjamanAlat ? "Metode / Bank Penyetor :" : "Nama Bank Pengirim :"}
+                                            </span>
                                             <span className="text-zinc-500">{namaBank}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            <span className="font-bold text-zinc-900 dark:text-white">Nama Pemilik Rekening :</span>
+                                            <span className="font-bold text-zinc-900 dark:text-white">Nama Penyetor :</span>
                                             <span className="text-zinc-500">{namaPemohon}</span>
                                         </div>
+                                        {isPeminjamanAlat && tiket?.tagihan?.kode_ebilling && (
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-bold text-zinc-900 dark:text-white">Kode E-Billing :</span>
+                                                <span className="font-mono font-semibold text-zinc-700 dark:text-zinc-300">{tiket.tagihan.kode_ebilling}</span>
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="sm:text-right space-y-1">
                                         <span className="font-bold text-zinc-900 dark:text-white block">Periode Peminjaman Alat</span>

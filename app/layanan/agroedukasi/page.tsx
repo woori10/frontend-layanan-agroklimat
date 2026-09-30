@@ -2,23 +2,27 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Kontak from "@/components/landing-page/Kontak";
+import dynamic from "next/dynamic";
 import CommonServiceForm, { CommonFormData } from "@/components/form/layanan/CommonServiceForm";
-import AgroEdukasiPageStep2Form from "@/components/form/layanan/agroedukasi/page";
-import ReviewServiceForm from "@/components/form/layanan/ReviewServiceForm";
 import { Loader2 } from "lucide-react";
 import FormLayout from "@/components/form/layanan/FormLayout";
 import { getLayananBySlug } from "@/lib/layanan";
 import { getApiUrl } from "@/lib/api";
 
+const AgroEdukasiPageStep2Form = dynamic(
+    () => import("@/components/form/layanan/agroedukasi/page"),
+    { loading: () => <div className="h-64 animate-pulse bg-zinc-100 dark:bg-zinc-800 rounded-xl" /> }
+);
+
+const ReviewServiceForm = dynamic(
+    () => import("@/components/form/layanan/ReviewServiceForm"),
+    { loading: () => <div className="h-64 animate-pulse bg-zinc-100 dark:bg-zinc-800 rounded-xl" /> }
+);
+
 const SLUG = "agroedukasi";
 
 export default function AgroEdukasiPage() {
     const router = useRouter();
-
-    // Auth & Dropdown states
-    const [mounted, setMounted] = useState(false);
 
     // Multi-step states
     const [step, setStep] = useState(1);
@@ -48,7 +52,6 @@ export default function AgroEdukasiPage() {
 
     // Authenticate on mount
     useEffect(() => {
-        setMounted(true);
         const token = localStorage.getItem("agro_token");
         if (!token) {
             router.push("/login");
@@ -230,14 +233,6 @@ export default function AgroEdukasiPage() {
         });
         setStep(1);
     };
-
-    if (!mounted) {
-        return (
-            <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-secondary-green-color border-t-transparent"></div>
-            </div>
-        );
-    }
 
     return (
         <FormLayout

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Poppins, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SessionWatcher from "@/components/SessionWatcher";
@@ -6,17 +6,20 @@ import SessionWatcher from "@/components/SessionWatcher";
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+export const viewport: Viewport = {
+  themeColor: "#267D48",
+  width: "device-width",
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
-  title: "Layanan BRMP Agroklimat",
-  description: "Pusat Layanan BRMP Agroklimat",
+  title: "Layanan BRMP Agroklimat dan Hidrologi",
+  description:
+    "Portal Layanan Terintegrasi BRMP Agroklimat dan Hidrologi — standarisasi, konsultasi, peminjaman alat, magang, dan edukasi pertanian untuk mendukung kedaulatan pangan Indonesia.",
   icons: {
     icon: "/images/logo_brmp.svg",
   },
@@ -29,8 +32,8 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
-      className={`${poppins.variable} ${geistMono.variable} h-full antialiased scroll-smooth`}
+      lang="id"
+      className={`${poppins.variable} h-full antialiased scroll-smooth`}
       data-scroll-behavior="smooth"
     >
       <body className="min-h-full flex flex-col overflow-x-hidden">

@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { ChevronLeft, Edit } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import Navbar from "@/components/navbar/Navbar";
 import EditProfileBanner from "@/components/banner/EditProfileBanner";
 import EditProfile from "@/components/form/profile/EditProfile";
@@ -13,16 +13,16 @@ export default function EditProfilePublikPage() {
             <EditProfileBanner />
 
             {/* Main Content */}
-            <main className="flex-grow max-w-5xl w-full mx-auto px-8 sm:px-6 lg:px-8 py-8">
+            <main className="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="pb-2 w-full">
                     <div>
                         {/* Breadcrumb */}
                         <div className="flex items-center gap-1 mb-4">
                             <Link
                                 href="/profile-publik"
-                                className="flex items-center text-xs font-semibold text-[var(--foreground)] hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 transition"
+                                className="inline-flex items-center text-xs font-semibold text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 transition py-1"
                             >
-                                <ChevronLeft className="h-4 w-4 mr-0.5" />
+                                <ChevronLeft className="h-4 w-4 mr-0.5" aria-hidden="true" />
                                 Kembali ke Profil Saya
                             </Link>
                         </div>

@@ -124,18 +124,18 @@ export default function TambahFaqPage() {
                 <AppBar onMenuClick={() => { }} />
 
                 {/* Content Container */}
-                <main className="flex-1 p-8 space-y-6">
+                <main className="flex-1 p-6 md:p-8 space-y-6">
                     {/* Breadcrumbs / Back button */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
                         <Link
                             href="/kelola-faq"
-                            className="flex items-center text-sm font-semibold text-[var(--foreground)] transition hover:text-zinc-600 dark:hover:text-zinc-300"
+                            className="flex items-center font-semibold text-[var(--foreground)] transition hover:text-zinc-600 dark:hover:text-zinc-300 shrink-0"
                         >
-                            <ChevronLeft className="h-4 w-4 mr-0.5" />
+                            <ChevronLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-0.5" />
                             Kelola FAQ
                         </Link>
-                        <span className="text-sm text-zinc-400 dark:text-zinc-600">/</span>
-                        <span className="text-sm font-semibold text-[var(--green-color)]">
+                        <span className="text-zinc-400 dark:text-zinc-600 select-none">/</span>
+                        <span className="font-semibold text-[var(--green-color)]">
                             Tambah FAQ
                         </span>
                     </div>

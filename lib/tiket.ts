@@ -251,3 +251,20 @@ export async function getAllTagihan() {
     if (!res.ok) throw new Error("Gagal mengambil data tagihan");
     return res.json();
 }
+
+export async function terbitkanEbillingTiket(tiketId: number, kode_ebilling: string) {
+    const token = getToken();
+    const res = await fetch(`${getApiUrl()}/tiket/${tiketId}/terbitkan-ebilling`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ kode_ebilling }),
+    });
+    if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Gagal menerbitkan tagihan e-billing");
+    }
+    return res.json();
+}

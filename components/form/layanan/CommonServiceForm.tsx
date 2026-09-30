@@ -324,23 +324,24 @@ export default function CommonServiceForm({
                         </div>
                     </div>
                 ) : (
-                    <div className="flex items-center justify-between p-3.5 bg-secondary-green-color/30 dark:bg-secondary-green-color/10 border border-green-color/30 dark:border-secondary-green-color/30 rounded-xl">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-secondary-green-color dark:bg-secondary-green-color rounded-lg text-green-color dark:text-secondary-green-color">
-                                <FileText className="w-5 h-5" />
+                    <div className="flex items-center justify-between p-3.5 bg-secondary-green-color/30 dark:bg-secondary-green-color/10 border border-green-color/30 dark:border-secondary-green-color/30 rounded-xl gap-3">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div className="p-2 bg-secondary-green-color dark:bg-secondary-green-color rounded-lg text-green-color dark:text-secondary-green-color shrink-0">
+                                <FileText className="w-5 h-5" aria-hidden="true" />
                             </div>
-                            <div className="w-full">
-                                <p className="text-sm font-bold text-zinc-800 dark:text-zinc-200">{suratPengantar.name}</p>
-                                <p className="text-xs text-zinc-400">{(suratPengantar.size / 1024 / 1024).toFixed(2)} MB</p>
+                            <div className="min-w-0 flex-1 text-left">
+                                <p className="text-xs sm:text-sm font-bold text-zinc-800 dark:text-zinc-200 truncate">{suratPengantar.name}</p>
+                                <p className="text-[11px] sm:text-xs text-zinc-400">{(suratPengantar.size / 1024 / 1024).toFixed(2)} MB</p>
                             </div>
                         </div>
                         <button
                             type="button"
                             onClick={handleRemoveFile}
-                            className="p-1 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition"
+                            className="p-1.5 text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition shrink-0 cursor-pointer"
                             title="Hapus berkas"
+                            aria-label="Hapus berkas"
                         >
-                            <X className="w-5 h-5" />
+                            <X className="w-5 h-5" aria-hidden="true" />
                         </button>
                     </div>
                 )}

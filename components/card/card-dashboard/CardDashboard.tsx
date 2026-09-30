@@ -175,14 +175,14 @@ export default function CardDashboard({
 
       {/* Texts Info */}
       <div className="flex flex-col min-w-0">
-        <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400 truncate">
+        <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300 truncate">
           {title}
         </span>
 
         {loading ? (
           <div className="mt-2 h-7 w-20 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />
         ) : error ? (
-          <span className="text-xs text-red-500 font-semibold truncate mt-1.5" title={error}>
+          <span className="text-xs text-red-600 dark:text-red-400 font-semibold truncate mt-1.5" title={error}>
             {error}
           </span>
         ) : (
@@ -191,7 +191,7 @@ export default function CardDashboard({
               {dataValue !== null ? dataValue : "0"}
             </span>
             {desc && (
-              <span className="text-xs text-zinc-400 dark:text-zinc-500 ml-1.5 font-medium">
+              <span className="text-xs text-zinc-600 dark:text-zinc-400 ml-1.5 font-medium">
                 {desc}
               </span>
             )}

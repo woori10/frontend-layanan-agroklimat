@@ -17,6 +17,7 @@ const statusStyles: Record<string, string> = {
 
   // Perlu Perhatian (kuning, dari --yellow-color)
   perlu_revisi: "bg-[#FFFBE0] text-[#8A6D00] border border-[#FFF0A3] dark:bg-yellow-950/20 dark:text-yellow-400 dark:border-yellow-900/50",
+  menunggu_ebilling: "bg-amber-50 border border-amber-200 text-amber-800 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/50",
   menunggu_pembayaran: "bg-amber-50 border border-amber-200 text-amber-800",
   menunggu_konfirmasi: "bg-[#FFFBE0] text-[#8A6D00] border border-[#FFF0A3] dark:bg-yellow-950/20 dark:text-yellow-400 dark:border-yellow-900/50",
 
@@ -26,11 +27,11 @@ const statusStyles: Record<string, string> = {
   diterima: "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800",
 
   // Selesai / Berhasil (hijau pekat, green-color asli — lebih solid/pekat)
-  selesai: "bg-[#145326] text-white border border-[#145326] dark:bg-secondary-green-color dark:text-white dark:border-secondary-green-color",
+  selesai: "bg-[#145326] text-white border border-[#145326] dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800",
 
   // Dibatalkan / Ditolak (merah muted)
-  ditolak: "bg-red-50 text-red-600 border border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/50",
-  dibatalkan: "bg-red-50 text-red-600 border border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/50",
+  ditolak: "bg-red-50 text-red-700 border border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/50",
+  dibatalkan: "bg-red-50 text-red-700 border border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/50",
 };
 
 const statusDots: Record<string, string> = {
@@ -40,6 +41,7 @@ const statusDots: Record<string, string> = {
   menunggu_persetujuan_kepala_balai: "bg-zinc-400",
 
   perlu_revisi: "bg-[#C9A200]",
+  menunggu_ebilling: "bg-amber-600",
   menunggu_pembayaran: "bg-amber-800",
   menunggu_konfirmasi: "bg-[#C9A200]",
 
@@ -59,6 +61,7 @@ const statusLabels: Record<string, string> = {
   menunggu_verifikasi: "Menunggu Verifikasi",
   menunggu_persetujuan_kepala_balai: "Menunggu Persetujuan",
   perlu_revisi: "Perlu Revisi",
+  menunggu_ebilling: "Menunggu Kode E-Billing",
   menunggu_pembayaran: "Menunggu Pembayaran",
   diproses: "Diproses",
   dipinjam: "Dipinjam",

@@ -7,6 +7,7 @@ import AppBar from "@/components/appbar/AppBar";
 import { getUserFromToken, getRedirectPath } from "@/lib/auth";
 import { ChevronLeft, ChevronRight, UserCheck, Eye, Search, ArrowUpDown, Receipt } from "lucide-react";
 import StatusPembayaranBadge from "@/components/badge/status-pembayaran/StatusPembayaranBadge";
+import StatusLayananBadge from "@/components/badge/status-layanan/StatusLayananBadge";
 import { getApiUrl } from "@/lib/api";
 import Link from "next/link";
 
@@ -75,12 +76,14 @@ export default function TagihanLayananPage() {
     useEffect(() => {
         let result = [...tikets];
 
-        // Payment status filter: "lunas" or "belum"
+        // Payment status filter: "lunas", "belum", "ebilling"
         if (selectedStatus !== "semua") {
             if (selectedStatus === "lunas") {
                 result = result.filter(t => t.tagihan?.status_bayar === "lunas");
+            } else if (selectedStatus === "ebilling") {
+                result = result.filter(t => t.status === "menunggu_ebilling" || !t.tagihan?.kode_ebilling);
             } else if (selectedStatus === "belum") {
-                result = result.filter(t => t.tagihan?.status_bayar !== "lunas");
+                result = result.filter(t => t.tagihan?.status_bayar !== "lunas" && t.status !== "menunggu_ebilling" && !!t.tagihan?.kode_ebilling);
             }
         }
 
@@ -111,7 +114,8 @@ export default function TagihanLayananPage() {
     const currentTikets = filteredTikets.slice(startIndex, endIndex);
 
     const countLunas = tikets.filter(t => t.tagihan?.status_bayar === "lunas").length;
-    const countBelum = tikets.filter(t => t.tagihan?.status_bayar !== "lunas").length;
+    const countMenungguEbilling = tikets.filter(t => t.status === "menunggu_ebilling" || !t.tagihan?.kode_ebilling).length;
+    const countBelum = tikets.filter(t => t.tagihan?.status_bayar !== "lunas" && t.status !== "menunggu_ebilling" && !!t.tagihan?.kode_ebilling).length;
 
     if (!mounted) {
         return (
@@ -148,8 +152,9 @@ export default function TagihanLayananPage() {
                                     <div className="inline-flex min-w-full sm:min-w-0 items-center rounded-xl bg-secondary-green-color p-1.5 dark:border-zinc-700 dark:bg-zinc-800 gap-1">
                                         {[
                                             { label: "Semua", value: "semua", count: tikets.length },
-                                            { label: "Lunas", value: "lunas", count: countLunas },
+                                            { label: "Menunggu E-Billing", value: "ebilling", count: countMenungguEbilling },
                                             { label: "Belum Lunas", value: "belum", count: countBelum },
+                                            { label: "Lunas", value: "lunas", count: countLunas },
                                         ].map((item) => (
                                             <button
                                                 key={item.value}
@@ -266,7 +271,11 @@ export default function TagihanLayananPage() {
                                                     </td>
                                                     <td className="px-6 py-5.5 text-center whitespace-nowrap text-xs">
                                                         <div className="flex justify-center">
-                                                            <StatusPembayaranBadge status={tiket.tagihan?.status_bayar} />
+                                                            {tiket.status === "menunggu_ebilling" || !tiket.tagihan?.kode_ebilling ? (
+                                                                <StatusLayananBadge status="menunggu_ebilling" />
+                                                            ) : (
+                                                                <StatusPembayaranBadge status={tiket.tagihan?.status_bayar} />
+                                                            )}
                                                         </div>
                                                     </td>
                                                     <td className="whitespace-nowrap px-6 py-5 text-center">

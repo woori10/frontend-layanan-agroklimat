@@ -148,22 +148,22 @@ export default function EditAlatPage({ params }: PageProps) {
                 <AppBar onMenuClick={() => { }} />
 
                 {/* Content Container */}
-                <main className="flex-1 p-8 space-y-6">
+                <main className="flex-1 p-6 md:p-8 space-y-6">
                     {/* Breadcrumbs / Back button */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
                         <Link
                             href="/daftar-alat"
-                            className="flex items-center text-sm font-medium text-[var(--foreground)] hover:cursor-pointer transition"
+                            className="flex items-center font-medium text-[var(--foreground)] hover:cursor-pointer transition shrink-0"
                         >
-                            <ChevronLeft className="h-4 w-4 mr-0.5" />
+                            <ChevronLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-0.5" />
                             Daftar Alat
                         </Link>
-                        <span className="text-sm text-[var(--foreground)] dark:text-zinc-600">/</span>
-                        <span className="text-sm font-medium text-[var(--foreground)] dark:text-zinc-450">
+                        <span className="text-[var(--foreground)] dark:text-zinc-600 select-none">/</span>
+                        <span className="font-medium text-[var(--foreground)] dark:text-zinc-450">
                             Edit
                         </span>
-                        <span className="text-sm font-medium text-[var(--foreground)] dark:text-zinc-600">/</span>
-                        <span className="text-sm font-semibold text-[var(--green-color)] line-clamp-1 max-w-xs">
+                        <span className="text-[var(--foreground)] dark:text-zinc-600 select-none">/</span>
+                        <span className="font-semibold text-[var(--green-color)] line-clamp-1 max-w-xs">
                             {namaAlat || `Alat #${alatId}`}
                         </span>
                     </div>

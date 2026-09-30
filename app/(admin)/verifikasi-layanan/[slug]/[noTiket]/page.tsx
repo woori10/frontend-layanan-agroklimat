@@ -123,8 +123,11 @@ function getSteps(status: string, hasTagihan: boolean, tagihanLunas: boolean, is
     }
 
     if (isPeminjamanAlat) {
-        const isVerifDone = ["diproses", "dipinjam", "selesai"].includes(status);
+        const isVerifDone = ["menunggu_ebilling", "menunggu_pembayaran", "diproses", "dipinjam", "selesai"].includes(status);
         const isVerifActive = ["menunggu_verifikasi", "diajukan", "perlu_revisi"].includes(status);
+
+        const isBayarDone = ["diproses", "dipinjam", "selesai"].includes(status);
+        const isBayarActive = ["menunggu_ebilling", "menunggu_pembayaran"].includes(status);
 
         const isDiprosesDone = ["dipinjam", "selesai"].includes(status);
         const isDiprosesActive = status === "diproses";
@@ -140,6 +143,12 @@ function getSteps(status: string, hasTagihan: boolean, tagihanLunas: boolean, is
                 status: isVerifDone ? "completed" : (isVerifActive ? "active" : "pending"),
                 date: isVerifDone ? "Selesai" : (isVerifActive ? "Proses" : "Menunggu"),
                 icon: ClipboardList
+            },
+            {
+                label: "Pembayaran",
+                status: isBayarDone ? "completed" : (isBayarActive ? "active" : "pending"),
+                date: isBayarDone ? "Lunas" : (status === "menunggu_ebilling" ? "Menunggu E-Billing" : (status === "menunggu_pembayaran" ? "Menunggu Pembayaran" : "Menunggu")),
+                icon: Receipt
             },
             {
                 label: "Diproses",
@@ -268,10 +277,10 @@ export default function DetailLayananPage({ params }: PageProps) {
             const isPeminjamanAlat = slug === "peminjaman-alat" || tiket.layanan?.slug === "peminjaman-alat";
             setSuccessMessage(
                 isPeminjamanAlat
-                    ? "Tiket berhasil diverifikasi dan status telah berubah menjadi Diproses!"
+                    ? "Tiket berhasil diverifikasi! Permohonan telah masuk ke menu Tagihan untuk memasukkan kode e-billing."
                     : "Tiket berhasil diverifikasi dan diteruskan ke Kepala Balai untuk disposisi!"
             );
-            setSuccessRedirect(`/verifikasi-layanan/${slug}`);
+            setSuccessRedirect(isPeminjamanAlat ? "/tagihan" : `/verifikasi-layanan/${slug}`);
 
             setSuccessModalOpen(true);
         } catch (err: any) {
@@ -491,24 +500,20 @@ export default function DetailLayananPage({ params }: PageProps) {
 
             <div className="flex flex-col flex-1 overflow-y-auto">
                 <AppBar onMenuClick={() => setSidebarOpen(true)} />
-                <main className="flex-1 p-8 space-y-8">
+                <main className="flex-1 p-6 md:p-8 space-y-6 md:space-y-8">
 
                     {/* Title and Action Button */}
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                        <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
                             <Link
                                 href={`/verifikasi-layanan/${slug}`}
-                                className="flex items-center text-sm font-medium text-[var(--foreground)] hover:cursor-pointer transition"
+                                className="flex items-center font-medium text-[var(--foreground)] hover:text-zinc-600 dark:hover:text-zinc-300 transition shrink-0"
                             >
-                                <ChevronLeft className="h-4 w-4 mr-0.5" />
-                                Verifikasi Layanan
+                                <ChevronLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-0.5" />
+                                <span>{tiket.layanan.nama_layanan}</span>
                             </Link>
-                            <span className="text-sm text-[var(--foreground)] dark:text-zinc-600">/</span>
-                            <span className="text-sm font-medium text-[var(--foreground)] dark:text-zinc-450">
-                                {tiket.layanan.nama_layanan}
-                            </span>
-                            <span className="text-sm text-[var(--foreground)] dark:text-zinc-600">/</span>
-                            <span className="text-sm font-semibold text-[var(--green-color)]">
+                            <span className="text-zinc-400 dark:text-zinc-600 select-none">/</span>
+                            <span className="font-semibold text-[var(--green-color)] dark:text-secondary-green-color">
                                 {tiket.no_tiket}
                             </span>
                         </div>
@@ -652,15 +657,18 @@ export default function DetailLayananPage({ params }: PageProps) {
                                                     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
                                                     .join(" ");
 
+                                                const isDate = typeof value === "string" && (/^\d{4}-\d{2}-\d{2}$/.test(value) || (key.includes("tanggal") && !isNaN(Date.parse(value))));
+                                                const displayValue = typeof value === "object" && value !== null
+                                                    ? JSON.stringify(value, null, 2)
+                                                    : (isDate ? formatDate(value as string) : (value ? String(value) : "-"));
+
                                                 return (
                                                     <div key={key}>
                                                         <span className="text-zinc-500 block text-xs">
                                                             {formattedKey}
                                                         </span>
                                                         <div className="block text-sm font-semibold text-zinc-800 dark:text-zinc-200 mt-1 leading-relaxed whitespace-pre-line">
-                                                            {typeof value === "object" && value !== null
-                                                                ? JSON.stringify(value, null, 2)
-                                                                : (value ? String(value) : "-")}
+                                                            {displayValue}
                                                         </div>
                                                     </div>
                                                 );

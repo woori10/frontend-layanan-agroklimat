@@ -91,15 +91,15 @@ export default function EditRekeningPage() {
 
                 <main className="flex-1 p-6 sm:p-8 space-y-6">
                     {/* Breadcrumb */}
-                    <div className="flex items-center gap-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-zinc-700 dark:text-zinc-300">
                         <Link
                             href="/kelola-tagihan"
-                            className="flex items-center text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white transition"
+                            className="flex items-center text-zinc-700 hover:text-zinc-900 dark:text-zinc-300 dark:hover:text-white transition shrink-0"
                         >
-                            <ChevronLeft className="h-4 w-4 mr-1 text-zinc-700 dark:text-zinc-300" />
+                            <ChevronLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-0.5 text-zinc-700 dark:text-zinc-300" />
                             Kelola Tagihan
                         </Link>
-                        <span className="text-zinc-400">/</span>
+                        <span className="text-zinc-400 select-none">/</span>
                         <span className="font-semibold text-zinc-900 dark:text-zinc-100">Edit Rekening</span>
                     </div>
 

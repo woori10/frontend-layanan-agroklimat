@@ -3,6 +3,7 @@ import { getApiUrl } from "./api";
 export interface JwtPayload {
     sub: number;
     email: string | null;
+    username?: string | null;
     nip?: string | null;
     role: string;
     nama: string;
@@ -25,7 +26,7 @@ export interface LoginPayload {
 }
 
 export interface LoginStaffPayload {
-    nip: string;
+    username: string;
     password: string;
 }
 
@@ -114,10 +115,12 @@ export async function loginStaff(payload: LoginStaffPayload): Promise<AuthRespon
 }
 
 // ── Simpan token & data user ke localStorage ──
-export function saveAuthSession(token: string, identifier: string, type: "email" | "nip") {
+export function saveAuthSession(token: string, identifier: string, type: "email" | "username" | "nip") {
     localStorage.setItem("agro_token", token);
     if (type === "email") {
         localStorage.setItem("agro_user_email", identifier);
+    } else if (type === "username") {
+        localStorage.setItem("agro_user_username", identifier);
     } else {
         localStorage.setItem("agro_user_nip", identifier);
     }
@@ -134,8 +137,7 @@ export function getUserFromToken(): JwtPayload | null {
         const payloadBase64 = token.split(".")[1];
         const decoded = JSON.parse(atob(payloadBase64));
         return decoded as JwtPayload;
-    } catch (err) {
-        console.error("[Auth] Gagal decode token:", err);
+    } catch {
         return null;
     }
 }
@@ -165,6 +167,7 @@ export function logout(router: { push: (path: string) => void }) {
 
     localStorage.removeItem("agro_token");
     localStorage.removeItem("agro_user_email");
+    localStorage.removeItem("agro_user_username");
     localStorage.removeItem("agro_user_nip");
 
     if (role && ["super_admin", "admin", "kepala_balai", "pegawai"].includes(role)) {

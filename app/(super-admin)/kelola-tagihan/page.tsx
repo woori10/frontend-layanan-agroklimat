@@ -467,7 +467,8 @@ export default function KelolaTagihanPage() {
                                             const noTiket = item.tiket?.no_tiket || `TIK-${item.tiket_id}`;
                                             const namaPemohon = item.nama_pengirim || item.tiket?.jawaban_form?.nama_lengkap || item.tiket?.user?.nama || "Pengguna";
                                             const tanggal = formatDate(item.tanggal_transfer || item.createdAt);
-                                            const namaBank = item.bank_pengirim || "Bank Mandiri";
+                                            const isPeminjamanAlat = item.tiket?.layanan?.slug === "peminjaman-alat";
+                                            const namaBank = item.bank_pengirim || (isPeminjamanAlat ? "E-Billing" : "Bank Mandiri");
 
                                             return (
                                                 <tr key={item.id} className="transition-colors hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50">

@@ -550,14 +550,6 @@ export default function DashboardSuperAdminPage() {
         return { menunggu, diproses, selesai, topLayanan, maxJumlah, recent };
     }, [tikets]);
 
-    if (!mounted) {
-        return (
-            <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-                <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--secondary-green-color)] border-t-transparent" />
-            </div>
-        );
-    }
-
     return (
         <div className="flex h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 overflow-hidden font-sans">
             <Sidebar />
@@ -566,13 +558,26 @@ export default function DashboardSuperAdminPage() {
                 <main className="flex-1 p-6 space-y-6">
 
                     {/* Welcome Banner */}
-                    <div className="relative overflow-hidden rounded-2xl p-6 md:p-10 text-white shadow-lg bg-cover bg-center min-h-[170px] flex flex-col justify-center" style={{ backgroundImage: "url('/images/kantor.webp')" }}>
-                        <div className="absolute inset-0 z-0" style={{ background: "linear-gradient(to right, var(--green-color) 5%, rgba(36,78,43,0.82) 35%, rgba(36,78,43,0.35) 100%)" }} />
+                    <div className="relative overflow-hidden rounded-2xl p-6 md:p-10 text-white shadow-lg min-h-[170px] flex flex-col justify-center bg-[#244E2B]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                            src="/images/kantor-optimized.webp"
+                            alt="Gedung BRMP Agroklimat"
+                            fetchPriority="high"
+                            decoding="sync"
+                            className="absolute inset-0 w-full h-full object-cover object-center"
+                        />
+                        <div
+                            className="absolute inset-0 pointer-events-none"
+                            style={{
+                                background: "linear-gradient(to right, rgba(20, 50, 25, 0.96) 5%, rgba(30, 70, 38, 0.90) 35%, rgba(36, 78, 43, 0.65) 90%)"
+                            }}
+                        />
                         <div className="relative z-10 space-y-2">
                             <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight">
                                 Selamat Datang Kembali, <span className="text-[var(--yellow-color)]">{userRole}!</span>
                             </h1>
-                            <p className="text-sm md:text-base text-white/80 leading-relaxed">Pantau performa layanan dan kelola aktivitas pengguna hari ini.</p>
+                            <p className="text-sm md:text-base text-zinc-100 leading-relaxed font-normal">Pantau performa layanan dan kelola aktivitas pengguna hari ini.</p>
                         </div>
                     </div>
 
@@ -589,7 +594,7 @@ export default function DashboardSuperAdminPage() {
                         <CardDashboard
                             title="Layanan Aktif"
                             icon={Layers}
-                            iconBgClass="bg-blue-400"
+                            iconBgClass="bg-blue-600 dark:bg-blue-600"
                             iconColorClass="text-white"
                             value={loadingLayanan ? "..." : layananStats.active}
                             desc="layanan"
@@ -597,7 +602,7 @@ export default function DashboardSuperAdminPage() {
                         <CardDashboard
                             title="Permohonan Layanan"
                             icon={FileText}
-                            iconBgClass="bg-yellow-400"
+                            iconBgClass="bg-amber-600 dark:bg-amber-600"
                             iconColorClass="text-white"
                             value={loading ? "..." : tikets.length}
                             desc="permohonan"
@@ -606,7 +611,6 @@ export default function DashboardSuperAdminPage() {
 
                     {/* Chart + Top Layanan */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                        {/* Area Chart */}
                         {/* Area Chart */}
                         <div className="lg:col-span-2 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 flex flex-col justify-between">
                             <div>
@@ -618,7 +622,10 @@ export default function DashboardSuperAdminPage() {
                                     <div className="flex flex-wrap items-center gap-2">
                                         {/* Dropdown Tahun */}
                                         <div className="relative">
+                                            <label htmlFor="filter-year" className="sr-only">Pilih Tahun</label>
                                             <select
+                                                id="filter-year"
+                                                aria-label="Pilih tahun tren permohonan"
                                                 value={selectedYear}
                                                 onChange={(e) => {
                                                     setSelectedYear(Number(e.target.value));
@@ -630,12 +637,15 @@ export default function DashboardSuperAdminPage() {
                                                     <option key={y} value={y}>{y}</option>
                                                 ))}
                                             </select>
-                                            <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400" />
+                                            <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400" aria-hidden="true" />
                                         </div>
 
                                         {/* Dropdown Bulan */}
                                         <div className="relative">
+                                            <label htmlFor="filter-month" className="sr-only">Pilih Bulan</label>
                                             <select
+                                                id="filter-month"
+                                                aria-label="Pilih bulan tren permohonan"
                                                 value={selectedMonth}
                                                 onChange={(e) => {
                                                     setSelectedMonth(Number(e.target.value));
@@ -647,12 +657,15 @@ export default function DashboardSuperAdminPage() {
                                                     <option key={idx} value={idx}>{name}</option>
                                                 ))}
                                             </select>
-                                            <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400" />
+                                            <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400" aria-hidden="true" />
                                         </div>
 
                                         {/* Dropdown Minggu */}
                                         <div className="relative">
+                                            <label htmlFor="filter-week" className="sr-only">Pilih Minggu</label>
                                             <select
+                                                id="filter-week"
+                                                aria-label="Pilih minggu tren permohonan"
                                                 value={selectedWeek}
                                                 onChange={(e) => setSelectedWeek(Number(e.target.value))}
                                                 className="appearance-none rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 py-1.5 pl-3 pr-7 text-xs font-medium text-zinc-800 dark:text-zinc-200 outline-none transition focus:border-[var(--green-color)] cursor-pointer"
@@ -661,7 +674,7 @@ export default function DashboardSuperAdminPage() {
                                                     <option key={idx} value={idx}>{w.label}</option>
                                                 ))}
                                             </select>
-                                            <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400" />
+                                            <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-400" aria-hidden="true" />
                                         </div>
                                     </div>
                                 </div>
@@ -827,7 +840,7 @@ export default function DashboardSuperAdminPage() {
                         </div>
                         <div className="overflow-x-auto">
                             <table className="min-w-full divide-y divide-zinc-200/80 dark:divide-zinc-800">
-                                <thead className="bg-[var(--secondary-green-color)]">
+                                <thead className="bg-[var(--secondary-green-color)] dark:bg-zinc-800/90 border-b border-zinc-200 dark:border-zinc-700">
                                     <tr>
                                         {["No.", "No. Tiket", "Waktu", "Nama Pengguna", "Peran", "Layanan", "Aktivitas"].map((h) => {
                                             const isLeft = h === "No. Tiket" || h === "Layanan";
@@ -835,7 +848,7 @@ export default function DashboardSuperAdminPage() {
                                                 <th
                                                     key={h}
                                                     scope="col"
-                                                    className={`px-6 py-4 text-xs font-semibold text-[var(--foreground)] tracking-wider ${isLeft ? "text-left" : "text-center"
+                                                    className={`px-6 py-4 text-xs font-semibold text-zinc-700 dark:text-zinc-200 tracking-wider ${isLeft ? "text-left" : "text-center"
                                                         }`}
                                                 >
                                                     {h}
@@ -846,9 +859,9 @@ export default function DashboardSuperAdminPage() {
                                 </thead>
                                 <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800 bg-white dark:bg-zinc-900">
                                     {loading ? (
-                                        <tr><td colSpan={7} className="px-6 py-10 text-center text-sm text-zinc-400">Memuat data...</td></tr>
+                                        <tr><td colSpan={7} className="px-6 py-10 text-center text-sm text-zinc-500 dark:text-zinc-400">Memuat data...</td></tr>
                                     ) : stats.recent.length === 0 ? (
-                                        <tr><td colSpan={7} className="px-6 py-10 text-center text-sm text-zinc-400">Belum ada aktivitas</td></tr>
+                                        <tr><td colSpan={7} className="px-6 py-10 text-center text-sm text-zinc-500 dark:text-zinc-400">Belum ada aktivitas</td></tr>
                                     ) : stats.recent.map((tiket, idx) => {
                                         const layananNama = tiket.layanan?.nama_layanan || "-";
                                         const short = layananNama.replace("Rekomendasi & Penilaian SNI", "Rekomendasi SNI").replace("Rekomendasi Siap Tanam", "Siap Tanam").replace("Bimbingan Teknis & Narasumber", "Bimtek/Narasumber").replace("Magang Teknis / PKL", "Magang").replace("Agroedukasi / Kunjungan Edukasi", "Agroedukasi");
@@ -856,13 +869,13 @@ export default function DashboardSuperAdminPage() {
                                         const role = tiket.user?.role ? getRoleLabel(tiket.user.role) : "-";
                                         return (
                                             <tr key={tiket.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/50 transition-colors">
-                                                <td className="px-6 py-5 whitespace-nowrap text-xs text-zinc-500 text-center">{idx + 1}</td>
-                                                <td className="px-6 py-5 whitespace-nowrap text-xs font-medium text-zinc-700 dark:text-zinc-300 text-left">{tiket.no_tiket}</td>
-                                                <td className="px-6 py-5 whitespace-nowrap text-xs text-zinc-500 text-center">{timeAgo(tiket.createdAt)}</td>
-                                                <td className="px-6 py-5 whitespace-nowrap text-xs text-zinc-700 dark:text-zinc-300 text-center">{nama}</td>
-                                                <td className="px-6 py-5 whitespace-nowrap text-xs text-zinc-500 text-center">{role}</td>
-                                                <td className="px-6 py-5 text-xs text-zinc-500 text-left">{short}</td>
-                                                <td className="px-6 py-5 whitespace-nowrap text-xs text-zinc-500 text-center">{getAktivitasLabel(tiket.status)}</td>
+                                                <td className="px-6 py-5 whitespace-nowrap text-xs text-zinc-600 dark:text-zinc-400 text-center font-medium">{idx + 1}</td>
+                                                <td className="px-6 py-5 whitespace-nowrap text-xs font-bold text-[#2C5E3B] dark:text-emerald-400 text-left">{tiket.no_tiket}</td>
+                                                <td className="px-6 py-5 whitespace-nowrap text-xs text-zinc-600 dark:text-zinc-400 text-center">{timeAgo(tiket.createdAt)}</td>
+                                                <td className="px-6 py-5 whitespace-nowrap text-xs text-zinc-800 dark:text-zinc-100 font-medium text-center">{nama}</td>
+                                                <td className="px-6 py-5 whitespace-nowrap text-xs text-zinc-600 dark:text-zinc-400 text-center">{role}</td>
+                                                <td className="px-6 py-5 text-xs text-zinc-700 dark:text-zinc-200 text-left">{short}</td>
+                                                <td className="px-6 py-5 whitespace-nowrap text-xs text-zinc-600 dark:text-zinc-400 text-center">{getAktivitasLabel(tiket.status)}</td>
                                             </tr>
                                         );
                                     })}

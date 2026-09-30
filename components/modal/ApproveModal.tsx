@@ -41,7 +41,7 @@ export default function ApproveModal({
                     ) : isPeminjamanAlat ? (
                         <>
                             <p>
-                                Apakah Anda yakin ingin memverifikasi dan menyetujui tiket ini? Status tiket akan langsung berubah menjadi <strong className="text-[#2C5E3B] dark:text-secondary-green-color font-bold">Diproses</strong> dan diteruskan ke petugas laboratorium.
+                                Apakah Anda yakin ingin memverifikasi permohonan ini? Tiket akan diteruskan ke menu <strong className="text-[#2C5E3B] dark:text-secondary-green-color font-bold">Tagihan</strong> untuk pengisian kode e-billing sebelum tagihan diterbitkan ke pemohon.
                             </p>
                         </>
                     ) : (
@@ -65,7 +65,7 @@ export default function ApproveModal({
                         disabled={actionLoading}
                         className="px-4 py-2 text-xs font-semibold rounded-lg bg-[#2C5E3B] hover:bg-[#1E4329] text-white cursor-pointer shadow-xs disabled:opacity-50"
                     >
-                        {actionLoading ? "Memproses..." : (confirmButtonText || (isPeminjamanAlat ? "Setujui & Proses" : "Setuju & Disposisi"))}
+                        {actionLoading ? "Memproses..." : (confirmButtonText || (isPeminjamanAlat ? "Verifikasi & Teruskan" : "Setuju & Disposisi"))}
                     </button>
                 </div>
             </div>

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Kontak from "@/components/landing-page/Kontak";
 import CommonServiceForm, { CommonFormData } from "@/components/form/layanan/CommonServiceForm";
-import MagangPKLStep2Form from "@/components/form/layanan/magang-pkl/page";
+import MagangPKLStep2Form, { MagangPKLStep2 } from "@/components/form/layanan/magang-pkl/page";
 import ReviewServiceForm from "@/components/form/layanan/ReviewServiceForm";
 import { Loader2 } from "lucide-react";
 import FormLayout from "@/components/form/layanan/FormLayout";
@@ -13,6 +13,21 @@ import { getLayananBySlug } from "@/lib/layanan";
 import { getApiUrl } from "@/lib/api";
 
 const SLUG = "magang-pkl";
+
+const formatDateIndo = (dateStr: string) => {
+    if (!dateStr) return "-";
+    try {
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return dateStr;
+        return d.toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+        });
+    } catch {
+        return dateStr;
+    }
+};
 
 export default function MagangPKLPage() {
     const router = useRouter();
@@ -30,12 +45,10 @@ export default function MagangPKLPage() {
         tanggalPengajuan: "",
         suratPengantar: null,
     });
-    const [step2Data, setStep2Data] = useState<{
-        topik: string;
-        durasi: string;
-        proposal: File | null;
-    }>({
+    const [step2Data, setStep2Data] = useState<MagangPKLStep2>({
         topik: "",
+        tanggalMulai: "",
+        tanggalSelesai: "",
         durasi: "",
         proposal: null,
     });
@@ -97,8 +110,18 @@ export default function MagangPKLPage() {
             setLoading(false);
             return;
         }
-        if (!step2Data.durasi.trim()) {
-            setError("Durasi Magang/PKL wajib diisi!");
+        if (!step2Data.tanggalMulai) {
+            setError("Tanggal Mulai Magang/PKL wajib diisi!");
+            setLoading(false);
+            return;
+        }
+        if (!step2Data.tanggalSelesai) {
+            setError("Tanggal Selesai Magang/PKL wajib diisi!");
+            setLoading(false);
+            return;
+        }
+        if (new Date(step2Data.tanggalSelesai) < new Date(step2Data.tanggalMulai)) {
+            setError("Tanggal Selesai tidak boleh mendahului Tanggal Mulai!");
             setLoading(false);
             return;
         }
@@ -146,7 +169,9 @@ export default function MagangPKLPage() {
                         alamat_instansi: formData.alamatInstansi.trim(),
                         tanggal_pengajuan: formData.tanggalPengajuan,
                         topik_magang: step2Data.topik.trim(),
-                        durasi_magang: step2Data.durasi.trim(),
+                        tanggal_mulai: step2Data.tanggalMulai,
+                        tanggal_selesai: step2Data.tanggalSelesai,
+                        durasi_magang: step2Data.durasi || `${formatDateIndo(step2Data.tanggalMulai)} s.d. ${formatDateIndo(step2Data.tanggalSelesai)}`,
                     },
                 }),
             });
@@ -237,6 +262,8 @@ export default function MagangPKLPage() {
         });
         setStep2Data({
             topik: "",
+            tanggalMulai: "",
+            tanggalSelesai: "",
             durasi: "",
             proposal: null,
         });
@@ -293,7 +320,9 @@ export default function MagangPKLPage() {
                         commonData={formData}
                         serviceData={[
                             { label: "Topik Magang / PKL", value: step2Data.topik, isLongText: true },
-                            { label: "Durasi Magang / PKL", value: step2Data.durasi },
+                            { label: "Tanggal Mulai", value: formatDateIndo(step2Data.tanggalMulai) },
+                            { label: "Tanggal Selesai", value: formatDateIndo(step2Data.tanggalSelesai) },
+                            { label: "Estimasi Durasi", value: step2Data.durasi || "-" },
                             { label: "File Proposal", value: step2Data.proposal ? step2Data.proposal.name : "Belum diunggah" }
                         ]}
                         onBack={() => setStep(2)}

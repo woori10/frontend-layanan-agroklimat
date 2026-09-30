@@ -1,5 +1,3 @@
-﻿"use client";
-
 import { ShieldCheck, Award, UserCheck } from "lucide-react";
 
 export default function Keunggulan() {
@@ -22,9 +20,9 @@ export default function Keunggulan() {
     ];
 
     return (
-        <div className="relative w-full py-16 bg-cover bg-center overflow-hidden" style={{ backgroundImage: "url('/images/hero.webp')" }}>
+        <div className="relative w-full py-16 bg-cover bg-center overflow-hidden" style={{ backgroundImage: "url('/images/bg_kantor.webp')" }}>
             {/* Green overlay with backdrop blur for a premium look */}
-            <div className="absolute inset-0 bg-[var(--green-color)]/80 dark:bg-secondary-green-color/90 backdrop-blur-[2px]" />
+            <div className="absolute inset-0 bg-[var(--green-color)]/85 dark:bg-secondary-green-color/90 backdrop-blur-[2px]" />
 
             <div className="relative z-10 max-w-[85rem] mx-auto px-8 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">

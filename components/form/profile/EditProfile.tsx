@@ -1,8 +1,9 @@
 'use client';
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { saveAuthSession } from "@/lib/auth";
+import { saveAuthSession, getUserFromToken } from "@/lib/auth";
 import { getApiUrl } from "@/lib/api";
+import { Loader2 } from "lucide-react";
 
 interface EditProfileProps {
     isStaff?: boolean;
@@ -55,6 +56,15 @@ export default function EditProfile({ isStaff = false }: EditProfileProps) {
             return;
         }
 
+        // Segera isi data yang tersedia dari payload JWT agar form tidak kosong/shift
+        const user = getUserFromToken();
+        if (user) {
+            if (user.nama) setNama(user.nama);
+            if (user.email) setEmail(user.email);
+            if (user.nip) setNip(user.nip);
+            if (user.role) setUserRole(user.role);
+        }
+
         fetch(`${getApiUrl()}/auth/profile`, {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -65,19 +75,19 @@ export default function EditProfile({ isStaff = false }: EditProfileProps) {
                 return res.json();
             })
             .then(data => {
-                setNama(data.nama || "");
-                setNip(data.nip || "");
+                setNama(data.nama || (user && user.nama) || "");
+                setNip(data.nip || (user && user.nip) || "");
                 setNoHp(data.no_hp || "");
-                setEmail(data.email || "");
+                setEmail(data.email || (user && user.email) || "");
                 setInstansi(data.instansi || "");
                 setAlamat(data.alamat || "");
-                setUserRole(data.role || "");
+                setUserRole(data.role || (user && user.role) || "");
                 setUnitTeknisId(data.unit_teknis_id ?? null);
-                setLoading(false);
             })
-            .catch(err => {
-                console.error(err);
+            .catch(() => {
                 setError("Gagal memuat profil.");
+            })
+            .finally(() => {
                 setLoading(false);
             });
     }, [router]);
@@ -145,24 +155,16 @@ export default function EditProfile({ isStaff = false }: EditProfileProps) {
         }
     };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center p-12">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-secondary-green-color border-t-transparent"></div>
-            </div>
-        );
-    }
-
     return (
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 md:p-8 shadow-sm w-full space-y-6 text-left">
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 md:p-8 shadow-xs w-full space-y-6 text-left">
             {/* Header Card */}
             <div className="mb-6">
                 <div className="flex items-center gap-3">
                     <div className="flex-1 space-y-2 pb-4 border-b border-b-zinc-200 dark:border-b-zinc-800">
-                        <h3 className="text-lg font-bold text-[var(--foreground)] dark:text-zinc-300">
+                        <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
                             {isStaff ? "Form Edit Pegawai" : "Form Edit Profil"}
-                        </h3>
-                        <p className="text-sm text-[var(--foreground)] dark:text-zinc-500">
+                        </h2>
+                        <p className="text-sm text-zinc-500 dark:text-zinc-400">
                             {isStaff
                                 ? "Perbarui informasi akun pegawai dan data profil Anda"
                                 : "Perbarui informasi data diri dan kontak Anda"}
@@ -190,11 +192,13 @@ export default function EditProfile({ isStaff = false }: EditProfileProps) {
                     </label>
                     <input
                         id="namaLengkap"
+                        name="name"
+                        autoComplete="name"
                         type="text"
                         required
                         value={nama}
                         onChange={(e) => setNama(e.target.value)}
-                        className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
+                        className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-xs focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
                         placeholder="Masukkan nama lengkap..."
                     />
                 </div>
@@ -206,11 +210,13 @@ export default function EditProfile({ isStaff = false }: EditProfileProps) {
                     </label>
                     <input
                         id="noTelp"
+                        name="tel"
+                        autoComplete="tel"
                         type="tel"
                         required
                         value={noHp}
                         onChange={(e) => setNoHp(e.target.value)}
-                        className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
+                        className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-xs focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
                         placeholder="08123456789"
                     />
                 </div>
@@ -226,7 +232,7 @@ export default function EditProfile({ isStaff = false }: EditProfileProps) {
                         required
                         value={nip}
                         onChange={(e) => setNip(e.target.value)}
-                        className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
+                        className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-xs focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
                         placeholder={isStaff ? "Masukkan NIP..." : "Masukkan NIK atau No. KTP..."}
                     />
                 </div>
@@ -238,11 +244,13 @@ export default function EditProfile({ isStaff = false }: EditProfileProps) {
                     </label>
                     <input
                         id="email"
+                        name="email"
+                        autoComplete="email"
                         type="email"
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
+                        className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-xs focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
                         placeholder="nama@email.com"
                     />
                 </div>
@@ -287,11 +295,13 @@ export default function EditProfile({ isStaff = false }: EditProfileProps) {
                         </label>
                         <input
                             id="instansi"
+                            name="organization"
+                            autoComplete="organization"
                             type="text"
                             required={!isStaff}
                             value={instansi}
                             onChange={(e) => setInstansi(e.target.value)}
-                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
+                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-xs focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)]"
                             placeholder="Masukkan nama instansi asal..."
                         />
                     </div>
@@ -303,11 +313,13 @@ export default function EditProfile({ isStaff = false }: EditProfileProps) {
                         </label>
                         <textarea
                             id="alamat"
+                            name="street-address"
+                            autoComplete="street-address"
                             required={!isStaff}
                             rows={3}
                             value={alamat}
                             onChange={(e) => setAlamat(e.target.value)}
-                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-sm focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)] resize-none"
+                            className="block w-full rounded-xl border border-zinc-300 dark:border-zinc-700 bg-[#F8FAFC] dark:bg-zinc-950 px-4 py-3 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 shadow-xs focus:border-[var(--green-color)] focus:outline-none focus:ring-1 focus:ring-[var(--green-color)] resize-none"
                             placeholder="Masukkan alamat lengkap rumah/kantor..."
                         />
                     </div>
@@ -319,16 +331,18 @@ export default function EditProfile({ isStaff = false }: EditProfileProps) {
                 <button
                     type="button"
                     onClick={() => router.push(isStaff ? "/profile" : "/profile-publik")}
-                    className="px-4 md:px-6 py-2 md:py-3 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-xl text-xs md:text-sm font-bold transition hover:cursor-pointer"
+                    className="px-5 py-2.5 md:py-3 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-xl text-xs md:text-sm font-bold transition hover:cursor-pointer min-h-[44px]"
                 >
                     Batal
                 </button>
                 <button
                     type="submit"
                     disabled={saving}
-                    className="px-4 py-2 bg-[var(--green-color)] hover:cursor-pointer text-white rounded-xl text-xs md:text-sm font-bold shadow-md transition flex items-center gap-2 disabled:opacity-55 disabled:cursor-not-allowed"
+                    aria-busy={saving}
+                    className="px-6 py-2.5 md:py-3 bg-[var(--green-color)] hover:cursor-pointer text-white rounded-xl text-xs md:text-sm font-bold shadow-xs transition inline-flex items-center justify-center gap-2 disabled:opacity-55 disabled:cursor-not-allowed min-h-[44px]"
                 >
-                    {saving ? "Menyimpan..." : "Simpan Perubahan"}
+                    {saving && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+                    <span>{saving ? "Menyimpan..." : "Simpan Perubahan"}</span>
                 </button>
             </div>
         </form>
